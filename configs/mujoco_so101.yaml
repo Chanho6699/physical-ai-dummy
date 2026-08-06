@@ -1,0 +1,69 @@
+# SO-101 MuJoCo action replay 설정.
+#
+# 관절 range와 actuator ctrlrange 자체는 여기서 다시 정의하지 않는다.
+# simulation/mujoco/so101_model.py가 로딩된 MuJoCo 모델(scene.xml)에서 직접 읽어오며,
+# 이 파일에는 "모델 자체에 없는" 안전 임계값(프레임간 변화량, 속도, 접촉 개수 등)만 둔다.
+# 이렇게 분리한 이유: 모델 XML과 이 설정 파일에 관절 range를 이중으로 적어두면
+# 둘 중 하나만 고치고 잊어버렸을 때 검사 기준이 실제 모델과 어긋날 위험이 있기 때문이다.
+
+model:
+  # simulation/mujoco 패키지 기준 상대 경로 (so101_model.DEFAULT_SCENE_PATH와 동일한 파일).
+  scene_path: simulation/mujoco/assets/scene.xml
+  table_geom_name: table_surface
+
+dataset:
+  default_dataset_root: data/so101_cube_xy_train_v1
+  default_episode_index: 0
+
+playback:
+  default_speed: 1.0
+
+safety:
+  # 관절 range/ctrlrange 비교 시 부동소수점 오차를 흡수하기 위한 여유 마진 (라디안, 약 0.3도).
+  # [주의] so101_cube_xy_train_v1 데이터셋을 실제로 조사한 결과, wrist_flex 관절 값이 모델
+  # range(±95.0도)를 최대 약 2도(≈0.035 rad) 벗어나는 경우가 전체 20개 에피소드에서 공통적으로
+  # 관측되었다. 이는 부동소수점 오차보다 훨씬 큰 폭이라 이 마진으로는 가려지지 않으며,
+  # 의도적으로 가리지 않았다 (docs/mujoco_action_replay.md의 "알려진 제한사항" 참고).
+  joint_limit_tolerance_rad: 0.005
+
+  stop_on_joint_limit: true
+  stop_on_nan: true
+  stop_on_collision: true
+
+  # 단위: 라디안. data/so101_cube_xy_train_v1의 20개 에피소드 전수에서 프레임간
+  # |action[t+1]-action[t]| 최댓값을 구한 뒤(deg -> rad 환산), 약 1.3~1.6배의 여유를 두고
+  # 반올림한 값이다. (실측 최댓값: shoulder_pan 0.0552, shoulder_lift 0.0598,
+  # elbow_flex 0.0644, wrist_flex 0.0430, wrist_roll 0.0061, gripper 0.1189 rad/frame)
+  # WARN 기준으로 사용하며 stop_on_* 플래그의 영향을 받지 않는다 (BLOCKED로 승격하지 않음).
+  max_joint_delta_per_frame:
+    shoulder_pan: 0.08
+    shoulder_lift: 0.09
+    elbow_flex: 0.10
+    wrist_flex: 0.07
+    wrist_roll: 0.02
+    gripper: 0.16
+
+  # 단위: rad/s. 위 max_joint_delta_per_frame * fps(30)에 여유를 둔 값. MJCF에는 명시적인
+  # 관절 속도 제한이 없어(so101.xml에 velocity limit 없음) 이 프로젝트에서 보수적으로 추가한
+  # 값이며, 실물 STS3215 서보의 정격 최대 속도로 검증한 값은 아니다.
+  # [확인되지 않음] 실물 서보 정격 속도와의 정합성.
+  max_velocity:
+    shoulder_pan: 2.2
+    shoulder_lift: 2.5
+    elbow_flex: 2.7
+    wrist_flex: 1.9
+    wrist_roll: 0.7
+    gripper: 4.5
+
+  # 한 프레임(physics step)에서 동시에 감지되는 contact 개수 임계값.
+  # [확인되지 않음/추정치] 이 데이터셋에는 큐브 등 조작 대상 오브젝트가 모델링되어 있지 않아
+  # 정상적인 grasp 상황의 실측 contact 개수 통계가 없다. 아래 값은 로봇 자체 mesh들의 정상
+  # 근접 상태에서 관찰되는 수준을 넘는, 다분히 보수적인 기본값이다. 추후 오브젝트가 포함된
+  # 시나리오로 재보정이 필요하다.
+  contact:
+    warn_contact_count: 8
+    blocked_contact_count: 20
+
+console:
+  progress_interval_seconds: 1.0
+  progress_interval_frames: 30
