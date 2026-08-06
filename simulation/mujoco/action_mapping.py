@@ -171,3 +171,22 @@ def map_action_row(action_row, mapping: tuple[JointMapping, ...]) -> dict[str, f
         entry.mujoco_actuator_name: map_action_value(float(action_row[entry.dataset_index]), entry)
         for entry in mapping
     }
+
+
+def map_positions_dict(positions_deg: dict[str, float], mapping: tuple[JointMapping, ...]) -> dict[str, float]:
+    """{관절이름: deg} 딕셔너리(예: 원격 상태 서버의 leader.positions_deg)를
+    {actuator_name: target_rad} 딕셔너리로 변환한다.
+
+    ``map_action_row``와 변환 공식(scale/offset/sign)은 동일하지만, 입력이 배열의
+    dataset_index가 아니라 dataset_name을 key로 하는 dict라는 점만 다르다
+    (simulation/mujoco/remote_state_client.py가 만드는 형태). 원격 진단 클라이언트가
+    이 변환을 재사용해 기존 action mapping 근거(scale=pi/180, 모듈 docstring 참고)를
+    그대로 따르도록 하기 위한 함수다.
+
+    Raises:
+        KeyError: mapping에 있는 관절 이름이 positions_deg에 없는 경우.
+    """
+    return {
+        entry.mujoco_actuator_name: map_action_value(float(positions_deg[entry.dataset_name]), entry)
+        for entry in mapping
+    }
