@@ -34,3 +34,12 @@ checkpoints/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local hardware mapping
+configs/hardware.local.json
+
+# Local robot datasets and training outputs
+data/
+outputs/
+checkpoints/
+configs/hardware.local.json

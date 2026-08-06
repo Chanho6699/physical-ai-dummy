@@ -1,0 +1,24 @@
+{
+  "name": "so101_cube_xy_baseline_v1",
+  "task": "Pick up the cube and place it in the target area.",
+  "fps": 30,
+  "cameras": [
+    "workspace",
+    "wrist"
+  ],
+  "train": [
+    "so101_cube_train_v2",
+    "so101_cube_train_v3",
+    "so101_cube_train_v4",
+    "so101_cube_train_v5"
+  ],
+  "validation": [
+    "so101_cube_train_v6"
+  ],
+  "excluded": [
+    "so101_cube_train_v1"
+  ],
+  "train_episodes": 20,
+  "validation_episodes": 5,
+  "review_status": "all_accepted"
+}

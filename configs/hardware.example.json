@@ -1,0 +1,30 @@
+{
+  "robot": {
+    "type": "so101_follower",
+    "port": "/dev/serial/by-id/usb-REPLACE_WITH_FOLLOWER_ID",
+    "id": "chanho_follower"
+  },
+  "teleop": {
+    "type": "so101_leader",
+    "port": "/dev/serial/by-id/usb-REPLACE_WITH_LEADER_ID",
+    "id": "chanho_leader"
+  },
+  "cameras": {
+    "workspace": {
+      "type": "opencv",
+      "index_or_path": "/dev/video2",
+      "width": 640,
+      "height": 480,
+      "fps": 30,
+      "fourcc": "MJPG"
+    },
+    "wrist": {
+      "type": "opencv",
+      "index_or_path": "/dev/video0",
+      "width": 640,
+      "height": 480,
+      "fps": 30,
+      "fourcc": "MJPG"
+    }
+  }
+}

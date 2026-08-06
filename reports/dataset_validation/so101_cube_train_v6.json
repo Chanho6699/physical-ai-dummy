@@ -1,0 +1,171 @@
+{
+  "dataset_root": "/home/sunglee/Projects/physical-ai-dummy/data/so101_cube_train_v6",
+  "passed": true,
+  "failure_count": 0,
+  "warning_count": 0,
+  "summary": {
+    "total_episodes": 5,
+    "total_frames": 4484,
+    "fps": 30,
+    "episode_lengths": [
+      897,
+      897,
+      897,
+      896,
+      897
+    ],
+    "cameras": [
+      "workspace",
+      "wrist"
+    ],
+    "videos": {
+      "observation.images.workspace": {
+        "files": [
+          {
+            "path": "/home/sunglee/Projects/physical-ai-dummy/data/so101_cube_train_v6/videos/observation.images.workspace/chunk-000/file-000.mp4",
+            "width": 640,
+            "height": 480,
+            "fps": 30.0,
+            "frames": 4484,
+            "duration": 149.466667,
+            "codec": "av1"
+          }
+        ],
+        "total_frames": 4484,
+        "total_duration": 149.466667
+      },
+      "observation.images.wrist": {
+        "files": [
+          {
+            "path": "/home/sunglee/Projects/physical-ai-dummy/data/so101_cube_train_v6/videos/observation.images.wrist/chunk-000/file-000.mp4",
+            "width": 640,
+            "height": 480,
+            "fps": 30.0,
+            "frames": 4484,
+            "duration": 149.466667,
+            "codec": "av1"
+          }
+        ],
+        "total_frames": 4484,
+        "total_duration": 149.466667
+      }
+    }
+  },
+  "checks": [
+    {
+      "level": "PASS",
+      "name": "required_files",
+      "message": "Required metadata and parquet files exist."
+    },
+    {
+      "level": "PASS",
+      "name": "total_episodes",
+      "message": "Episodes: 5"
+    },
+    {
+      "level": "PASS",
+      "name": "total_frames",
+      "message": "Frames: 4484"
+    },
+    {
+      "level": "PASS",
+      "name": "fps",
+      "message": "FPS: 30"
+    },
+    {
+      "level": "PASS",
+      "name": "row_count",
+      "message": "Main parquet rows match: 4484"
+    },
+    {
+      "level": "PASS",
+      "name": "episode_metadata_count",
+      "message": "Episode metadata rows: 5"
+    },
+    {
+      "level": "PASS",
+      "name": "columns",
+      "message": "All required state/action/index columns exist."
+    },
+    {
+      "level": "PASS",
+      "name": "action_shape",
+      "message": "Dimension: 6"
+    },
+    {
+      "level": "PASS",
+      "name": "action_finite",
+      "message": "All vectors are finite and non-empty."
+    },
+    {
+      "level": "PASS",
+      "name": "observation.state_shape",
+      "message": "Dimension: 6"
+    },
+    {
+      "level": "PASS",
+      "name": "observation.state_finite",
+      "message": "All vectors are finite and non-empty."
+    },
+    {
+      "level": "PASS",
+      "name": "scalar_nulls",
+      "message": "No nulls in timestamp/index columns."
+    },
+    {
+      "level": "PASS",
+      "name": "global_index",
+      "message": "Global index is continuous."
+    },
+    {
+      "level": "PASS",
+      "name": "frame_index",
+      "message": "frame_index is continuous in every episode."
+    },
+    {
+      "level": "PASS",
+      "name": "timestamp_monotonic",
+      "message": "Timestamps are monotonic in every episode."
+    },
+    {
+      "level": "PASS",
+      "name": "episode_lengths",
+      "message": "Episode lengths match metadata: [897, 897, 897, 896, 897]"
+    },
+    {
+      "level": "PASS",
+      "name": "camera_features",
+      "message": "Camera features: ['workspace', 'wrist']"
+    },
+    {
+      "level": "PASS",
+      "name": "video_resolution",
+      "message": "observation.images.workspace: 640x480"
+    },
+    {
+      "level": "PASS",
+      "name": "video_fps",
+      "message": "observation.images.workspace: FPS=[30.0]"
+    },
+    {
+      "level": "PASS",
+      "name": "video_frame_count",
+      "message": "observation.images.workspace: video frames=4484, delta=0."
+    },
+    {
+      "level": "PASS",
+      "name": "video_resolution",
+      "message": "observation.images.wrist: 640x480"
+    },
+    {
+      "level": "PASS",
+      "name": "video_fps",
+      "message": "observation.images.wrist: FPS=[30.0]"
+    },
+    {
+      "level": "PASS",
+      "name": "video_frame_count",
+      "message": "observation.images.wrist: video frames=4484, delta=0."
+    }
+  ]
+}
