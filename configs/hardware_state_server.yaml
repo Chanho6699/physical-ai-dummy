@@ -1,0 +1,57 @@
+# SO-101 읽기 전용 관절 상태 서버 설정.
+#
+# 이 파일은 scripts/run_hardware_state_server.py의 "기본값"으로만 쓰인다. 실제로 넘긴
+# CLI 플래그(--rate-hz 등)가 항상 여기 값보다 우선한다. 파일이 없거나 값이 null이면
+# 스크립트에 하드코딩된 기본값이 그대로 쓰인다 - 즉 이 파일 없이도 CLI 플래그만으로
+# 완전히 동작한다.
+#
+# 노트북 실물 포트(leader_port/follower_port)는 USB 꽂는 위치/순서에 따라 바뀔 수 있어
+# 기본적으로 비워둔다(null). configs/hardware.local.json에 이미 이 노트북의 실제 경로가
+# 기록되어 있으니(.gitignore로 커밋되지 않음) 참고해서 --leader-port/--follower-port로
+# 넘기거나, 이 파일을 로컬에서 직접 채워 써도 된다.
+
+server:
+  host: 0.0.0.0
+  port: 8001
+
+devices:
+  leader_id: chanho_leader
+  follower_id: chanho_follower
+  leader_port: null
+  follower_port: null
+  # null이면 LeRobot 표준 캐시 경로에서 leader_id/follower_id로 자동으로 찾는다:
+  #   ~/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/<leader_id>.json
+  #   ~/.cache/huggingface/lerobot/calibration/robots/so_follower/<follower_id>.json
+  leader_calibration_path: null
+  follower_calibration_path: null
+
+polling:
+  # 읽기 주기(Hz). LeRobot SO-101 팔로워/리더 기본 설정(so_follower.py/so_leader.py)이
+  # 실제로 검증된 값은 아니지만, 이 프로젝트의 기존 데이터 수집 파이프라인
+  # (configs/hardware.example.json의 카메라 fps, lerobot-record 기본 dataset.fps)이 모두
+  # 30fps를 쓰고 있어 동일하게 30Hz를 기본값으로 맞췄다. 두 팔(리더+팔로워)을 한 스레드에서
+  # 순서대로 sync_read하므로 실측 주기는 통신 지연에 따라 30Hz보다 다소 낮아질 수 있다
+  # (docs/hardware_state_server.md "알려진 제한사항" 참고 - 이 프로젝트 환경에서 실측 검증
+  # 전이라 [확인되지 않음]으로 표시했다).
+  rate_hz: 30
+
+  # 마지막 정상값의 나이(age_ms)가 이 값을 넘으면 stale=true로 표시한다.
+  # 30Hz(주기 약 33ms) 기준 약 15주기치 여유를 둔 값이며, 통신 지연으로 인한 순간적인
+  # 오탐(false positive)을 줄이기 위한 보수적 기본값이다. 실물로 튜닝된 값은 아니다.
+  stale_after_ms: 500
+
+  # 이 횟수만큼 연속으로 읽기에 실패하면 health status를 "degraded"로 전환하고
+  # 경고를 출력한다.
+  max_read_errors: 3
+
+security:
+  # 비우면(null) 인증 없이 모든 GET 요청을 허용한다 (로컬 네트워크/Tailscale 전용 사용을
+  # 전제로 한 기본값). 운영 시 토큰이 필요하면 여기 값 대신 SO101_STATE_SERVER_TOKEN
+  # 환경변수를 쓰는 것을 권장한다 (이 파일은 git에 커밋될 수 있어 토큰을 직접 적어두면
+  # 노출 위험이 있다).
+  api_token: null
+
+console:
+  quiet: false
+  verbose: false
+  no_color: false
