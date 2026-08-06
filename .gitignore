@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments
+.venv/
+.venv-*/
+venv/
+
+# Local configuration
+configs/*.local.json
+.env
+
+# Data and models
+data/
+datasets/
+outputs/
+results/
+checkpoints/
+*.pt
+*.pth
+*.onnx
+*.safetensors
+
+# Camera captures
+*.mp4
+*.avi
+*.png
+*.jpg
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
