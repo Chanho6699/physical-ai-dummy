@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-07T03:03:12.652239+00:00",
+  "generator": {
+    "script": "scripts/analyze_teleop_safe_ranges.py",
+    "module": "data_collection.teleop_safe_range_analysis",
+    "version": "1.0.0"
+  },
+  "source_type": "real_follower_teleop",
+  "trusted": true,
+  "unit_by_joint_group": {
+    "arm_joints": "degree",
+    "gripper": "percent_0_100"
+  },
+  "unit": "mixed",
+  "source_summary": {
+    "dataset_paths": [
+      "data/so101_cube_smoke_v1",
+      "data/so101_cube_train_v1",
+      "data/so101_cube_train_v2",
+      "data/so101_cube_train_v3",
+      "data/so101_cube_train_v4",
+      "data/so101_cube_train_v5",
+      "data/so101_cube_train_v6",
+      "data/so101_cube_trials_v1",
+      "data/so101_cube_xy_train_v1"
+    ],
+    "dataset_count": 9,
+    "episode_count": 54,
+    "sample_count": 46629,
+    "source_file_count": 9
+  },
+  "excluded_sources": [],
+  "analysis_policy": {
+    "lower_percentile": 1.0,
+    "upper_percentile": 99.0,
+    "margin_degree": 2.0,
+    "margin_percent": 2.0,
+    "minimum_samples": 200
+  },
+  "joints": {
+    "shoulder_pan": {
+      "status": "TRUSTED",
+      "status_detail": null,
+      "unit": "degree",
+      "sample_count": 46629,
+      "nan_or_invalid_count": 0,
+      "episode_count": 54,
+      "source_file_count": 9,
+      "min": -75.38461303710938,
+      "max": 30.461538314819336,
+      "mean": -37.96790983535744,
+      "std": 31.72035611990116,
+      "p01": -75.12088012695312,
+      "p05": -71.42857360839844,
+      "p50": -61.406593322753906,
+      "p95": 3.8241758346557617,
+      "p99": 27.736263275146484,
+      "policy_percentile_low": -75.12088012695312,
+      "policy_percentile_high": 27.736263275146484,
+      "margin_applied": 2.0,
+      "historical_safe_min": -73.12088012695312,
+      "historical_safe_max": 25.736263275146484
+    },
+    "shoulder_lift": {
+      "status": "TRUSTED",
+      "status_detail": null,
+      "unit": "degree",
+      "sample_count": 46629,
+      "nan_or_invalid_count": 0,
+      "episode_count": 54,
+      "source_file_count": 9,
+      "min": -107.56044006347656,
+      "max": 55.78022003173828,
+      "mean": 5.556017171706645,
+      "std": 50.677408229962545,
+      "p01": -98.4175796508789,
+      "p05": -97.89010620117188,
+      "p50": 33.18681335449219,
+      "p95": 50.241756439208984,
+      "p99": 53.67033004760742,
+      "policy_percentile_low": -98.4175796508789,
+      "policy_percentile_high": 53.67033004760742,
+      "margin_applied": 2.0,
+      "historical_safe_min": -96.4175796508789,
+      "historical_safe_max": 51.67033004760742
+    },
+    "elbow_flex": {
+      "status": "TRUSTED",
+      "status_detail": null,
+      "unit": "degree",
+      "sample_count": 46629,
+      "nan_or_invalid_count": 0,
+      "episode_count": 54,
+      "source_file_count": 9,
+      "min": -75.56044006347656,
+      "max": 97.27472686767578,
+      "mean": -16.31429090904495,
+      "std": 51.27039978529555,
+      "p01": -74.15384674072266,
+      "p05": -65.27472686767578,
+      "p50": -33.978023529052734,
+      "p95": 94.28571319580078,
+      "p99": 95.95604705810547,
+      "policy_percentile_low": -74.15384674072266,
+      "policy_percentile_high": 95.95604705810547,
+      "margin_applied": 2.0,
+      "historical_safe_min": -72.15384674072266,
+      "historical_safe_max": 93.95604705810547
+    },
+    "wrist_flex": {
+      "status": "TRUSTED",
+      "status_detail": null,
+      "unit": "degree",
+      "sample_count": 46629,
+      "nan_or_invalid_count": 0,
+      "episode_count": 54,
+      "source_file_count": 9,
+      "min": 38.373626708984375,
+      "max": 84.43955993652344,
+      "mean": 74.91051808330876,
+      "std": 12.838959012619931,
+      "p01": 38.373626708984375,
+      "p05": 48.659339904785156,
+      "p50": 83.82417297363281,
+      "p95": 84.35164642333984,
+      "p99": 84.43955993652344,
+      "policy_percentile_low": 38.373626708984375,
+      "policy_percentile_high": 84.43955993652344,
+      "margin_applied": 2.0,
+      "historical_safe_min": 40.373626708984375,
+      "historical_safe_max": 82.43955993652344
+    },
+    "wrist_roll": {
+      "status": "MARGIN_COLLAPSED",
+      "status_detail": "margin(2.0) 적용 후 안전 범위가 역전/소멸했습니다: [-5.494505405426025+2.0=-3.4945054054260254, -2.153846263885498-2.0=-4.153846263885498].",
+      "unit": "degree",
+      "sample_count": 46629,
+      "nan_or_invalid_count": 0,
+      "episode_count": 54,
+      "source_file_count": 9,
+      "min": -5.494505405426025,
+      "max": -2.065934181213379,
+      "mean": -2.6253143760417563,
+      "std": 0.8225360977639866,
+      "p01": -5.494505405426025,
+      "p05": -5.318681240081787,
+      "p50": -2.5934066772460938,
+      "p95": -2.153846263885498,
+      "p99": -2.153846263885498,
+      "policy_percentile_low": -5.494505405426025,
+      "policy_percentile_high": -2.153846263885498,
+      "margin_applied": 2.0,
+      "historical_safe_min": null,
+      "historical_safe_max": null
+    },
+    "gripper": {
+      "status": "TRUSTED",
+      "status_detail": null,
+      "unit": "percent_0_100",
+      "sample_count": 46629,
+      "nan_or_invalid_count": 0,
+      "episode_count": 54,
+      "source_file_count": 9,
+      "min": 0.0,
+      "max": 58.17805480957031,
+      "mean": 26.374908482889527,
+      "std": 18.5578908575174,
+      "p01": 0.8971704840660095,
+      "p05": 1.3112491369247437,
+      "p50": 33.33333206176758,
+      "p95": 51.8288459777832,
+      "p99": 57.902000427246094,
+      "policy_percentile_low": 0.8971704840660095,
+      "policy_percentile_high": 57.902000427246094,
+      "margin_applied": 2.0,
+      "historical_safe_min": 2.8971704840660095,
+      "historical_safe_max": 55.902000427246094
+    }
+  },
+  "provenance": {
+    "hash_method": "sha256 over each dataset's meta/info.json bytes, plus a manifest listing each data parquet file's name/size/mtime (not its content) - full parquet payloads are not hashed for efficiency.",
+    "manifest_sha256": "f0342e8868fd60754434174f352a0135fbfb8a369fb4269878446e70c419254e",
+    "datasets": [
+      {
+        "name": "so101_cube_smoke_v1",
+        "relative_path": "data/so101_cube_smoke_v1",
+        "codebase_version": "v3.0",
+        "robot_type": "so_follower",
+        "declared_episode_count": 1,
+        "declared_frame_count": 299,
+        "data_file_count": 1,
+        "info_json_sha256": "467210ec18af707f1084ae21be47dd9aea6208202652fa9f660991239801a3fb",
+        "data_files": [
+          {
+            "file": "file-000.parquet",
+            "size_bytes": 16364,
+            "mtime": "2026-08-06T01:53:21.004747+00:00"
+          }
+        ]
+      },
+      {
+        "name": "so101_cube_train_v1",
+        "relative_path": "data/so101_cube_train_v1",
+        "codebase_version": "v3.0",
+        "robot_type": "so_follower",
+        "declared_episode_count": 5,
+        "declared_frame_count": 3735,
+        "data_file_count": 1,
+        "info_json_sha256": "9d7633b0d54d33c75d367dc822e0f77bf44ce2162af64a256607c02afe26af2a",
+        "data_files": [
+          {
+            "file": "file-000.parquet",
+            "size_bytes": 140870,
+            "mtime": "2026-08-06T02:14:11.064749+00:00"
+          }
+        ]
+      },
+      {
+        "name": "so101_cube_train_v2",
+        "relative_path": "data/so101_cube_train_v2",
+        "codebase_version": "v3.0",
+        "robot_type": "so_follower",
+        "declared_episode_count": 5,
+        "declared_frame_count": 4482,
+        "data_file_count": 1,
+        "info_json_sha256": "d6a4ce6d4542b0fdf5de7fbcb02db118bfd592d09502b2e3090cc221afc95520",
+        "data_files": [
+          {
+            "file": "file-000.parquet",
+            "size_bytes": 135937,
+            "mtime": "2026-08-06T02:23:21.029735+00:00"
+          }
+        ]
+      },
+      {
+        "name": "so101_cube_train_v3",
+        "relative_path": "data/so101_cube_train_v3",
+        "codebase_version": "v3.0",
+        "robot_type": "so_follower",
+        "declared_episode_count": 5,
+        "declared_frame_count": 4484,
+        "data_file_count": 1,
+        "info_json_sha256": "454cbd93c84276ff7d06a24ad3c020b82be159ba1892cbe6fcb26f3486beefd1",
+        "data_files": [
+          {
+            "file": "file-000.parquet",
+            "size_bytes": 138796,
+            "mtime": "2026-08-06T04:53:17.490807+00:00"
+          }
+        ]
+      },
+      {
+        "name": "so101_cube_train_v4",
+        "relative_path": "data/so101_cube_train_v4",
+        "codebase_version": "v3.0",
+        "robot_type": "so_follower",
+        "declared_episode_count": 5,
+        "declared_frame_count": 4485,
+        "data_file_count": 1,
+        "info_json_sha256": "ffdc5b8821d6462bc4ea51b7e11658a8e0d646c76aba947be4737228e8ee886a",
+        "data_files": [
+          {
+            "file": "file-000.parquet",
+            "size_bytes": 137949,
+            "mtime": "2026-08-06T05:33:24.953615+00:00"
+          }
+        ]
+      },
+      {
+        "name": "so101_cube_train_v5",
+        "relative_path": "data/so101_cube_train_v5",
+        "codebase_version": "v3.0",
+        "robot_type": "so_follower",
+        "declared_episode_count": 5,
+        "declared_frame_count": 4484,
+        "data_file_count": 1,
+        "info_json_sha256": "454cbd93c84276ff7d06a24ad3c020b82be159ba1892cbe6fcb26f3486beefd1",
+        "data_files": [
+          {
+            "file": "file-000.parquet",
+            "size_bytes": 140465,
+            "mtime": "2026-08-06T05:48:48.957040+00:00"
+          }
+        ]
+      },
+      {
+        "name": "so101_cube_train_v6",
+        "relative_path": "data/so101_cube_train_v6",
+        "codebase_version": "v3.0",
+        "robot_type": "so_follower",
+        "declared_episode_count": 5,
+        "declared_frame_count": 4484,
+        "data_file_count": 1,
+        "info_json_sha256": "454cbd93c84276ff7d06a24ad3c020b82be159ba1892cbe6fcb26f3486beefd1",
+        "data_files": [
+          {
+            "file": "file-000.parquet",
+            "size_bytes": 137543,
+            "mtime": "2026-08-06T06:00:56.828567+00:00"
+          }
+        ]
+      },
+      {
+        "name": "so101_cube_trials_v1",
+        "relative_path": "data/so101_cube_trials_v1",
+        "codebase_version": "v3.0",
+        "robot_type": "so_follower",
+        "declared_episode_count": 3,
+        "declared_frame_count": 2241,
+        "data_file_count": 1,
+        "info_json_sha256": "15166e314c71bb3fb4d05b4597d24dd897d632596fbf6cc8ed0b5a37e982926e",
+        "data_files": [
+          {
+            "file": "file-000.parquet",
+            "size_bytes": 73561,
+            "mtime": "2026-08-06T02:03:35.029105+00:00"
+          }
+        ]
+      },
+      {
+        "name": "so101_cube_xy_train_v1",
+        "relative_path": "data/so101_cube_xy_train_v1",
+        "codebase_version": "v3.0",
+        "robot_type": "so_follower",
+        "declared_episode_count": 20,
+        "declared_frame_count": 17935,
+        "data_file_count": 1,
+        "info_json_sha256": "da3a7bf5782ba8c1eb1b4ce926624989731f4a7226f398476c6cf77e26d39e9f",
+        "data_files": [
+          {
+            "file": "file-000.parquet",
+            "size_bytes": 547189,
+            "mtime": "2026-08-06T06:08:44.267830+00:00"
+          }
+        ]
+      }
+    ],
+    "reproducibility_note": "data/ 와 configs/hardware.local.json은 .gitignore 대상이라 과거 녹화 시점 하드웨어 설정의 git 이력이 없습니다. 단위 확정은 현재 configs/hardware.local.json 내용과 SOFollowerConfig 기본값(use_degrees=True)에 근거합니다."
+  },
+  "notes": [
+    "action은 leader가 보낸 명령(teleop.get_action() 기반)이라 follower readback이 아니므로 이 분석에 전혀 사용하지 않았다 (observation.state만 사용).",
+    "arm 5개 관절 단위(degree)는 SOFollowerConfig.use_degrees 기본값(True)과 이 저장소의 유일한 녹화 경로(record_episodes.py -> lerobot-record)가 그 값을 오버라이드하지 않는다는 코드 사실로 확정했다.",
+    "gripper 단위(0-100)는 MotorNormMode.RANGE_0_100이 코드에서 무조건 적용되어 use_degrees 설정과 무관하게 항상 확정된다.",
+    "data/ 와 configs/hardware.local.json은 .gitignore 대상이라 과거 녹화 시점의 하드웨어 설정 이력을 git으로 재검증할 수는 없다 - 현재 파일 내용과 코드 기본값에 근거한 결론이다."
+  ]
+}
