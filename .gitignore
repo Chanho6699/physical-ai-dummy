@@ -43,3 +43,9 @@ data/
 outputs/
 checkpoints/
 configs/hardware.local.json
+
+# Generated MuJoCo and diagnostic reports
+reports/remote_mujoco_diagnostic/
+reports/mujoco_gui_debug/
+reports/mujoco_replay/
+reports/joint_range_analysis/

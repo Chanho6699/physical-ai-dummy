@@ -28,6 +28,7 @@ BLOCKED 정책 (요구사항 7번): 특정 관절이 MuJoCo 관절/actuator rang
 from __future__ import annotations
 
 import math
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -50,6 +51,7 @@ from simulation.mujoco.diagnostic_report import (
     write_csv_report,
     write_json_report,
 )
+from simulation.mujoco.offscreen_recorder import OffscreenRecorder, OffscreenRecorderError
 from simulation.mujoco.remote_state_client import (
     JOINT_NAMES,
     READ_ONLY_MODE,
@@ -96,7 +98,7 @@ class NetworkSafetyConfig:
 @dataclass
 class RemoteDiagnosticArgs:
     server_url: str
-    mode: str = "headless"  # "headless" | "gui"
+    mode: str = "headless"  # "headless" | "gui" | "offscreen"
     joints: tuple[str, ...] = ("wrist_flex",)  # 표시/진단 대상 (MuJoCo 적용은 항상 6개 전체)
     duration_sec: float = 20.0
     rate_hz: float = 20.0
@@ -114,6 +116,12 @@ class RemoteDiagnosticArgs:
     no_color: bool = False
     dry_run: bool = False
     session_id: str | None = None  # None이면 실행 시각으로 자동 생성 (테스트에서 고정값 주입용)
+    # mode == "offscreen" 전용 (WSLg GUI 경로 대체용, docs 요구사항 "대체 검증 경로" 참고).
+    offscreen_save_frames_dir: Path | None = None
+    offscreen_video_path: Path | None = None
+    offscreen_width: int = 640
+    offscreen_height: int = 480
+    offscreen_fps: float | None = None  # None이면 rate_hz를 그대로 사용
 
 
 @dataclass(frozen=True)
@@ -387,6 +395,12 @@ def _run_loop(
     viewer_cm = None
     viewer = None
     if args.mode == "gui":
+        if threading.current_thread() is not threading.main_thread():
+            # launch_passive는 GUI 창을 main thread에서 생성/갱신해야 한다 (요구사항 4번) -
+            # 이 조건이 깨지면 창이 "떴지만 갱신되지 않는" 증상으로 이어질 수 있어 조용히
+            # 넘어가지 않고 바로 BLOCKED 처리한다.
+            cs.print_remote_error("GUI viewer는 main thread에서만 생성할 수 있습니다 (현재 스레드가 main이 아닙니다).")
+            return RemoteDiagnosticOutcome("BLOCKED", None, None, {}, 1)
         try:
             import mujoco.viewer as mj_viewer
 
@@ -394,6 +408,21 @@ def _run_loop(
             viewer = viewer_cm.__enter__()
         except Exception as exc:
             cs.print_remote_error(f"GUI viewer를 시작할 수 없습니다: {exc}")
+            return RemoteDiagnosticOutcome("BLOCKED", None, None, {}, 1)
+
+    recorder: OffscreenRecorder | None = None
+    if args.mode == "offscreen":
+        try:
+            recorder = OffscreenRecorder(
+                model,
+                width=args.offscreen_width,
+                height=args.offscreen_height,
+                save_frames_dir=args.offscreen_save_frames_dir,
+                video_path=args.offscreen_video_path,
+                video_fps=args.offscreen_fps if args.offscreen_fps is not None else args.rate_hz,
+            )
+        except OffscreenRecorderError as exc:
+            cs.print_remote_error(f"오프스크린 렌더러를 시작할 수 없습니다: {exc}")
             return RemoteDiagnosticOutcome("BLOCKED", None, None, {}, 1)
 
     # -- 세션 상태 누적 --------------------------------------------------
@@ -432,6 +461,11 @@ def _run_loop(
 
     try:
         while time.monotonic() - start_time < args.duration_sec:
+            if viewer is not None and not viewer.is_running():
+                # 사용자가 GUI 창을 직접 닫은 경우 - 남은 duration을 계속 도는 대신 바로 끝낸다
+                # (요구사항 5번: is_running() 확인 누락은 이 파일에서 만들지 않는다).
+                cs.print_remote_error("GUI 창이 닫혀 있어 진단을 종료합니다.")
+                break
             loop_start = time.monotonic()
             now_wall = time.time()
 
@@ -533,7 +567,20 @@ def _run_loop(
                 frame_counter += 1
 
                 if viewer is not None:
-                    viewer.sync()
+                    try:
+                        viewer.sync()
+                    except Exception as exc:
+                        # sync 중 예외를 조용히 삼키지 않는다 (요구사항 5번) - GUI 루프
+                        # 자체는 계속 진행하되(다음 프레임에서 복구될 수도 있으므로) 반드시 보고한다.
+                        cs.print_remote_error(f"viewer.sync() 중 예외 발생: {exc}")
+
+                if recorder is not None:
+                    try:
+                        recorder.capture(data, remote_sequence=state.sequence, remote_timestamp=state.raw_timestamp)
+                    except OffscreenRecorderError as exc:
+                        cs.print_remote_error(f"오프스크린 프레임 캡처 실패: {exc}")
+                        fatal = True
+                        break
 
             mujoco_qpos_deg = {}
             mujoco_target_deg = {}
@@ -656,6 +703,15 @@ def _run_loop(
     finally:
         if viewer_cm is not None:
             viewer_cm.__exit__(None, None, None)
+        if recorder is not None:
+            offscreen_summary = recorder.close()
+            cs.print_remote_offscreen_summary(
+                opts,
+                frame_count=offscreen_summary.frame_count,
+                save_frames_dir=offscreen_summary.save_frames_dir,
+                manifest_path=offscreen_summary.manifest_path,
+                video_path=offscreen_summary.video_path,
+            )
 
     elapsed = time.monotonic() - start_time
     return _finalize(

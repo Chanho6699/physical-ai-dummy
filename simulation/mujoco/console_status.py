@@ -400,6 +400,29 @@ def print_remote_dry_run_summary(
     print(f"[dry-run] 리포트 저장 예정 경로: {report_path}")
 
 
+def print_remote_offscreen_summary(
+    opts: ConsoleOptions,
+    *,
+    frame_count: int,
+    save_frames_dir: str | None,
+    manifest_path: str | None,
+    video_path: str | None,
+) -> None:
+    if opts.quiet:
+        return
+    print("-" * 68)
+    print(_c("[오프스크린] GUI 창 없이 프레임을 렌더링했습니다.", "HEADER", opts))
+    print(f"[오프스크린] 저장된 프레임 수: {frame_count}")
+    if save_frames_dir:
+        print(f"[오프스크린] PNG 디렉터리: {save_frames_dir}")
+    if manifest_path:
+        print(f"[오프스크린] 프레임 manifest(JSON): {manifest_path}")
+    if video_path:
+        print(f"[오프스크린] MP4: {video_path}")
+    if not save_frames_dir and not video_path:
+        print("[오프스크린] PNG/MP4 저장 대상이 지정되지 않아 아무 것도 저장하지 않았습니다.")
+
+
 def print_remote_final_summary(
     opts: ConsoleOptions,
     *,

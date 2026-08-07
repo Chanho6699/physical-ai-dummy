@@ -60,3 +60,17 @@ console:
   quiet: false
   verbose: false
   no_color: false
+
+# scripts/run_remote_mujoco_web_viewer.py 전용. WARN/BLOCKED 발생 원인을 얼마나 오래
+# 병합/유지할지에 대한 "표시/기록" 설정이지, safety 판정 자체(joint range, frame delta,
+# velocity, contact 등의 threshold - 전부 configs/mujoco_so101.yaml)를 바꾸지 않는다.
+safety_event_tracking:
+  # 같은 관절+같은 원인이 이 샘플 수만큼 연속으로 "정상"이어야 이벤트를 닫는다 (순간적으로
+  # 한두 샘플 빠진 것까지 별도 이벤트로 쪼개지 않기 위함).
+  clear_after_samples: 3
+  # 이벤트가 끝난 뒤에도 웹 화면에 최소 이만큼(초) 더 보여준다 (순간적으로 나타났다 사라지는
+  # BLOCKED를 놓치지 않기 위함).
+  sticky_display_sec: 10
+  # 참고용 "한계 근접" 표시 threshold(도). data.ctrl 적용이나 BLOCKED/WARN 판정에는 전혀
+  # 영향을 주지 않는 순수 정보성 값이다 - joint_limit_tolerance_rad와는 별개.
+  near_limit_margin_deg: 5.0

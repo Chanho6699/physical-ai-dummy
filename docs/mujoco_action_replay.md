@@ -256,6 +256,23 @@ python scripts/replay_dataset_action_mujoco.py \
    추정). 리포트/최종 요약은 크래시 이전에 이미 정상적으로 저장·출력된 뒤였다. 실제 화면이
    시각적으로 올바르게 렌더링되었는지는 이 세션에서 직접 확인하지 못했다 (아래 12절 참고).
    네이티브 GPU 디스플레이 환경에서 재검증이 필요하다.
+
+   **[후속 확인, `scripts/debug_mujoco_viewer.py`/`scripts/run_mujoco_gui_diagnostics.sh`
+   조사]** 이후 세션에서 `xwd`로 GUI 창을 직접 캡처해 실제 렌더링 내용을 확인한 결과,
+   위 8번 항목의 "실제 화면 렌더링 확인 못 함" 부분은 해소되었다 - `launch_passive`/
+   `launch` 둘 다 창 내용이 실제로 정상 렌더링된다(스크린샷 픽셀 표준편차로 확인, 단색
+   블랭크 아님). 다만 segfault 자체는 여전히 재현된다: `mujoco.viewer.launch_passive`/
+   `launch`로 만든 GLFW 창을 반복 실행하면 프로세스 종료 시 약 30~50% 확률로
+   `libgallium-*.so`(Mesa **llvmpipe** 소프트웨어 렌더러) 내부에서 SIGSEGV가 발생한다.
+   이 머신은 `/dev/dri` render node가 없어(=WSLg GPU 그래픽 패스스루 비활성, `nvidia-smi`는
+   정상 동작하므로 CUDA passthrough와는 별개 문제) OpenGL이 GLX/EGL 모두 llvmpipe로
+   폴백되고 있고, 크래시는 GLFW 창 + 백그라운드 렌더 스레드가 있는 경로에서만 재현되며
+   (`mujoco.Renderer` 단일 스레드 오프스크린 경로는 수십 회 반복해도 크래시 없음),
+   `LIBGL_ALWAYS_SOFTWARE`/`WAYLAND_DISPLAY` 조합을 바꿔도 사라지지 않는다 - 즉 backend
+   선택 문제가 아니라 llvmpipe 자체의 멀티스레드 안정성 문제로 보인다. 크래시 타이밍이
+   비결정적이므로, 이 프로젝트에서 원래 보고된 "창은 뜨는데 내용이 안 보인다" 증상도 같은
+   버그가 첫 프레임을 그리기 전에 발생하는 경우로 설명 가능하다(확정은 아님). 자세한
+   내용/재현 절차는 `docs/remote_mujoco_diagnostic.md`의 "GUI 렌더링 문제 조사" 절 참고.
 9. SmolVLA 추론은 이번 1단계에 연결하지 않았다 (요구사항대로).
 
 ## 12. 실물 실행 전 반드시 확인할 항목

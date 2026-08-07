@@ -10,6 +10,8 @@
 from __future__ import annotations
 
 import csv
+import json
+import threading
 import time
 
 import pytest
@@ -366,3 +368,120 @@ def test_api_token_never_appears_in_json_report(tmp_path):
     args = _base_args(tmp_path, api_token="top-secret-token")
     outcome = run_diagnostic(args, client=client)
     assert "top-secret-token" not in outcome.json_path.read_text(encoding="utf-8")
+
+
+# ---------------------------------------------------------------------------
+# mode == "offscreen" (WSLg GUI 대체 경로 - GUI 창 없이 PNG/MP4 저장)
+# ---------------------------------------------------------------------------
+
+
+def test_offscreen_mode_saves_png_frames_and_manifest(tmp_path):
+    states = [
+        _state(_positions(wrist_flex=v), _positions(wrist_flex=0.0), sequence=i)
+        for i, v in enumerate([0.0, 5.0, 10.0, 15.0])
+    ]
+    client = _ScriptedClient(_health(), states)
+    frames_dir = tmp_path / "frames"
+    args = _base_args(
+        tmp_path,
+        mode="offscreen",
+        duration_sec=0.15,
+        rate_hz=40.0,
+        record=False,
+        offscreen_save_frames_dir=frames_dir,
+        offscreen_width=64,
+        offscreen_height=48,
+    )
+
+    outcome = run_diagnostic(args, client=client)
+
+    assert outcome.exit_code == 0
+    saved = sorted(frames_dir.glob("frame_*.png"))
+    assert len(saved) >= 1
+    manifest = json.loads((frames_dir / "frames_manifest.json").read_text(encoding="utf-8"))
+    assert len(manifest) == len(saved)
+    # 실제 리더 관절값(state.sequence)이 프레임 manifest에 그대로 기록되어야 한다 (요구사항: 프레임
+    # timestamp/state sequence 기록).
+    assert all(entry["remote_sequence"] is not None for entry in manifest)
+
+
+def test_offscreen_mode_without_output_target_is_blocked(tmp_path):
+    """--save-frames/--video-output이 둘 다 없으면 CLI에서 막지만, orchestrator 레벨에서도
+    안전하게 BLOCKED로 끝나야 한다 (조용히 아무 것도 안 하고 성공한 척하지 않는다)."""
+    client = _ScriptedClient(_health(), [_state(_positions(), _positions())])
+    args = _base_args(tmp_path, mode="offscreen")  # save_frames/video 지정 없음
+    outcome = run_diagnostic(args, client=client)
+    assert outcome.final_result == "BLOCKED"
+    assert outcome.exit_code == 1
+
+
+def test_offscreen_frames_reflect_leader_motion(tmp_path):
+    """리더암이 실제로 움직이면 저장된 프레임도 서로 달라야 한다 (정적 블랭크 프레임 반복이 아님)."""
+    import numpy as np
+    from PIL import Image
+
+    states = [
+        _state(_positions(wrist_flex=v), _positions(wrist_flex=0.0), sequence=i)
+        for i, v in enumerate([0.0, 30.0, 60.0, 90.0])
+    ]
+    client = _ScriptedClient(_health(), states)
+    frames_dir = tmp_path / "frames"
+    args = _base_args(
+        tmp_path,
+        mode="offscreen",
+        # mujoco.Renderer의 첫 프레임은 OpenGL context/shader warm-up 때문에 느릴 수 있어
+        # (수십~백여 ms), 최소 2프레임을 확보하도록 넉넉히 잡는다.
+        duration_sec=1.0,
+        rate_hz=20.0,
+        record=False,
+        offscreen_save_frames_dir=frames_dir,
+        offscreen_width=64,
+        offscreen_height=48,
+    )
+    run_diagnostic(args, client=client)
+
+    saved = sorted(frames_dir.glob("frame_*.png"))
+    assert len(saved) >= 2
+    first = np.array(Image.open(saved[0]))
+    last = np.array(Image.open(saved[-1]))
+    assert not np.array_equal(first, last)
+
+
+# ---------------------------------------------------------------------------
+# mode == "gui" 실패 경로 (실제 창을 띄우지 않고 launch_passive를 목으로 대체)
+# ---------------------------------------------------------------------------
+
+
+def test_gui_mode_reports_blocked_when_launch_passive_fails(tmp_path, monkeypatch):
+    import mujoco.viewer as mj_viewer
+
+    def _boom(model, data):
+        raise RuntimeError("가짜 GLFW 실패 (테스트 전용)")
+
+    monkeypatch.setattr(mj_viewer, "launch_passive", _boom)
+
+    client = _ScriptedClient(_health(), [_state(_positions(), _positions())])
+    args = _base_args(tmp_path, mode="gui")
+    outcome = run_diagnostic(args, client=client)
+
+    assert outcome.final_result == "BLOCKED"
+    assert outcome.exit_code == 1
+
+
+def test_gui_mode_blocked_when_not_called_from_main_thread(tmp_path):
+    """요구사항 4번: GUI는 반드시 main thread에서 생성해야 한다 - 다른 스레드에서 시도하면
+    실제 GLFW 호출까지 가지 않고 바로 BLOCKED로 막혀야 한다."""
+    client = _ScriptedClient(_health(), [_state(_positions(), _positions())])
+    args = _base_args(tmp_path, mode="gui")
+
+    result: dict = {}
+
+    def _run():
+        result["outcome"] = run_diagnostic(args, client=client)
+
+    thread = threading.Thread(target=_run)
+    thread.start()
+    thread.join(timeout=10)
+
+    assert result["outcome"].final_result == "BLOCKED"
+    assert result["outcome"].exit_code == 1

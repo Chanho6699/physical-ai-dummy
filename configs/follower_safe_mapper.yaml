@@ -1,0 +1,69 @@
+# simulation/mujoco/follower_safe_mapper.py 설정.
+#
+# 이 파일은 "실물 팔로워에 실제로 보내지 않는" 시뮬레이션 전용 안전 명령 매퍼의 설정이다.
+# --command-source follower-safe 모드에서만 쓰이고, MuJoCo에는 여기서 계산한
+# limited_command_deg만 적용된다 (실물 팔로워에는 어떤 쓰기도 하지 않는다).
+#
+# ---------------------------------------------------------------------------
+# 팔로워 캘리브레이션 우선순위 (raw tick min/max -> degree 변환의 근거)
+# ---------------------------------------------------------------------------
+# 1) calibration_file_path가 있고 실제로 읽을 수 있으면 그 JSON을 쓴다 (최우선).
+# 2) 없거나 못 읽으면 아래 fallback_raw_range를 쓴다.
+# 3) 둘 다 없으면 LiveWebViewerError로 실행을 중단한다 (안전 범위를 모르는 채로
+#    "출력 후보"를 계산하지 않는다).
+#
+# raw tick -> degree 변환은 LeRobot의 MotorNormMode.DEGREES 정규화 공식을 그대로
+# 재사용한다 (조사 근거: ~/lerobot/src/lerobot/motors/motors_bus.py의 MotorsBus._normalize):
+#     mid = (range_min + range_max) / 2
+#     max_res = motor_resolution - 1          # STS3215 = 4096 -> max_res = 4095
+#     degree = (raw_tick - mid) * 360 / max_res
+# homing_offset은 여기서 다시 빼지 않는다 - LeRobot 캘리브레이션 절차상 Homing_Offset은
+# 서보 자체(Feetech 펌웨어)에 write되어 있어 Present_Position raw 값에 이미 반영된
+# 상태로 읽힌다 (motors_bus.py의 set_half_turn_homings()가 self.write("Homing_Offset", ...)
+# 로 저장). 소프트웨어에서 raw - homing_offset을 다시 빼면 이중 보정이 되어 잘못된다 -
+# 그래서 이 매퍼는 homing_offset 필드를 읽기만 하고 계산에 쓰지 않는다.
+#
+# **주의(gripper)**: 이 프로젝트 전체에서 gripper는 DEGREES가 아니라 RANGE_0_100(0~100
+# 정규화)을 쓴다 (hardware/state_server/readonly_so101_reader.py: "gripper만은 항상
+# MotorNormMode.RANGE_0_100으로 정규화한다 - degree가 아니다"). 이 매퍼가 다루는
+# leader/follower positions_deg는 gripper에 한해 실제로는 "퍼센트"이지 "도"가 아니다 -
+# 이 단위 불일치를 확정할 수 없으므로 gripper는 UNVERIFIED_RANGE로 표시하고 실제 출력
+# 후보(MuJoCo 적용 대상)에서 제외한다. fallback_raw_range의 gripper 값은 참고용으로만
+# 남겨둔다.
+calibration_file_path: "~/.cache/huggingface/lerobot/calibration/robots/so_follower/chanho_follower.json"
+
+# STS3215 서보 resolution (lerobot MODEL_RESOLUTION["sts3215"] == 4096).
+motor_resolution: 4096
+
+# calibration_file_path가 없거나 읽지 못할 때만 쓰이는 fallback. 노트북에서 확인된 실제
+# 팔로워 캘리브레이션 값(raw tick)을 그대로 옮겼다.
+fallback_raw_range:
+  shoulder_pan: {min: 1070, max: 3135}
+  shoulder_lift: {min: 793, max: 3238}
+  elbow_flex: {min: 873, max: 3084}
+  wrist_flex: {min: 1052, max: 2977}
+  wrist_roll: {min: 0, max: 4095}
+  gripper: {min: 2047, max: 3496}  # 참고용 - 실제로는 UNVERIFIED_RANGE로 취급됨 (위 설명 참고)
+
+# leader 좌표 -> follower 좌표 변환 (분리 단계 B). 이 저장소의 기존 action_mapping.py와
+# 마찬가지로 "매핑 이름이 같으면 부호도 같다"는 확인되지 않은 가정을 그대로 유지한다
+# (sign=+1, offset=0). 실물로 검증되면 이 값을 조정해야 한다 - 이 매퍼가 추측으로
+# 바꾸지 않는다.
+leader_to_follower_sign:
+  shoulder_pan: 1.0
+  shoulder_lift: 1.0
+  elbow_flex: 1.0
+  wrist_flex: 1.0
+  wrist_roll: 1.0
+  gripper: 1.0
+
+# [초기값, 미검증] 실물 서보/기구 rate 스펙으로 검증되지 않은 보수적인 임시값이다.
+# FRAME_DELTA_HIGH가 실측에서 자주 발생한 것을 근거로 "일단 느리게" 잡았다 - 실물
+# 테스트 후 재조정이 반드시 필요하다.
+rate_limit_deg_per_sec:
+  shoulder_pan: 20
+  shoulder_lift: 15
+  elbow_flex: 20
+  wrist_flex: 15
+  wrist_roll: 25
+  gripper: 30

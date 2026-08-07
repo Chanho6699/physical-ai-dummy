@@ -15,6 +15,15 @@
 
 설정/CLI/MuJoCo 로딩/관절 mapping/safety 설정만 확인하고 네트워크 호출 없이 끝내려면:
     python scripts/run_remote_mujoco_diagnostic.py --server-url http://127.0.0.1:8001 --dry-run
+
+WSLg GUI 창이 제대로 렌더링되지 않을 때의 대체 경로 (GUI 없이 PNG/MP4로 저장):
+    python scripts/run_remote_mujoco_diagnostic.py \\
+        --server-url http://100.x.x.x:8001 --offscreen --joint wrist_flex --duration 10 \\
+        --save-frames reports/remote_mujoco_diagnostic/frames
+
+    python scripts/run_remote_mujoco_diagnostic.py \\
+        --server-url http://100.x.x.x:8001 --offscreen --joint wrist_flex --duration 10 \\
+        --video-output reports/remote_mujoco_diagnostic/wrist_flex.mp4
 """
 
 from __future__ import annotations
@@ -104,6 +113,20 @@ def build_parser() -> argparse.ArgumentParser:
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument("--gui", action="store_true", help="MuJoCo GUI viewer로 실행")
     mode_group.add_argument("--headless", action="store_true", help="GUI 없이 실행 (기본값)")
+    mode_group.add_argument(
+        "--offscreen",
+        action="store_true",
+        help="GUI 창 없이 mujoco.Renderer로 프레임을 렌더링해 PNG/MP4로 저장 (WSLg GUI 대체 경로, --save-frames/--video-output과 함께 사용)",
+    )
+
+    offscreen_group = parser.add_argument_group("offscreen 옵션 (--offscreen과 함께 사용)")
+    offscreen_group.add_argument("--save-frames", type=Path, default=None, help="렌더링한 프레임을 PNG로 저장할 디렉터리")
+    offscreen_group.add_argument("--video-output", type=Path, default=None, help="렌더링한 프레임을 이어붙여 저장할 MP4 경로")
+    offscreen_group.add_argument("--offscreen-width", type=int, default=640, help="오프스크린 렌더링 프레임 폭(px) (기본: 640)")
+    offscreen_group.add_argument("--offscreen-height", type=int, default=480, help="오프스크린 렌더링 프레임 높이(px) (기본: 480)")
+    offscreen_group.add_argument(
+        "--offscreen-fps", type=float, default=None, help="MP4 저장 fps (기본: --rate-hz와 동일)"
+    )
 
     joint_group = parser.add_mutually_exclusive_group()
     joint_group.add_argument(
@@ -158,6 +181,13 @@ def main() -> int:
         print("[오류] --server-url이 필요합니다 (또는 설정 파일 remote.server_url).", file=sys.stderr)
         return 2
 
+    if args.offscreen and not args.save_frames and not args.video_output:
+        print("[오류] --offscreen을 사용하려면 --save-frames 또는 --video-output 중 최소 하나를 지정해야 합니다.", file=sys.stderr)
+        return 2
+    if (args.save_frames or args.video_output) and not args.offscreen:
+        print("[오류] --save-frames/--video-output은 --offscreen과 함께 사용해야 합니다.", file=sys.stderr)
+        return 2
+
     joints = tuple(JOINT_NAMES) if args.all_joints else tuple(args.joint or ["wrist_flex"])
 
     api_token = args.api_token or os.environ.get(API_TOKEN_ENV_VAR) or None
@@ -165,9 +195,11 @@ def main() -> int:
     diagnostic_config = _diagnostic_config_from_yaml(raw_yaml)
     network_safety = _network_safety_from_yaml(raw_yaml)
 
+    mode = "gui" if args.gui else ("offscreen" if args.offscreen else "headless")
+
     diag_args = RemoteDiagnosticArgs(
         server_url=args.server_url,
-        mode="gui" if args.gui else "headless",
+        mode=mode,
         joints=joints,
         duration_sec=args.duration,
         rate_hz=args.rate_hz if args.rate_hz is not None else 20.0,
@@ -184,6 +216,11 @@ def main() -> int:
         verbose=args.verbose,
         no_color=args.no_color,
         dry_run=args.dry_run,
+        offscreen_save_frames_dir=args.save_frames,
+        offscreen_video_path=args.video_output,
+        offscreen_width=args.offscreen_width,
+        offscreen_height=args.offscreen_height,
+        offscreen_fps=args.offscreen_fps,
     )
 
     outcome = run_diagnostic(diag_args)
