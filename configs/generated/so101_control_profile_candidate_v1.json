@@ -1,0 +1,391 @@
+{
+  "status": "CANDIDATE_ONLY",
+  "source": "instrumented_teleop_6runs",
+  "run_count": 6,
+  "apply_automatically": false,
+  "generated_at": "2026-08-07T10:09:37.174140+00:00",
+  "source_aggregate_path": "reports/instrumented_teleop/aggregate_6runs_20260807_094532.json",
+  "source_aggregate_generated_at": "2026-08-07T09:45:32.094706+00:00",
+  "generator": {
+    "module": "hardware.diagnostics.control_profile_candidate",
+    "version": "1.0.0"
+  },
+  "confidence_legend": {
+    "HIGH": "6개 run에서 반복적으로 안정적으로 관측됨 (run-to-run cv < 0.3, 또는 6-run 전체에서 반복 확인된 정성적 패턴).",
+    "MEDIUM": "데이터는 있으나 run 간 변동(cv)이 상당하거나, 일부 run에서만 유효한 표본이 관측됨.",
+    "LOW": "일부 run에서만 관찰되었거나 run 간 변동(cv)이 매우 큼.",
+    "INSUFFICIENT_DATA": "candidate를 계산할 근거 표본이 부족하거나 없음."
+  },
+  "gripper_unit_note": "gripper는 arm 5개 joint(degree)와 달리 percent_0_100 semantics를 씁니다 (hardware/state_server/readonly_so101_reader.py, configs/follower_safe_mapper.yaml 확인). gripper의 range/frame_delta/velocity candidate 값을 degree로 해석하지 마세요.",
+  "usage_restrictions": [
+    "이 candidate 값은 실제 로봇 제어 코드에 자동 적용되지 않습니다 (apply_automatically=false).",
+    "이 파일 생성 과정에서 leader/follower connect, teleop 실행, servo write는 발생하지 않았습니다.",
+    "safety threshold로 확정된 값이 아니며, production config가 아닙니다."
+  ],
+  "joints": {
+    "shoulder_pan": {
+      "label": "CANDIDATE_ONLY",
+      "unit": "degree",
+      "confidence": "MEDIUM",
+      "confidence_basis": {
+        "tracking_error_cv_across_runs": 0.4527392317647662,
+        "velocity_cv_across_runs": 0.5668257740638393
+      },
+      "historical_operating_range": {
+        "note": "이 값은 6-run teleop 동안 실제로 관측된 위치 범위 후보입니다. calibration mechanical limit(hard_limit)이 아닙니다.",
+        "observed_min": -89.89010989010988,
+        "observed_max": 81.97802197802197,
+        "p01": -89.71428571428571,
+        "p99": 81.1041758241757,
+        "candidate_historical_inner_range": [
+          -89.71428571428571,
+          81.1041758241757
+        ],
+        "run_min_max_spread": 171.86813186813185
+      },
+      "frame_delta": {
+        "p50": 0.0,
+        "p95": 1.0549450549450583,
+        "p99": 1.4065934065934087,
+        "max": 1.9340659340659343,
+        "candidate_frame_delta_soft_limit": 1.4065934065934087,
+        "candidate_basis": "p99 값을 그대로 사용 (multiplier=1.0x, 추가 배율 적용 없음)."
+      },
+      "velocity": {
+        "observed_velocity_profile": {
+          "p50": 0.0,
+          "p95": 62.96468976287956,
+          "p99": 83.7951516343046,
+          "max": 114.0427834214529
+        },
+        "candidate_soft_velocity_limit": 83.7951516343046,
+        "candidate_basis": "p99 값을 그대로 사용 (multiplier=1.0x, 추가 배율 적용 없음)."
+      },
+      "tracking_error": {
+        "mae": 1.8385626206446042,
+        "p95": 7.472527472527474,
+        "p99": 9.670329670329672,
+        "max": 13.714285714285722,
+        "tracking_warning_candidate": 7.472527472527474,
+        "tracking_severe_candidate": 9.670329670329672,
+        "candidate_basis": "warning ~= p95, severe ~= p99 (execution monitor 설계용 제안일 뿐, 확정 safety threshold 아님)."
+      }
+    },
+    "shoulder_lift": {
+      "label": "CANDIDATE_ONLY",
+      "unit": "degree",
+      "confidence": "MEDIUM",
+      "confidence_basis": {
+        "tracking_error_cv_across_runs": 0.4800563583219118,
+        "velocity_cv_across_runs": 0.5776790906277484
+      },
+      "historical_operating_range": {
+        "note": "이 값은 6-run teleop 동안 실제로 관측된 위치 범위 후보입니다. calibration mechanical limit(hard_limit)이 아닙니다.",
+        "observed_min": -98.5934065934066,
+        "observed_max": 66.85714285714286,
+        "p01": -98.5934065934066,
+        "p99": 58.250549450549244,
+        "candidate_historical_inner_range": [
+          -98.5934065934066,
+          58.250549450549244
+        ],
+        "run_min_max_spread": 165.45054945054946
+      },
+      "frame_delta": {
+        "p50": 0.0,
+        "p95": 0.8791208791208831,
+        "p99": 1.142857142857146,
+        "max": 1.9340659340659343,
+        "candidate_frame_delta_soft_limit": 1.142857142857146,
+        "candidate_basis": "p99 값을 그대로 사용 (multiplier=1.0x, 추가 배율 적용 없음)."
+      },
+      "velocity": {
+        "observed_velocity_profile": {
+          "p50": 0.0,
+          "p95": 52.47846649949117,
+          "p99": 68.13375678154874,
+          "max": 94.30777393672429
+        },
+        "candidate_soft_velocity_limit": 68.13375678154874,
+        "candidate_basis": "p99 값을 그대로 사용 (multiplier=1.0x, 추가 배율 적용 없음)."
+      },
+      "tracking_error": {
+        "mae": 1.2467194729485198,
+        "p95": 5.626373626373626,
+        "p99": 7.472527472527474,
+        "max": 10.285714285714285,
+        "tracking_warning_candidate": 5.626373626373626,
+        "tracking_severe_candidate": 7.472527472527474,
+        "candidate_basis": "warning ~= p95, severe ~= p99 (execution monitor 설계용 제안일 뿐, 확정 safety threshold 아님)."
+      }
+    },
+    "elbow_flex": {
+      "label": "CANDIDATE_ONLY",
+      "unit": "degree",
+      "confidence": "HIGH",
+      "confidence_basis": {
+        "tracking_error_cv_across_runs": 0.1792172388465375,
+        "velocity_cv_across_runs": 0.3813444752864196
+      },
+      "historical_operating_range": {
+        "note": "이 값은 6-run teleop 동안 실제로 관측된 위치 범위 후보입니다. calibration mechanical limit(hard_limit)이 아닙니다.",
+        "observed_min": -74.15384615384616,
+        "observed_max": 97.62637362637362,
+        "p01": -71.51648351648352,
+        "p99": 96.57142857142857,
+        "candidate_historical_inner_range": [
+          -71.51648351648352,
+          96.57142857142857
+        ],
+        "run_min_max_spread": 171.7802197802198
+      },
+      "frame_delta": {
+        "p50": 0.0,
+        "p95": 0.9670329670329707,
+        "p99": 1.318681318681321,
+        "max": 2.1098901098901095,
+        "candidate_frame_delta_soft_limit": 1.318681318681321,
+        "candidate_basis": "p99 값을 그대로 사용 (multiplier=1.0x, 추가 배율 적용 없음)."
+      },
+      "velocity": {
+        "observed_velocity_profile": {
+          "p50": 0.0,
+          "p95": 57.699384335263154,
+          "p99": 78.44332079268813,
+          "max": 93.88829709758825
+        },
+        "candidate_soft_velocity_limit": 78.44332079268813,
+        "candidate_basis": "p99 값을 그대로 사용 (multiplier=1.0x, 추가 배율 적용 없음)."
+      },
+      "tracking_error": {
+        "mae": 1.9306170657065145,
+        "p95": 6.813186813186814,
+        "p99": 9.274725274725274,
+        "max": 11.208791208791204,
+        "tracking_warning_candidate": 6.813186813186814,
+        "tracking_severe_candidate": 9.274725274725274,
+        "candidate_basis": "warning ~= p95, severe ~= p99 (execution monitor 설계용 제안일 뿐, 확정 safety threshold 아님)."
+      }
+    },
+    "wrist_flex": {
+      "label": "CANDIDATE_ONLY",
+      "unit": "degree",
+      "confidence": "MEDIUM",
+      "confidence_basis": {
+        "tracking_error_cv_across_runs": 0.43703898307112476,
+        "velocity_cv_across_runs": 0.3621781130672362
+      },
+      "historical_operating_range": {
+        "note": "이 값은 6-run teleop 동안 실제로 관측된 위치 범위 후보입니다. calibration mechanical limit(hard_limit)이 아닙니다.",
+        "observed_min": -83.91208791208791,
+        "observed_max": 84.35164835164835,
+        "p01": -66.32967032967034,
+        "p99": 84.35164835164835,
+        "candidate_historical_inner_range": [
+          -66.32967032967034,
+          84.35164835164835
+        ],
+        "run_min_max_spread": 168.26373626373626
+      },
+      "frame_delta": {
+        "p50": 0.0,
+        "p95": 1.4065934065934016,
+        "p99": 1.8461538461538467,
+        "max": 3.164835164835168,
+        "candidate_frame_delta_soft_limit": 1.8461538461538467,
+        "candidate_basis": "p99 값을 그대로 사용 (multiplier=1.0x, 추가 배율 적용 없음)."
+      },
+      "velocity": {
+        "observed_velocity_profile": {
+          "p50": 0.0,
+          "p95": 82.96727567632526,
+          "p99": 109.07270455460632,
+          "max": 146.81880040030728
+        },
+        "candidate_soft_velocity_limit": 109.07270455460632,
+        "candidate_basis": "p99 값을 그대로 사용 (multiplier=1.0x, 추가 배율 적용 없음)."
+      },
+      "tracking_error": {
+        "mae": 2.0160276404817887,
+        "p95": 8.57142857142857,
+        "p99": 11.472527472527467,
+        "max": 16.043956043956044,
+        "tracking_warning_candidate": 8.57142857142857,
+        "tracking_severe_candidate": 11.472527472527467,
+        "candidate_basis": "warning ~= p95, severe ~= p99 (execution monitor 설계용 제안일 뿐, 확정 safety threshold 아님)."
+      }
+    },
+    "wrist_roll": {
+      "label": "CANDIDATE_ONLY",
+      "unit": "degree",
+      "confidence": "LOW",
+      "confidence_basis": {
+        "tracking_error_cv_across_runs": 0.7386861284543522,
+        "velocity_cv_across_runs": 0.9738402245248858
+      },
+      "historical_operating_range": {
+        "note": "이 값은 6-run teleop 동안 실제로 관측된 위치 범위 후보입니다. calibration mechanical limit(hard_limit)이 아닙니다.",
+        "observed_min": -87.78021978021978,
+        "observed_max": 91.47252747252747,
+        "p01": -71.16483516483517,
+        "p99": 90.5072527472527,
+        "candidate_historical_inner_range": [
+          -71.16483516483517,
+          90.5072527472527
+        ],
+        "run_min_max_spread": 179.25274725274727
+      },
+      "frame_delta": {
+        "p50": 0.0,
+        "p95": 1.2307692307692335,
+        "p99": 1.758241758241759,
+        "max": 3.340659340659343,
+        "candidate_frame_delta_soft_limit": 1.758241758241759,
+        "candidate_basis": "p99 값을 그대로 사용 (multiplier=1.0x, 추가 배율 적용 없음)."
+      },
+      "velocity": {
+        "observed_velocity_profile": {
+          "p50": 0.0,
+          "p95": 73.39614011474222,
+          "p99": 104.37014158555155,
+          "max": 126.27912813378961
+        },
+        "candidate_soft_velocity_limit": 104.37014158555155,
+        "candidate_basis": "p99 값을 그대로 사용 (multiplier=1.0x, 추가 배율 적용 없음)."
+      },
+      "tracking_error": {
+        "mae": 1.137111092879511,
+        "p95": 7.2087912087912045,
+        "p99": 10.375384615384576,
+        "max": 12.747252747252748,
+        "tracking_warning_candidate": 7.2087912087912045,
+        "tracking_severe_candidate": 10.375384615384576,
+        "candidate_basis": "warning ~= p95, severe ~= p99 (execution monitor 설계용 제안일 뿐, 확정 safety threshold 아님)."
+      }
+    },
+    "gripper": {
+      "label": "CANDIDATE_ONLY",
+      "unit": "percent_0_100",
+      "confidence": "MEDIUM",
+      "confidence_basis": {
+        "tracking_error_cv_across_runs": 0.4627189630274578,
+        "velocity_cv_across_runs": 0.5505831259983675
+      },
+      "historical_operating_range": {
+        "note": "이 값은 6-run teleop 동안 실제로 관측된 위치 범위 후보입니다. calibration mechanical limit(hard_limit)이 아닙니다.",
+        "observed_min": 1.173222912353347,
+        "observed_max": 72.04968944099379,
+        "p01": 1.173222912353347,
+        "p99": 72.04968944099379,
+        "candidate_historical_inner_range": [
+          1.173222912353347,
+          72.04968944099379
+        ],
+        "run_min_max_spread": 70.87646652864044
+      },
+      "frame_delta": {
+        "p50": 0.0,
+        "p95": 1.2422360248447202,
+        "p99": 2.0013802622498247,
+        "max": 2.139406487232577,
+        "candidate_frame_delta_soft_limit": 2.0013802622498247,
+        "candidate_basis": "p99 값을 그대로 사용 (multiplier=1.0x, 추가 배율 적용 없음)."
+      },
+      "velocity": {
+        "observed_velocity_profile": {
+          "p50": 0.0,
+          "p95": 73.65949991807877,
+          "p99": 118.61974994704879,
+          "max": 127.9094307906494
+        },
+        "candidate_soft_velocity_limit": 118.61974994704879,
+        "candidate_basis": "p99 값을 그대로 사용 (multiplier=1.0x, 추가 배율 적용 없음)."
+      },
+      "tracking_error": {
+        "mae": 1.0656397872242405,
+        "p95": 7.807606724198807,
+        "p99": 14.586237247390692,
+        "max": 24.530463485010344,
+        "tracking_warning_candidate": 7.807606724198807,
+        "tracking_severe_candidate": 14.586237247390692,
+        "candidate_basis": "warning ~= p95, severe ~= p99 (execution monitor 설계용 제안일 뿐, 확정 safety threshold 아님)."
+      }
+    }
+  },
+  "wrist_roll_deadband_analysis": {
+    "label": "CANDIDATE_ONLY",
+    "joint": "wrist_roll",
+    "verdict": "DEADBAND_ESTIMATE_AVAILABLE",
+    "unit": "abs_goal_present_error_ticks",
+    "no_response_region_ticks": [
+      0,
+      5
+    ],
+    "no_response_region_confidence": "HIGH",
+    "no_response_region_evidence": {
+      "0": {
+        "aggregate_response_fraction": 0.0,
+        "sample_count": 632,
+        "runs_with_any_response": 0
+      },
+      "1": {
+        "aggregate_response_fraction": 0.0010615711252653928,
+        "sample_count": 942,
+        "runs_with_any_response": 1
+      },
+      "2": {
+        "aggregate_response_fraction": 0.002028397565922921,
+        "sample_count": 493,
+        "runs_with_any_response": 1
+      },
+      "3": {
+        "aggregate_response_fraction": 0.005309734513274336,
+        "sample_count": 565,
+        "runs_with_any_response": 3
+      },
+      "4": {
+        "aggregate_response_fraction": 0.002180232558139535,
+        "sample_count": 1376,
+        "runs_with_any_response": 2
+      },
+      "5": {
+        "aggregate_response_fraction": 0.0034674063800277394,
+        "sample_count": 1442,
+        "runs_with_any_response": 2
+      }
+    },
+    "transition_region_start_ticks": 6,
+    "transition_region_aggregate_response_fraction": 0.7060255629945222,
+    "transition_region_runs_with_response": 4,
+    "transition_region_confidence": "MEDIUM",
+    "high_response_region": "NOT_ESTABLISHED",
+    "high_response_region_rationale": "6+ tick 버킷의 aggregate response_fraction은 약 70.6%로, 이 저장소가 쓰는 HIGH_RESPONSE_REGION 판정 기준(>80%)에 못 미친다. 게다가 6개 run 중 2개(20260807_093136, 20260807_093204)는 이 구간에서 실제 움직임 표본 자체가 없어 판단에서 사실상 제외된다. '6 ticks = guaranteed motion'이라고 단정할 수 없다.",
+    "tick_to_degree_equivalent": {
+      "0": 0.0,
+      "1": 0.087912,
+      "2": 0.175824,
+      "3": 0.263736,
+      "4": 0.351648,
+      "5": 0.43956,
+      "6": 0.527473
+    },
+    "note": "이 구간 분류는 분석 편의용이며 hardware safety threshold로 확정된 것이 아닙니다. 6 ticks가 '항상 반응하는 지점'을 보장하지 않습니다."
+  },
+  "timing": {
+    "label": "CANDIDATE_ONLY",
+    "nominal_control_hz": 59.133967087402425,
+    "control_hz_confidence": "HIGH",
+    "control_hz_std": 0.0749095089553914,
+    "observed_latency_ms": {
+      "median": 92.89707204179743,
+      "mean": 88.76272493529912,
+      "min": 67.68945283107493,
+      "max": 101.56730282652666,
+      "std": 13.972208633761252,
+      "valid_runs": "4/6"
+    },
+    "latency_confidence": "MEDIUM",
+    "latency_scope": "local_instrumented_teleop_command_to_actual",
+    "latency_scope_note": "이 latency는 leader->follower local instrumented teleop 계측에서 얻은 'command to actual' 값입니다. 아직 Desktop VLA -> network -> Laptop -> robot의 end-to-end latency가 아닙니다."
+  }
+}

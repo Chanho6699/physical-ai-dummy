@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import json
+import socket
 import sys
+import threading
+import time
 from pathlib import Path
 
 import numpy as np
@@ -108,3 +111,51 @@ def real_dataset_root() -> Path:
     if not REAL_DATASET_ROOT.is_dir():
         pytest.skip(f"실제 데이터셋을 찾을 수 없습니다: {REAL_DATASET_ROOT}")
     return REAL_DATASET_ROOT
+
+
+# ---------------------------------------------------------------------------
+# Shadow Mode: 진짜 소켓으로 왕복하는 Fake VLA 서버 (uvicorn 백그라운드 스레드).
+# ---------------------------------------------------------------------------
+
+
+def _free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
+@pytest.fixture()
+def live_fake_vla_server():
+    """(base_url, FakePolicyRunner) - 실제 loopback 소켓으로 통신하는 Fake VLA 서버.
+
+    TestClient(ASGI in-process transport)가 아니라 진짜 uvicorn + 소켓을 띄운다 -
+    ``VLAHttpClient``가 실제 HTTP 왕복 지연/timeout/연결 실패 경로까지 검증할 수 있게
+    하기 위함이다 (섹션 3/20 - "통신은 Fake VLA와 실제 Desktop server를 구분해서
+    테스트 가능하게").
+    """
+    import uvicorn
+
+    from runtime.desktop.vla_server import FakePolicyRunner, create_app
+
+    port = _free_port()
+    policy_runner = FakePolicyRunner()
+    app = create_app(policy_runner=policy_runner)
+    config = uvicorn.Config(app, host="127.0.0.1", port=port, log_level="error")
+    server = uvicorn.Server(config)
+
+    thread = threading.Thread(target=server.run, daemon=True)
+    thread.start()
+
+    deadline = time.monotonic() + 5.0
+    while time.monotonic() < deadline:
+        if getattr(server, "started", False):
+            break
+        time.sleep(0.02)
+    else:
+        raise RuntimeError("live_fake_vla_server가 제한 시간 내에 기동하지 못했습니다.")
+
+    try:
+        yield f"http://127.0.0.1:{port}", policy_runner
+    finally:
+        server.should_exit = True
+        thread.join(timeout=5.0)

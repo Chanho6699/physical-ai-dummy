@@ -92,12 +92,25 @@ from simulation.mujoco.follower_safe_mapper import (
     summarize_hold,
 )
 from simulation.mujoco.so101_model import SO101ModelError, get_joint_limits, load_model, make_data
+from simulation.realism.so101_control_profile import (
+    DEFAULT_PROFILE_PATH,
+    ControlProfileError,
+    load_control_profile,
+)
+from simulation.realism.so101_realistic_control import RealisticControlConfig, RealisticControlLayer
 
 MJPEG_BOUNDARY = "so101frame"
 COMMAND_SOURCE_RAW_LEADER = "raw-leader"
 COMMAND_SOURCE_FOLLOWER_SAFE = "follower-safe"
 VALID_COMMAND_SOURCES = (COMMAND_SOURCE_RAW_LEADER, COMMAND_SOURCE_FOLLOWER_SAFE)
 DEFAULT_EVENTS_REPORTS_DIR = Path(__file__).resolve().parents[2] / "reports" / "remote_mujoco_diagnostic"
+
+# "Realistic SO-101 Control Layer" (simulation/realism/*) 선택 옵션 - 기본값은 항상
+# baseline(=기존 동작 그대로, 이 레이어를 생성조차 하지 않음)이다. 실제 SO-101에는 어떤
+# 영향도 없다 (이 뷰어 자체가 팔로워에 쓰기를 하지 않는다 - 모듈 docstring 참고).
+CONTROL_MODE_BASELINE = "baseline"
+CONTROL_MODE_REALISTIC = "realistic"
+VALID_CONTROL_MODES = (CONTROL_MODE_BASELINE, CONTROL_MODE_REALISTIC)
 
 
 class LiveWebViewerError(RuntimeError):
@@ -137,9 +150,22 @@ class WebViewerArgs:
     safe_mapper_config_path: Path | None = None  # None이면 configs/follower_safe_mapper.yaml
     follower_safe_report_dir: Path | None = None  # None이면 reports/remote_mujoco_diagnostic
 
+    # "Realistic SO-101 Control Layer" (섹션: control_mode). baseline(기본)이면 이 필드들은
+    # 전혀 쓰이지 않고 기존 raw-leader 경로가 그대로 동작한다 (레이어를 생성조차 하지 않음
+    # - 기존 동작과 완전히 동일해야 함). command_source=="follower-safe"에는 아직 적용하지
+    # 않는다 (섹션 9 - 두 메커니즘의 목적이 다르므로 이번 v1에서는 raw-leader 경로에만 붙인다).
+    control_mode: str = CONTROL_MODE_BASELINE
+    realism_profile_path: Path | None = None  # None이면 DEFAULT_PROFILE_PATH (candidate v1)
+    realism_enable_latency: bool = True
+    realism_enable_deadband: bool = True
+    realism_enable_rate_limit: bool = True
+    realism_enable_historical_range_diagnostic: bool = True
+
     def __post_init__(self) -> None:
         if self.command_source not in VALID_COMMAND_SOURCES:
             raise ValueError(f"command_source는 {VALID_COMMAND_SOURCES} 중 하나여야 합니다: {self.command_source!r}")
+        if self.control_mode not in VALID_CONTROL_MODES:
+            raise ValueError(f"control_mode는 {VALID_CONTROL_MODES} 중 하나여야 합니다: {self.control_mode!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -355,6 +381,11 @@ class LiveWebViewer:
         self._follower_recorder: FollowerSafeRecorder | None = None
         self.last_follower_safe_report_paths: tuple[Path, Path] | None = None
 
+        # control_mode == "realistic"에서만 채워진다 (preflight 참고) - baseline은 None으로
+        # 유지되어 render loop가 기존 raw-leader 경로를 그대로 탄다.
+        self.realistic_control: RealisticControlLayer | None = None
+        self.last_realism_diagnostics: dict[str, object] = {}
+
         self.preflight_log: list[str] = []  # (level, label, message) 대신 사람이 읽을 문자열만 축적
 
     # -- preflight -----------------------------------------------------
@@ -395,6 +426,54 @@ class LiveWebViewer:
 
         if self.args.command_source == COMMAND_SOURCE_FOLLOWER_SAFE:
             self._setup_follower_safe_mapper()
+
+        if self.args.control_mode == CONTROL_MODE_REALISTIC:
+            self._setup_realistic_control()
+
+    def _setup_realistic_control(self) -> None:
+        profile_path = self.args.realism_profile_path or DEFAULT_PROFILE_PATH
+        try:
+            profile = load_control_profile(profile_path)
+        except ControlProfileError as exc:
+            raise LiveWebViewerError(f"realistic control profile 로딩 실패 ({profile_path}): {exc}") from exc
+        config = RealisticControlConfig(
+            enable_latency=self.args.realism_enable_latency,
+            enable_deadband=self.args.realism_enable_deadband,
+            enable_rate_limit=self.args.realism_enable_rate_limit,
+            enable_historical_range_diagnostic=self.args.realism_enable_historical_range_diagnostic,
+        )
+        self.realistic_control = RealisticControlLayer(profile, config)
+
+    def _apply_realistic_control(
+        self,
+        target_rad_all: dict[str, float],
+        mapping: tuple[JointMapping, ...],
+        model: mujoco.MjModel,
+        data: mujoco.MjData,
+    ) -> tuple[dict[str, float], dict[str, object]]:
+        """raw command(target_rad_all, rad)를 Realistic Control Layer에 통과시킨다.
+
+        섹션 3 원칙대로: rad -> (기존 action_mapping과 동일한 scale의) degree/percent
+        변환 -> RealisticControlLayer.process() -> degree/percent -> rad 역변환.
+        새 스케일을 만들지 않는다 - math.degrees/radians는 action_mapping.py가 쓰는
+        scale=pi/180의 정확한 역변환이라 gripper(percent가 "degree"로 잘못 붙어 있는
+        기존 관례 그대로)에도 그대로 재사용할 수 있다 (simulation/mujoco/action_mapping.py
+        모듈 docstring 참고 - 이 파일이 그 관례를 새로 만들지 않았다).
+        """
+        assert self.realistic_control is not None
+        desired_native = {entry.mujoco_actuator_name: math.degrees(target_rad_all[entry.mujoco_actuator_name]) for entry in mapping}
+
+        simulated_actual_native: dict[str, float] = {}
+        for entry in mapping:
+            joint_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, entry.mujoco_joint_name)
+            qpos_adr = model.jnt_qposadr[joint_id]
+            simulated_actual_native[entry.mujoco_joint_name] = math.degrees(float(data.qpos[qpos_adr]))
+
+        result = self.realistic_control.process(desired_native, now=time.monotonic(), simulated_actual=simulated_actual_native)
+
+        processed_rad = {name: math.radians(value) for name, value in result.processed_action.items()}
+        diagnostics_dict = {joint: d.__dict__ for joint, d in result.diagnostics.items()}
+        return processed_rad, diagnostics_dict
 
     def _setup_follower_safe_mapper(self) -> None:
         config_path = self.args.safe_mapper_config_path or (
@@ -462,6 +541,16 @@ class LiveWebViewer:
     @property
     def stopped(self) -> bool:
         return self._stop_event.is_set()
+
+    def realism_status_payload(self) -> dict:
+        """``/status``가 노출하는 Realistic Control Layer 진단 스냅샷.
+
+        control_mode=="baseline"이면 항상 빈 diagnostics(레이어를 생성조차 하지 않았으므로
+        - 회귀 없음)를 반환한다."""
+        return {
+            "control_mode": self.args.control_mode,
+            "realism_diagnostics": dict(self.last_realism_diagnostics),
+        }
 
     def safety_status_payload(self) -> dict:
         """``/status``와 ``/events``가 공유하는 safety 이벤트 스냅샷."""
@@ -627,6 +716,10 @@ class LiveWebViewer:
                     )
                 elif apply_update and requested_target_rad_all is not None:
                     target_rad_all = requested_target_rad_all
+                    if self.realistic_control is not None:
+                        target_rad_all, self.last_realism_diagnostics = self._apply_realistic_control(
+                            target_rad_all, mapping, model, data
+                        )
                     frame_events = check_frame_targets(frame_counter, target_rad_all, mapping, model, safety_config, dynamic_state)
                     frame_events = filter_active_blocking(frame_events, safety_config)
                     blocked_joint_names = {e.joint for e in frame_events if e.level == "BLOCKED"}
@@ -1198,6 +1291,7 @@ def _make_handler_class(viewer: LiveWebViewer):
         def _serve_status(self):
             payload = viewer.status.to_dict()
             payload.update(viewer.safety_status_payload())
+            payload.update(viewer.realism_status_payload())
             body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")

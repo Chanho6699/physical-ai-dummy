@@ -37,7 +37,9 @@ if str(PROJECT_ROOT) not in sys.path:
 from simulation.mujoco import console_status as cs
 from simulation.mujoco.live_web_viewer import (
     COMMAND_SOURCE_RAW_LEADER,
+    CONTROL_MODE_BASELINE,
     VALID_COMMAND_SOURCES,
+    VALID_CONTROL_MODES,
     LiveWebViewer,
     LiveWebViewerError,
     WebViewerArgs,
@@ -146,6 +148,28 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="follower_safe_mapper_<timestamp>.json/.csv 저장 디렉터리 (기본: reports/remote_mujoco_diagnostic)",
     )
+    parser.add_argument(
+        "--control-mode",
+        choices=VALID_CONTROL_MODES,
+        default=CONTROL_MODE_BASELINE,
+        help="baseline(기본, 기존 동작)=리더 값을 그대로 MuJoCo에 적용. realistic=실제 SO-101 6-run "
+        "계측(Control Profile Candidate v1)을 이용한 latency/deadband/rate 특성을 raw-leader 경로에 "
+        "추가로 통과시킴 (실물 팔로워에는 여전히 아무 것도 쓰지 않음, command-source=follower-safe에는 아직 적용 안 됨).",
+    )
+    parser.add_argument(
+        "--realism-profile",
+        type=Path,
+        default=None,
+        help="Realistic Control Layer가 읽을 candidate profile JSON 경로 (기본: configs/generated/so101_control_profile_candidate_v1.json)",
+    )
+    parser.add_argument("--realism-disable-latency", action="store_true", help="realistic 모드에서 command latency 특성만 끈다")
+    parser.add_argument("--realism-disable-deadband", action="store_true", help="realistic 모드에서 wrist_roll deadband 특성만 끈다")
+    parser.add_argument("--realism-disable-rate-limit", action="store_true", help="realistic 모드에서 rate/frame-delta 특성만 끈다")
+    parser.add_argument(
+        "--realism-disable-historical-range-diagnostic",
+        action="store_true",
+        help="realistic 모드에서 historical operating range 진단(clip 아님)만 끈다",
+    )
     return parser
 
 
@@ -193,6 +217,12 @@ def main() -> int:
         command_source=args.command_source,
         safe_mapper_config_path=args.safe_mapper_config,
         follower_safe_report_dir=args.follower_safe_report_dir,
+        control_mode=args.control_mode,
+        realism_profile_path=args.realism_profile,
+        realism_enable_latency=not args.realism_disable_latency,
+        realism_enable_deadband=not args.realism_disable_deadband,
+        realism_enable_rate_limit=not args.realism_disable_rate_limit,
+        realism_enable_historical_range_diagnostic=not args.realism_disable_historical_range_diagnostic,
     )
 
     print(BAR)
@@ -204,6 +234,10 @@ def main() -> int:
     if args.command_source == "follower-safe":
         print(f"[안내] follower-safe 매퍼 설정: {args.safe_mapper_config or 'configs/follower_safe_mapper.yaml (기본값)'}")
         print("[안내] MuJoCo에는 '실제 팔로워에 보낼 예정'인 안전 명령(limited_command_deg)만 적용됩니다 - 실물 팔로워 쓰기는 없습니다.")
+    print(f"[control-mode] {args.control_mode}")
+    if args.control_mode != CONTROL_MODE_BASELINE:
+        print(f"[안내] Realistic Control Layer profile: {args.realism_profile or 'configs/generated/so101_control_profile_candidate_v1.json (기본값)'}")
+        print("[안내] 이 profile은 CANDIDATE_ONLY이며 이 MuJoCo 실행에만 적용됩니다 - 실물 SO-101에는 어떤 영향도 없습니다.")
 
     viewer = LiveWebViewer(web_args)
     try:

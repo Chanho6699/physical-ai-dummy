@@ -12,12 +12,15 @@ import json
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 import pytest
 
 from simulation.mujoco.live_web_viewer import (
     COMMAND_SOURCE_FOLLOWER_SAFE,
     COMMAND_SOURCE_RAW_LEADER,
+    CONTROL_MODE_BASELINE,
+    CONTROL_MODE_REALISTIC,
     LiveWebViewer,
     LiveWebViewerError,
     WebViewerArgs,
@@ -1051,5 +1054,179 @@ def test_status_summary_matches_requested_json_schema():
         assert status["active_joint_count"] == 5
         assert status["held_joint_count"] == 1
         assert status["held_joints"] == {"gripper": "UNVERIFIED_RANGE"}
+    finally:
+        viewer.stop()
+
+
+# ---------------------------------------------------------------------------
+# --control-mode baseline/realistic (Realistic SO-101 Control Layer 통합)
+#
+# baseline(기본값)이 기존 동작과 완전히 동일해야 한다는 것은 이 파일의 나머지 모든
+# 테스트가 control_mode를 아예 지정하지 않고도 그대로 통과한다는 사실 자체로 이미
+# 증명된다 - 아래 테스트들은 그 위에 realistic 모드 자체의 동작만 추가로 확인한다.
+# ---------------------------------------------------------------------------
+
+
+def test_default_control_mode_is_baseline():
+    args = WebViewerArgs(server_url="http://x:8001")
+    assert args.control_mode == CONTROL_MODE_BASELINE
+
+
+def test_invalid_control_mode_raises():
+    with pytest.raises(ValueError):
+        WebViewerArgs(server_url="http://x:8001", control_mode="turbo")
+
+
+def test_baseline_preflight_never_creates_realistic_control_layer():
+    viewer = _make_viewer(_ScriptedClient(_health(), [_state(_positions(), _positions())]))
+    viewer.preflight()
+    assert viewer.realistic_control is None
+
+
+def test_realistic_preflight_loads_default_profile_and_creates_layer():
+    viewer = _make_viewer(
+        _ScriptedClient(_health(), [_state(_positions(), _positions())]),
+        control_mode=CONTROL_MODE_REALISTIC,
+    )
+    viewer.preflight()
+    assert viewer.realistic_control is not None
+
+
+def test_realistic_preflight_raises_on_missing_profile_file(tmp_path):
+    viewer = _make_viewer(
+        _ScriptedClient(_health(), [_state(_positions(), _positions())]),
+        control_mode=CONTROL_MODE_REALISTIC,
+        realism_profile_path=tmp_path / "does_not_exist.json",
+    )
+    with pytest.raises(LiveWebViewerError):
+        viewer.preflight()
+
+
+def test_realistic_preflight_raises_when_profile_apply_automatically_true(tmp_path):
+    import json
+
+    real_path = Path(__file__).resolve().parents[1] / "configs" / "generated" / "so101_control_profile_candidate_v1.json"
+    raw = json.loads(real_path.read_text(encoding="utf-8"))
+    raw["apply_automatically"] = True
+    bad_path = tmp_path / "bad_profile.json"
+    bad_path.write_text(json.dumps(raw), encoding="utf-8")
+
+    viewer = _make_viewer(
+        _ScriptedClient(_health(), [_state(_positions(), _positions())]),
+        control_mode=CONTROL_MODE_REALISTIC,
+        realism_profile_path=bad_path,
+    )
+    with pytest.raises(LiveWebViewerError):
+        viewer.preflight()
+
+
+def test_realistic_mode_status_exposes_control_mode_and_diagnostics():
+    client = _ScriptedClient(_health(), [_state(_positions(wrist_roll=5.0), _positions(wrist_roll=0.0))])
+    viewer = _make_viewer(client, joints=("wrist_roll",), control_mode=CONTROL_MODE_REALISTIC, fps=30.0, rate_hz=60.0)
+    try:
+        _start_and_wait_for_frame(viewer)
+        deadline = time.monotonic() + 5.0
+        payload = viewer.realism_status_payload()
+        while time.monotonic() < deadline and "wrist_roll" not in payload["realism_diagnostics"]:
+            time.sleep(0.05)
+            payload = viewer.realism_status_payload()
+        assert payload["control_mode"] == CONTROL_MODE_REALISTIC
+        assert "wrist_roll" in payload["realism_diagnostics"]
+        diag = payload["realism_diagnostics"]["wrist_roll"]
+        for field in (
+            "raw_action",
+            "processed_action",
+            "simulated_actual_state",
+            "command_delta",
+            "deadband_applied",
+            "latency_applied_ms",
+            "rate_limited",
+            "outside_historical_range",
+        ):
+            assert field in diag
+    finally:
+        viewer.stop()
+
+
+def test_baseline_mode_realism_status_payload_is_always_empty():
+    """baseline이면 realism_diagnostics가 항상 비어 있어야 한다 (레이어를 만들지 않으므로)."""
+    client = _ScriptedClient(_health(), [_state(_positions(wrist_roll=5.0), _positions(wrist_roll=0.0))])
+    viewer = _make_viewer(client, joints=("wrist_roll",), fps=30.0, rate_hz=60.0)
+    try:
+        _start_and_wait_for_frame(viewer)
+        time.sleep(0.3)
+        payload = viewer.realism_status_payload()
+        assert payload["control_mode"] == CONTROL_MODE_BASELINE
+        assert payload["realism_diagnostics"] == {}
+    finally:
+        viewer.stop()
+
+
+def test_realistic_mode_wrist_roll_tiny_change_is_held_by_deadband():
+    """리더가 wrist_roll을 no-response candidate 폭 이내로만 계속 흔들면, realistic 모드에서
+    MuJoCo target이 거의 움직이지 않아야 한다 (REALISM_APPROXIMATION - deadband)."""
+    from simulation.realism.so101_control_profile import load_control_profile
+
+    profile = load_control_profile(
+        Path(__file__).resolve().parents[1] / "configs" / "generated" / "so101_control_profile_candidate_v1.json"
+    )
+    threshold = profile.wrist_roll_deadband.no_response_upper_deg
+    tiny = threshold * 0.5
+
+    call_count = {"n": 0}
+
+    class _TinyWristRollClient(_ScriptedClient):
+        def get_state(self):
+            call_count["n"] += 1
+            # 0과 tiny 사이를 계속 왕복 - deadband candidate 폭 이내의 변화만 준다.
+            value = tiny if call_count["n"] % 2 == 0 else 0.0
+            return _state(_positions(wrist_roll=value), _positions(wrist_roll=0.0), sequence=call_count["n"])
+
+    client = _TinyWristRollClient(_health(), [_state(_positions(), _positions())])
+    viewer = _make_viewer(
+        client,
+        joints=("wrist_roll",),
+        control_mode=CONTROL_MODE_REALISTIC,
+        fps=30.0,
+        rate_hz=60.0,
+        realism_enable_latency=False,  # 이 테스트는 deadband만 격리해서 본다
+    )
+    try:
+        _start_and_wait_for_frame(viewer)
+        deadline = time.monotonic() + 5.0
+        status = viewer.status.to_dict()
+        while time.monotonic() < deadline and status["joints"]["wrist_roll"]["mujoco_target_deg"] is None:
+            time.sleep(0.05)
+            status = viewer.status.to_dict()
+        joint = status["joints"]["wrist_roll"]
+        # tiny(threshold의 절반) 변화만 반복했으므로 MuJoCo target이 0 근처에 머물러야 한다.
+        assert joint["mujoco_target_deg"] is not None
+        assert abs(joint["mujoco_target_deg"]) < threshold * 2.0
+    finally:
+        viewer.stop()
+
+
+def test_realistic_mode_with_all_features_disabled_behaves_like_baseline():
+    """realistic 모드라도 4가지 특성을 모두 끄면 baseline과 동일하게 즉시 target을 따라가야 한다."""
+    client = _ScriptedClient(_health(), [_state(_positions(shoulder_pan=30.0), _positions(shoulder_pan=0.0))])
+    viewer = _make_viewer(
+        client,
+        joints=("shoulder_pan",),
+        control_mode=CONTROL_MODE_REALISTIC,
+        fps=30.0,
+        rate_hz=60.0,
+        realism_enable_latency=False,
+        realism_enable_deadband=False,
+        realism_enable_rate_limit=False,
+        realism_enable_historical_range_diagnostic=False,
+    )
+    try:
+        _start_and_wait_for_frame(viewer)
+        deadline = time.monotonic() + 5.0
+        joint = viewer.status.to_dict()["joints"]["shoulder_pan"]
+        while time.monotonic() < deadline and (joint["mujoco_target_deg"] is None or joint["mujoco_target_deg"] < 29.5):
+            time.sleep(0.05)
+            joint = viewer.status.to_dict()["joints"]["shoulder_pan"]
+        assert joint["mujoco_target_deg"] == pytest.approx(30.0, abs=0.5)
     finally:
         viewer.stop()

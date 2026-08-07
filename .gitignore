@@ -49,3 +49,6 @@ reports/remote_mujoco_diagnostic/
 reports/mujoco_gui_debug/
 reports/mujoco_replay/
 reports/joint_range_analysis/
+reports/hardware_single_joint_dry_run/
+reports/shadow_teleop/
+reports/instrumented_teleop/
