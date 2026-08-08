@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -44,3 +45,82 @@ def test_main_fails_fast_without_server_url(cli_module, monkeypatch) -> None:
     monkeypatch.delenv("VLA_SERVER_URL", raising=False)
     rc = cli_module.main(["--task", "pick", "--follower-port", "/dev/ttyACM0"])
     assert rc == 2
+
+
+# ---------------------------------------------------------------------------
+# --checkpoint (요구사항 1/2번) - 과거 실험 checkpoint를 암묵적으로 쓰지 않는다.
+# ---------------------------------------------------------------------------
+
+
+def test_checkpoint_has_no_implicit_default(cli_module) -> None:
+    """--checkpoint를 안 주면 None이어야 한다 - 과거 20ep/old 10k checkpoint 같은 하드코딩된
+    기본값이 없어야 한다."""
+    args = cli_module.parse_args(["--task", "pick", "--follower-port", "/dev/ttyACM0"])
+    assert args.checkpoint is None
+
+
+def test_checkpoint_and_server_url_are_mutually_exclusive(cli_module) -> None:
+    with pytest.raises(SystemExit):
+        cli_module.parse_args(
+            [
+                "--task", "pick", "--follower-port", "/dev/ttyACM0",
+                "--checkpoint", "/some/checkpoint",
+                "--vla-server-url", "http://desktop:9200",
+            ]
+        )
+
+
+def test_checkpoint_alone_is_valid(cli_module) -> None:
+    args = cli_module.parse_args(
+        ["--task", "pick", "--follower-port", "/dev/ttyACM0", "--checkpoint", "/some/checkpoint"]
+    )
+    assert args.checkpoint == "/some/checkpoint"
+    assert args.vla_server_url is None
+
+
+def test_main_fails_fast_without_checkpoint_or_server_url_even_with_env_unset(cli_module, monkeypatch) -> None:
+    monkeypatch.delenv("VLA_SERVER_URL", raising=False)
+    rc = cli_module.main(["--task", "pick", "--follower-port", "/dev/ttyACM0"])
+    assert rc == 2
+
+
+def test_eval_mode_choices_restricted(cli_module) -> None:
+    args = cli_module.parse_args(
+        ["--task", "pick", "--follower-port", "/dev/ttyACM0", "--eval-mode", "midpoint-shadow"]
+    )
+    assert args.eval_mode == "midpoint-shadow"
+    with pytest.raises(SystemExit):
+        cli_module.parse_args(["--task", "pick", "--follower-port", "/dev/ttyACM0", "--eval-mode", "bogus-mode"])
+
+
+def test_scene_label_and_note_default_to_none(cli_module) -> None:
+    args = cli_module.parse_args(["--task", "pick", "--follower-port", "/dev/ttyACM0"])
+    assert args.scene_label is None
+    assert args.scene_note is None
+
+
+# ---------------------------------------------------------------------------
+# build_checkpoint_metadata - 순수 함수, 하드웨어 불필요
+# ---------------------------------------------------------------------------
+
+
+def test_build_checkpoint_metadata_without_expected_dataset(cli_module, tmp_path: Path) -> None:
+    ckpt = tmp_path / "checkpoints" / "007500" / "pretrained_model"
+    ckpt.mkdir(parents=True)
+    (ckpt / "train_config.json").write_text(json.dumps({"dataset": {"root": "/x/data/so101_cube_xy_grid35_v1"}}))
+
+    meta = cli_module.build_checkpoint_metadata(ckpt, expected_train_dataset=None)
+    assert meta["checkpoint_path"] == str(ckpt)
+    assert meta["checkpoint_step"] == 7500
+    assert meta["train_dataset_provenance"]["recorded_train_dataset_root"] == "/x/data/so101_cube_xy_grid35_v1"
+    assert meta["train_dataset_provenance"]["mismatch_warning"] is None
+
+
+def test_build_checkpoint_metadata_flags_mismatch(cli_module, tmp_path: Path) -> None:
+    ckpt = tmp_path / "checkpoints" / "010000" / "pretrained_model"
+    ckpt.mkdir(parents=True)
+    (ckpt / "train_config.json").write_text(json.dumps({"dataset": {"root": "/x/data/so101_cube_train_v6"}}))
+
+    meta = cli_module.build_checkpoint_metadata(ckpt, expected_train_dataset=Path("/x/data/so101_cube_xy_grid35_v1"))
+    assert meta["train_dataset_provenance"]["mismatch_warning"] is not None
+    assert "so101_cube_train_v6" in meta["train_dataset_provenance"]["mismatch_warning"]

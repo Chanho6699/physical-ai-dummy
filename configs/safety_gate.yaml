@@ -1,0 +1,51 @@
+# runtime/laptop/safety_gate.py (Shadow Mode Safety Gate) 전용 설정.
+#
+# ---------------------------------------------------------------------------
+# 이 파일이 새로 생긴 이유 (2026-08 Grid35 실험 감사)
+# ---------------------------------------------------------------------------
+# 예전에는 Safety Gate의 "1-step 급격한 변화(excessive single-step movement)" 임계값을
+# configs/mujoco_so101.yaml의 safety.max_joint_delta_per_frame을 그대로 빌려 썼다. 그런데
+# 그 값은 MuJoCo action-replay 진단 도구(simulation/mujoco/safety_checks.py)가
+# data/so101_cube_xy_train_v1(20-episode, 이번 Grid35/Midpoint10 실험과 무관한 과거 실험)의
+# 프레임간 실측 최댓값에서 뽑은 WARN 임계값이다 - Shadow Mode의 REJECT/CLAMP 판정을 위해
+# 만든 값이 아니다.
+#
+# 실제로 Grid35 checkpoint 010000을 held-out midpoint10으로 평가하면서 이 값을 그대로 쓴
+# Safety Gate에 "완벽한 정답(ground-truth demonstration) action"을 통과시켜봤더니, 2980
+# step 중 2059 step(69%)이 WOULD_CLAMP으로 걸렸다 (REJECT는 0 - gross 위반은 없었음).
+# 즉 이 임계값은 새 실험의 정상적인 시연 속도보다 훨씬 타이트해서, 사람이 잘 수행한
+# 시연조차 "과도한 움직임"으로 오판했다 - 오래된 데이터셋의 통계를 새 실험에 암묵적으로
+# 강요한 전형적인 사례였다.
+#
+# 그렇다고 이 값을 Grid35/Midpoint10 데이터셋 통계(예: demonstration delta의 p95)로 다시
+# 뽑아서 대체하지도 않았다 - "hardware safety 임계값을 dataset 통계로 정의하지 않는다"는
+# 원칙 때문이다(데이터셋이 바뀔 때마다 안전 임계값이 따라 움직이면, 그건 더 이상 안전
+# 장치가 아니라 "그 데이터셋에서 흔한 값" 재현기에 불과하다). 실물 STS3215 서보의 검증된
+# rate spec이 이 저장소 어디에도 없다(configs/follower_safe_mapper.yaml의
+# rate_limit_deg_per_sec도 "[초기값, 미검증]"으로 표시되어 있고, 실측해보면 정상 시연
+# 동작보다도 훨씬 느리게 잡혀 있어 이 용도로 그대로 가져다 쓰기에도 맞지 않는다) - 그래서
+# 아래 값은 예전에 쓰던 숫자를 "그대로"(느슨하게도, 새 데이터셋에 맞춰 다시 뽑지도 않고)
+# 옮기되, 출처를 이 파일 하나로 명확히 분리했다. 실물 서보 rate spec이 확인되면 이 값을
+# 교체해야 한다 - 특정 실험 dataset의 통계에서 다시 뽑지 말 것.
+#
+# ---------------------------------------------------------------------------
+# mechanical range(관절 각도/그리퍼 범위)는 여기 없음
+# ---------------------------------------------------------------------------
+# 관절 mechanical/calibration 범위는 여전히 configs/follower_safe_mapper.yaml의
+# calibration_file_path(실제 팔로워 캘리브레이션 파일이 있으면 최우선)/fallback_raw_range를
+# 그대로 재사용한다 - 이 파일은 그 값을 복제하지 않는다(단일 출처 원칙). 이 파일은 오직
+# "excessive single-step movement" 판정만 담당한다.
+
+excessive_step_deg:
+  # [미검증/보수적 placeholder] 실물 STS3215 서보 rate spec으로 검증된 값이 아니다. 이전에
+  # configs/mujoco_so101.yaml의 max_joint_delta_per_frame(라디안)에서 그대로 단위만 변환해
+  # 옮긴 값이다(0.08/0.09/0.10/0.07/0.02/0.16 rad -> deg, 반올림) - so101_cube_xy_train_v1
+  # 20-episode 데이터셋 실측치에 여전히 뿌리를 두고 있다는 사실 자체는 숨기지 않는다. 다음
+  # 재조정 시에는 (a) 실물 서보 rate spec 또는 (b) 여러 실험 dataset에 걸쳐 공통적으로
+  # 안전하다고 확인된 상한처럼, 특정 dataset 하나에 묶이지 않은 근거로 바꿔야 한다.
+  shoulder_pan: 4.58
+  shoulder_lift: 5.16
+  elbow_flex: 5.73
+  wrist_flex: 4.01
+  wrist_roll: 1.15
+  gripper: 9.17

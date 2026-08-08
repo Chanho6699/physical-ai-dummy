@@ -2,9 +2,21 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
+import pytest
+
 from runtime.common.vla_contract import JOINT_ORDER
 from runtime.laptop.action_adapter import AdaptedAction
-from runtime.laptop.safety_gate import SafetyGate, SafetyGateConfig
+from runtime.laptop.safety_gate import (
+    RANGE_SOURCE_FALLBACK_CONFIG,
+    RANGE_SOURCE_GRIPPER_CONVENTION,
+    SafetyGate,
+    SafetyGateConfig,
+    SafetyGateConfigError,
+    load_excessive_step_config,
+)
 
 RANGE = (-90.0, 90.0)
 GRIPPER_RANGE = (0.0, 100.0)
@@ -130,3 +142,109 @@ def test_gripper_semantic_mismatch_gross_is_rejected() -> None:
         adapted_action=_action(gripper=99999.0), current_state_deg=_current_state(0.0), observation_valid=True
     )
     assert decision.decision == "REJECT"
+
+
+# ---------------------------------------------------------------------------
+# 하위 호환 - 기존처럼 joint_range_deg/max_step_deg 두 필드만 직접 넘겨도 동작해야 한다.
+# ---------------------------------------------------------------------------
+
+
+def test_direct_construction_still_works_with_default_source_fields() -> None:
+    cfg = _config()
+    assert cfg.joint_range_source == {}
+    assert cfg.uses_calibration_fallback is False
+    assert cfg.calibration_file_path is None
+    summary = cfg.source_summary()
+    assert summary["uses_calibration_fallback"] is False
+
+
+# ---------------------------------------------------------------------------
+# from_repo_defaults() - source tracking (2026-08 Grid35 감사 요구사항)
+# ---------------------------------------------------------------------------
+
+
+def test_from_repo_defaults_reports_calibration_source_per_joint() -> None:
+    """실제 캘리브레이션 파일이 없는 환경에서는 gripper를 제외한 5관절이 전부
+    fallback_config여야 하고, gripper는 percent 관례 라벨이어야 한다."""
+    cfg = SafetyGateConfig.from_repo_defaults()
+    assert set(cfg.joint_range_source) == set(JOINT_ORDER)
+    assert cfg.joint_range_source["gripper"] == RANGE_SOURCE_GRIPPER_CONVENTION
+    for joint in JOINT_ORDER:
+        if joint == "gripper":
+            continue
+        assert cfg.joint_range_source[joint] in (RANGE_SOURCE_FALLBACK_CONFIG, "calibration_file")
+    # 이 저장소 sandbox에는 실제 캘리브레이션 파일이 없으므로(조사 결과) fallback이어야 한다.
+    assert cfg.uses_calibration_fallback is True
+
+
+def test_from_repo_defaults_no_longer_needs_mujoco_dataset_replay_config() -> None:
+    """excessive-step 임계값이 이제 configs/safety_gate.yaml에서 오고, mujoco_so101.yaml
+    (다른 실험 dataset에 종속된 진단 도구 설정)과 더 이상 공유되지 않는다."""
+    cfg = SafetyGateConfig.from_repo_defaults()
+    assert cfg.excessive_step_config_path is not None
+    assert Path(cfg.excessive_step_config_path).name == "safety_gate.yaml"
+    assert set(cfg.max_step_deg) == set(JOINT_ORDER)
+
+
+def test_source_summary_matches_documented_shape() -> None:
+    cfg = SafetyGateConfig.from_repo_defaults()
+    summary = cfg.source_summary()
+    assert set(summary) == {
+        "joint_range_source",
+        "uses_calibration_fallback",
+        "calibration_file_path",
+        "excessive_step_config_path",
+    }
+
+
+# ---------------------------------------------------------------------------
+# load_excessive_step_config
+# ---------------------------------------------------------------------------
+
+
+def test_load_excessive_step_config_missing_file(tmp_path: Path) -> None:
+    with pytest.raises(SafetyGateConfigError):
+        load_excessive_step_config(tmp_path / "does_not_exist.yaml")
+
+
+def test_load_excessive_step_config_missing_section(tmp_path: Path) -> None:
+    path = tmp_path / "safety_gate.yaml"
+    path.write_text("other_key: 1\n")
+    with pytest.raises(SafetyGateConfigError):
+        load_excessive_step_config(path)
+
+
+def test_load_excessive_step_config_missing_joint(tmp_path: Path) -> None:
+    path = tmp_path / "safety_gate.yaml"
+    incomplete = {j: 1.0 for j in JOINT_ORDER if j != "gripper"}
+    path.write_text(json.dumps({"excessive_step_deg": incomplete}))  # YAML superset of JSON
+    with pytest.raises(SafetyGateConfigError):
+        load_excessive_step_config(path)
+
+
+def test_load_excessive_step_config_valid(tmp_path: Path) -> None:
+    path = tmp_path / "safety_gate.yaml"
+    values = {j: float(i) for i, j in enumerate(JOINT_ORDER)}
+    path.write_text(json.dumps({"excessive_step_deg": values}))
+    loaded = load_excessive_step_config(path)
+    assert loaded == values
+
+
+# ---------------------------------------------------------------------------
+# 실제 grid35 checkpoint 010000 REJECT 원인 재현 - 회귀 방지용 (요구사항 4번 분석의 핵심
+# 발견을 코드로 고정한다: ground-truth demonstration은 gross 위반이 없어야 한다).
+# ---------------------------------------------------------------------------
+
+
+def test_repo_default_gross_step_threshold_does_not_flag_typical_demo_sized_step() -> None:
+    """excessive-step CLAMP 임계값은 타이트해도 되지만(진단 목적), GROSS(REJECT)는 정상적인
+    시연 동작 크기(수 deg~십수 deg)에서는 절대 걸리면 안 된다 - 안 그러면 REJECT가
+    "모델이 이상하다"가 아니라 "threshold가 잘못됐다"는 신호가 되어버린다."""
+    cfg = SafetyGateConfig.from_repo_defaults()
+    gate = SafetyGate(cfg)
+    # grid35 checkpoint 010000 held-out 평가에서 실측한 gt_demo_state_delta.max(pooled) 근방.
+    typical_large_demo_delta_deg = 16.0
+    current = _current_state(0.0)
+    action = _action(elbow_flex=typical_large_demo_delta_deg)
+    decision = gate.evaluate(adapted_action=action, current_state_deg=current, observation_valid=True)
+    assert decision.decision != "REJECT"

@@ -32,6 +32,7 @@ from runtime.laptop.shadow_logger import (
     RESULT_SHADOW_PASS_WITH_CLAMP,
     build_report,
     make_session_id,
+    save_camera_frames,
     write_report,
 )
 from runtime.laptop.shadow_validator import ShadowValidationResult, validate_mujoco_step
@@ -79,6 +80,10 @@ class ShadowModeRunner:
         task: str,
         reports_dir: Path | None = None,
         state_stale_after_ms: float = DEFAULT_STATE_STALE_AFTER_MS,
+        checkpoint_metadata: dict | None = None,
+        evaluation_mode: str | None = None,
+        scene_metadata: dict | None = None,
+        capture_camera_frames: bool = True,
     ) -> None:
         self._camera_source = camera_source
         self._state_source = state_source
@@ -88,6 +93,15 @@ class ShadowModeRunner:
         self._task = task
         self._reports_dir = reports_dir
         self._state_stale_after_ms = state_stale_after_ms
+        # checkpoint 절대경로/step/학습 dataset provenance - run_shadow_mode.py가 CLI에서
+        # 확정한 값을 그대로 주입한다(요구사항 4번). 이 러너 자체는 checkpoint를 로딩하지
+        # 않으므로(그건 vla_client 쪽 책임) 추측하지 않고 주어진 값을 리포트에만 옮긴다.
+        self._checkpoint_metadata = checkpoint_metadata
+        # "fixed-scene-repeat" | "midpoint-shadow" | None - 요구사항 7번.
+        self._evaluation_mode = evaluation_mode
+        # T01~T10 라벨 등 사람이 지정한 값만 - 물체 XY를 추정하지 않는다.
+        self._scene_metadata = scene_metadata
+        self._capture_camera_frames = capture_camera_frames
 
     def run_once(self) -> ShadowRunResult:
         session_id = make_session_id()
@@ -105,7 +119,16 @@ class ShadowModeRunner:
         }
         vla_report: dict = {"raw_action": None, "action_schema_valid": None, "model_id": None, "backend": None}
         adapter_report: dict = {"mapped_action": None, "warnings": []}
-        safety_report: dict = {"decision": None, "reasons": [], "would_clamp": None, "safe_action": None}
+        # config_source(real calibration vs fallback)는 SafetyGate 인스턴스 자체의 정적 속성이라
+        # 판정 결과와 무관하게 항상 채울 수 있다 - 파이프라인이 어느 단계에서 멈추든(카메라 캡처
+        # 실패 등) 리포트에 "이번 세션이 fallback을 썼는지"가 항상 남도록 여기서 미리 넣는다.
+        safety_report: dict = {
+            "decision": None,
+            "reasons": [],
+            "would_clamp": None,
+            "safe_action": None,
+            "config_source": self._safety_gate.config.source_summary(),
+        }
         mujoco_report: dict = {"initial_state": None, "final_state": None, "realistic_layer_diagnostics": None}
         validation_report: dict = {"passed": None, "warnings": [], "failures": [], "checks": {}}
 
@@ -115,6 +138,17 @@ class ShadowModeRunner:
         except Exception as exc:  # noqa: BLE001
             camera_frames = {}
             reasons.append(f"카메라 캡처 실패: {exc}")
+
+        # 성공/실패한 downstream validation과 무관하게, 캡처에 성공한 원본 프레임은 최대한
+        # 그대로 보존한다(요구사항: "과거 Shadow 실험에서는 raw camera input이 보존되지 않아
+        # 동일 입력 fixed-seed 재평가를 할 수 없었다" - PNG/JPEG로 남겨 재사용 가능하게 한다).
+        camera_frame_paths: dict[str, str] = {}
+        if self._capture_camera_frames and camera_frames:
+            camera_frame_paths = save_camera_frames(
+                {key: frame.image_rgb for key, frame in camera_frames.items()},
+                reports_dir=self._reports_dir,
+                session_id=session_id,
+            )
 
         state_snapshot: FollowerStateSnapshot | None = None
         state_stale = False
@@ -136,6 +170,8 @@ class ShadowModeRunner:
             "state_valid": False,
             "schema_valid": False,
             "invalid_reasons": list(reasons),
+            "state": None,
+            "camera_frame_paths": camera_frame_paths,
         }
 
         built: BuiltObservation | None = None
@@ -147,6 +183,9 @@ class ShadowModeRunner:
                 "state_valid": built.state_valid,
                 "schema_valid": built.schema_valid,
                 "invalid_reasons": list(built.invalid_reasons),
+                # 현재 팔로워 state(degree/percent) - 요구사항: "current follower state" 기록.
+                "state": built.state if built.state_valid else None,
+                "camera_frame_paths": camera_frame_paths,
             }
 
         if built is None or not built.schema_valid:
@@ -297,6 +336,8 @@ class ShadowModeRunner:
             task=task, backend=BACKEND_LABEL, observation=observation, communication=communication, vla=vla,
             adapter=adapter, safety=safety, mujoco=mujoco, validation=validation,
             real_follower_write_count=write_count, result=result, result_reasons=reasons,
+            checkpoint=self._checkpoint_metadata, evaluation_mode=self._evaluation_mode,
+            scene_metadata=self._scene_metadata,
         )
         report["session_id"] = session_id
         report_path = write_report(report, reports_dir=self._reports_dir, session_id=session_id)

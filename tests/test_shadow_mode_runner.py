@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import math
 import time
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -21,11 +22,23 @@ from runtime.common.vla_contract import CAMERA_WORKSPACE_KEY, CAMERA_WRIST_KEY, 
 from runtime.desktop.vla_server import FakePolicyRunner, PolicyInferenceError, create_app
 from runtime.laptop.camera_source import CameraFrame
 from runtime.laptop.follower_state_source import REAL_FOLLOWER_WRITE_COUNT, FollowerStateSnapshot
+from runtime.laptop.inprocess_vla_client import InProcessSmolVLAClient
 from runtime.laptop.mujoco_shadow_backend import RealisticMuJoCoBackend
 from runtime.laptop.safety_gate import SafetyGate, SafetyGateConfig
 from runtime.laptop.shadow_logger import RESULT_SHADOW_FAIL, RESULT_SHADOW_PASS, RESULT_SHADOW_PASS_WITH_CLAMP
 from runtime.laptop.shadow_mode_runner import ShadowModeRunner
 from runtime.laptop.vla_client import VLAClientConfig, VLAHttpClient
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+REAL_GRID35_CHECKPOINT = (
+    PROJECT_ROOT
+    / "outputs"
+    / "grid35"
+    / "smolvla_grid35_fresh_v1"
+    / "checkpoints"
+    / "002500"
+    / "pretrained_model"
+)
 
 
 class FakeCameraSource:
@@ -211,3 +224,126 @@ def test_state_source_has_no_write_methods() -> None:
     for forbidden in ("send_action", "sync_write", "write", "set_target", "enable_torque"):
         assert not hasattr(source, forbidden)
     assert REAL_FOLLOWER_WRITE_COUNT == 0
+
+
+# ---------------------------------------------------------------------------
+# 새 report 필드 (2026-08 Grid35 Shadow Mode 감사 요구사항 4/5/7번)
+# ---------------------------------------------------------------------------
+
+
+def test_report_includes_checkpoint_metadata_and_eval_mode(tmp_path, real_mujoco_backend) -> None:
+    checkpoint_metadata = {
+        "checkpoint_path": "/abs/outputs/grid35/x/checkpoints/010000/pretrained_model",
+        "checkpoint_step": 10000,
+        "train_dataset_provenance": {"recorded_train_dataset_root": "/x/data/so101_cube_xy_grid35_v1"},
+    }
+    runner = ShadowModeRunner(
+        camera_source=FakeCameraSource(),
+        state_source=FakeStateSource(),
+        vla_client=_vla_client(),
+        safety_gate=SafetyGate(_safety_config()),
+        mujoco_backend=real_mujoco_backend,
+        task="Pick up the cube",
+        reports_dir=tmp_path,
+        checkpoint_metadata=checkpoint_metadata,
+        evaluation_mode="midpoint-shadow",
+        scene_metadata={"label": "T01", "note": "grid (2,3)과 (2,4) 사이 midpoint"},
+    )
+    result = runner.run_once()
+    assert result.report["checkpoint"]["checkpoint_step"] == 10000
+    assert result.report["evaluation_mode"] == "midpoint-shadow"
+    assert result.report["scene_metadata"]["label"] == "T01"
+
+
+def test_report_defaults_checkpoint_and_eval_mode_to_none_when_not_given(tmp_path, real_mujoco_backend) -> None:
+    runner = _runner(mujoco_backend=real_mujoco_backend, reports_dir=tmp_path)
+    result = runner.run_once()
+    assert result.report["checkpoint"] is None
+    assert result.report["evaluation_mode"] is None
+    assert result.report["scene_metadata"] is None
+
+
+def test_report_includes_current_follower_state(tmp_path, real_mujoco_backend) -> None:
+    positions = {j: 3.0 for j in JOINT_ORDER}
+    runner = _runner(state=FakeStateSource(positions=positions), mujoco_backend=real_mujoco_backend, reports_dir=tmp_path)
+    result = runner.run_once()
+    assert result.report["observation"]["state"] == positions
+
+
+def test_report_includes_saved_camera_frame_paths(tmp_path, real_mujoco_backend) -> None:
+    runner = _runner(mujoco_backend=real_mujoco_backend, reports_dir=tmp_path)
+    result = runner.run_once()
+    paths = result.report["observation"]["camera_frame_paths"]
+    assert set(paths) == {"workspace_path", "wrist_path"}
+    for p in paths.values():
+        assert Path(p).is_file()
+
+
+def test_camera_frame_capture_can_be_disabled(tmp_path, real_mujoco_backend) -> None:
+    runner = _runner(mujoco_backend=real_mujoco_backend, reports_dir=tmp_path)
+    runner._capture_camera_frames = False
+    result = runner.run_once()
+    assert result.report["observation"]["camera_frame_paths"] == {}
+
+
+def test_report_includes_safety_config_source_even_on_early_failure(tmp_path) -> None:
+    """카메라/통신이 전부 실패해도 safety.config_source는 항상 채워져야 한다 -
+    SafetyGate 인스턴스 자체의 정적 속성이라 파이프라인 진행 여부와 무관하다."""
+    runner = _runner(
+        camera=FakeCameraSource(fail=True), vla_client=MagicMock(), mujoco_backend=MagicMock(), reports_dir=tmp_path
+    )
+    result = runner.run_once()
+    assert result.result == RESULT_SHADOW_FAIL
+    assert "config_source" in result.report["safety"]
+    assert "uses_calibration_fallback" in result.report["safety"]["config_source"]
+
+
+def test_camera_frames_saved_even_when_state_read_fails(tmp_path) -> None:
+    """카메라는 성공했는데 state read가 실패한 경우에도 raw camera input은 보존돼야 한다."""
+    runner = _runner(state=FakeStateSource(fail=True), vla_client=MagicMock(), mujoco_backend=MagicMock(), reports_dir=tmp_path)
+    result = runner.run_once()
+    assert result.result == RESULT_SHADOW_FAIL
+    paths = result.report["observation"]["camera_frame_paths"]
+    assert set(paths) == {"workspace_path", "wrist_path"}
+
+
+# ---------------------------------------------------------------------------
+# InProcessSmolVLAClient 통합 (요구사항 1/2/3번) - 실제 checkpoint, GPU 필요.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.slow
+def test_shadow_mode_runs_end_to_end_with_real_grid35_checkpoint(tmp_path, real_mujoco_backend) -> None:
+    if not REAL_GRID35_CHECKPOINT.is_dir():
+        pytest.skip(f"실제 grid35 checkpoint를 찾을 수 없습니다: {REAL_GRID35_CHECKPOINT}")
+
+    client = InProcessSmolVLAClient(checkpoint=str(REAL_GRID35_CHECKPOINT))
+    try:
+        runner = ShadowModeRunner(
+            camera_source=FakeCameraSource(),
+            state_source=FakeStateSource(),
+            vla_client=client,
+            safety_gate=SafetyGate(SafetyGateConfig.from_repo_defaults()),
+            mujoco_backend=real_mujoco_backend,
+            task="Pick up the cube and place it in the target area.",
+            reports_dir=tmp_path,
+            checkpoint_metadata={
+                "checkpoint_path": str(REAL_GRID35_CHECKPOINT),
+                "checkpoint_step": 2500,
+                "train_dataset_provenance": {"recorded_train_dataset_root": "data/so101_cube_xy_grid35_v1"},
+            },
+            evaluation_mode="fixed-scene-repeat",
+        )
+        result = runner.run_once()
+    finally:
+        client.close()
+
+    # 실제 checkpoint 출력이 REJECT를 유발할 수도 있으므로(모델 품질과 무관하게 이 테스트의
+    # 목적은 "checkpoint CLI 선택이 실제로 동작하는가"이지 "이 체크포인트가 통과하는가"가
+    # 아니다) result 자체는 검증하지 않는다 - 파이프라인이 실제로 checkpoint를 통해 끝까지
+    # 돌았는지만 확인한다.
+    assert result.report["vla"]["backend"] == "smolvla"
+    assert result.report["vla"]["model_id"] == str(REAL_GRID35_CHECKPOINT)
+    assert result.report["checkpoint"]["checkpoint_step"] == 2500
+    assert result.real_follower_write_count == 0
+    assert result.report["hardware"]["real_follower_write_count"] == 0
