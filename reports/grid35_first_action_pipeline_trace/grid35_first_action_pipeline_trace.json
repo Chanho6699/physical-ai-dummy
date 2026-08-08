@@ -1,0 +1,1677 @@
+{
+  "reference_observation": {
+    "file": "shadow_20260808_152102.json",
+    "label": "T05",
+    "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+    "safety_decision": "REJECT",
+    "state": {
+      "shoulder_pan": -9.098901098901099,
+      "shoulder_lift": -99.56043956043956,
+      "elbow_flex": 96.83516483516483,
+      "wrist_flex": 55.42857142857143,
+      "wrist_roll": -0.9230769230769231,
+      "gripper": 0.0
+    },
+    "raw_action_post_postprocessor": {
+      "shoulder_pan": -15.06221866607666,
+      "shoulder_lift": -80.24724578857422,
+      "elbow_flex": 64.8058090209961,
+      "wrist_flex": 63.793365478515625,
+      "wrist_roll": -1.8183737993240356,
+      "gripper": 4.85760498046875
+    },
+    "adapter_mapped_action": {
+      "shoulder_pan": -15.06221866607666,
+      "shoulder_lift": -80.24724578857422,
+      "elbow_flex": 64.8058090209961,
+      "wrist_flex": 63.793365478515625,
+      "wrist_roll": -1.8183737993240356,
+      "gripper": 4.85760498046875
+    },
+    "safety_safe_action": null,
+    "safety_per_joint_reasons": {
+      "shoulder_pan": [
+        "EXCESSIVE_STEP_CLAMPED: -15.06 -> -13.68 (임계값 4.58deg/step)"
+      ],
+      "shoulder_lift": [
+        "EXCESSIVE_STEP_CLAMPED: -80.25 -> -94.40 (임계값 5.16deg/step)"
+      ],
+      "elbow_flex": [
+        "EXCESSIVE_STEP_GROSS: |delta|=32.03deg (임계값 5.73deg의 5.0배 초과)"
+      ],
+      "wrist_flex": [
+        "EXCESSIVE_STEP_CLAMPED: 63.79 -> 59.44 (임계값 4.01deg/step)"
+      ],
+      "wrist_roll": [],
+      "gripper": []
+    },
+    "delta_raw_action_minus_state": {
+      "shoulder_pan": -5.963317567175562,
+      "shoulder_lift": 19.313193771865343,
+      "elbow_flex": -32.02935581416874,
+      "wrist_flex": 8.364794049944194,
+      "wrist_roll": -0.8952968762471125,
+      "gripper": 4.85760498046875
+    }
+  },
+  "joint_order_check": {
+    "dataset_action_names": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "dataset_state_names": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "vla_contract_JOINT_ORDER": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "dataset_action_matches_contract": true,
+    "dataset_state_matches_contract": true,
+    "other_joint_order_definitions": {
+      "hardware.state_server.readonly_so101_reader.JOINT_ORDER": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ]
+    },
+    "note": "State is always dict-keyed by joint name end-to-end (HTTP JSON body, adapter, safety gate all index by name) - a permutation bug is structurally impossible on the state path. The ONE positional-order risk is in runtime.desktop.vla_server.SmolVLAPolicyRunner.predict(): `{joint: float(action_flat[i]) for i, joint in enumerate(JOINT_ORDER)}` zips the checkpoint's raw output tensor to JOINT_ORDER by position with no cross-check against the checkpoint's own training-dataset feature-name order."
+  },
+  "normalization_stats_provenance_by_dataset": {
+    "so101_cube_smoke_v1": {
+      "shoulder_pan": {
+        "mean": -12.658019065856934,
+        "std": 23.676254272460938,
+        "min": -65.36264038085938,
+        "max": 3.2087912559509277
+      },
+      "shoulder_lift": {
+        "mean": -15.126871109008789,
+        "std": 47.79497146606445,
+        "min": -98.06593322753906,
+        "max": 23.428571701049805
+      },
+      "elbow_flex": {
+        "mean": 8.580406188964844,
+        "std": 51.73942184448242,
+        "min": -52.659339904785156,
+        "max": 94.4175796508789
+      },
+      "wrist_flex": {
+        "mean": 66.6152572631836,
+        "std": 18.02349090576172,
+        "min": 46.593406677246094,
+        "max": 97.05494689941406
+      },
+      "wrist_roll": {
+        "mean": -2.3226099014282227,
+        "std": 0.23532319068908691,
+        "min": -2.681318759918213,
+        "max": -2.065934181213379
+      },
+      "gripper": {
+        "mean": 13.896807670593262,
+        "std": 12.981637001037598,
+        "min": 0.9936124682426453,
+        "max": 34.49254608154297
+      }
+    },
+    "so101_cube_train_v1": {
+      "shoulder_pan": {
+        "mean": -13.401485443115234,
+        "std": 23.435836706270397,
+        "min": -71.34066009521484,
+        "max": 30.549449920654297
+      },
+      "shoulder_lift": {
+        "mean": -42.6010124206543,
+        "std": 55.293713623706864,
+        "min": -99.12088012695312,
+        "max": 48.39560317993164
+      },
+      "elbow_flex": {
+        "mean": 27.446849822998047,
+        "std": 58.085599953774164,
+        "min": -72.79120635986328,
+        "max": 94.5054931640625
+      },
+      "wrist_flex": {
+        "mean": 77.1757095336914,
+        "std": 15.96347921419362,
+        "min": 43.9560432434082,
+        "max": 97.05494689941406
+      },
+      "wrist_roll": {
+        "mean": -2.241230010986328,
+        "std": 0.19502248975941072,
+        "min": -2.769230842590332,
+        "max": -1.9780219793319702
+      },
+      "gripper": {
+        "mean": 7.069626998901367,
+        "std": 10.92402882830853,
+        "min": 0.49680623412132263,
+        "max": 42.725337982177734
+      }
+    },
+    "so101_cube_train_v2": {
+      "shoulder_pan": {
+        "mean": -39.66073230503394,
+        "std": 30.849658211519937,
+        "min": -69.4945068359375,
+        "max": 16.043956756591797
+      },
+      "shoulder_lift": {
+        "mean": 11.705215354733891,
+        "std": 46.03865855737738,
+        "min": -98.5934066772461,
+        "max": 51.38461685180664
+      },
+      "elbow_flex": {
+        "mean": -26.7032311182903,
+        "std": 47.534600307504796,
+        "min": -70.68132019042969,
+        "max": 94.4175796508789
+      },
+      "wrist_flex": {
+        "mean": 88.1739689487796,
+        "std": 15.522124511184744,
+        "min": 44.39560317993164,
+        "max": 97.05494689941406
+      },
+      "wrist_roll": {
+        "mean": -2.2539287813536455,
+        "std": 0.17779144005122355,
+        "min": -2.5934066772460938,
+        "max": -1.890109896659851
+      },
+      "gripper": {
+        "mean": 24.80148289853683,
+        "std": 16.925854211295555,
+        "min": 1.1355571746826172,
+        "max": 46.202980041503906
+      }
+    },
+    "so101_cube_train_v3": {
+      "shoulder_pan": {
+        "mean": -40.8066767821027,
+        "std": 30.71223339951998,
+        "min": -68.52747344970703,
+        "max": 28.703296661376953
+      },
+      "shoulder_lift": {
+        "mean": 15.245170976305305,
+        "std": 43.50966175551505,
+        "min": -98.4175796508789,
+        "max": 55.25274658203125
+      },
+      "elbow_flex": {
+        "mean": -31.51622178148309,
+        "std": 43.76437363090737,
+        "min": -69.97801971435547,
+        "max": 94.4175796508789
+      },
+      "wrist_flex": {
+        "mean": 88.54771772481628,
+        "std": 13.690092529073933,
+        "min": 46.68132019042969,
+        "max": 97.05494689941406
+      },
+      "wrist_roll": {
+        "mean": -2.2991006472725406,
+        "std": 0.19182084822440346,
+        "min": -2.681318759918213,
+        "max": -1.9780219793319702
+      },
+      "gripper": {
+        "mean": 28.419495645534983,
+        "std": 19.112218500088947,
+        "min": 0.8516678214073181,
+        "max": 52.235626220703125
+      }
+    },
+    "so101_cube_train_v4": {
+      "shoulder_pan": {
+        "mean": -45.179632568359374,
+        "std": 31.718842978728745,
+        "min": -72.74725341796875,
+        "max": 31.516483306884766
+      },
+      "shoulder_lift": {
+        "mean": 15.365254020690918,
+        "std": 45.02441645116241,
+        "min": -98.4175796508789,
+        "max": 53.406593322753906
+      },
+      "elbow_flex": {
+        "mean": -31.04534454345703,
+        "std": 45.984718434950864,
+        "min": -76.65933990478516,
+        "max": 94.4175796508789
+      },
+      "wrist_flex": {
+        "mean": 84.2906982421875,
+        "std": 12.838534992625394,
+        "min": 48.96703338623047,
+        "max": 97.14286041259766
+      },
+      "wrist_roll": {
+        "mean": -3.3925918340682983,
+        "std": 1.7948656041893642,
+        "min": -6.02197790145874,
+        "max": -1.5384615659713745
+      },
+      "gripper": {
+        "mean": 28.798778533935547,
+        "std": 18.589834320459907,
+        "min": 0.8516678214073181,
+        "max": 49.041873931884766
+      }
+    },
+    "so101_cube_train_v5": {
+      "shoulder_pan": {
+        "mean": -44.33287917365994,
+        "std": 31.94469148573379,
+        "min": -76.17582702636719,
+        "max": 28.879121780395508
+      },
+      "shoulder_lift": {
+        "mean": 10.61182661273456,
+        "std": 42.102625625059964,
+        "min": -98.5054931640625,
+        "max": 51.47252655029297
+      },
+      "elbow_flex": {
+        "mean": -19.6668486171913,
+        "std": 41.68406835526051,
+        "min": -77.80220031738281,
+        "max": 94.76923370361328
+      },
+      "wrist_flex": {
+        "mean": 72.6162890247954,
+        "std": 17.41991688480787,
+        "min": 37.36263656616211,
+        "max": 97.14286041259766
+      },
+      "wrist_roll": {
+        "mean": -1.9071053746127316,
+        "std": 0.19609871603551546,
+        "min": -2.241758346557617,
+        "max": -1.5384615659713745
+      },
+      "gripper": {
+        "mean": 30.90724620172533,
+        "std": 20.028057512750166,
+        "min": 0.7806955575942993,
+        "max": 58.33924865722656
+      }
+    },
+    "so101_cube_train_v6": {
+      "shoulder_pan": {
+        "mean": -44.339944069987425,
+        "std": 28.755081567049103,
+        "min": -68.35164642333984,
+        "max": 30.989011764526367
+      },
+      "shoulder_lift": {
+        "mean": 14.394196627078367,
+        "std": 38.99496485273661,
+        "min": -98.5934066772461,
+        "max": 48.92307662963867
+      },
+      "elbow_flex": {
+        "mean": -19.5560524444512,
+        "std": 36.42844635424594,
+        "min": -56.43955993652344,
+        "max": 94.4175796508789
+      },
+      "wrist_flex": {
+        "mean": 64.96841367624573,
+        "std": 11.924590735073275,
+        "min": 45.010990142822266,
+        "max": 96.87911987304688
+      },
+      "wrist_roll": {
+        "mean": -1.8438172772407107,
+        "std": 0.18199805198064528,
+        "min": -2.153846263885498,
+        "max": -1.5384615659713745
+      },
+      "gripper": {
+        "mean": 31.47533632537066,
+        "std": 18.620873566775554,
+        "min": 0.8516678214073181,
+        "max": 55.074520111083984
+      }
+    },
+    "so101_cube_trials_v1": {
+      "shoulder_pan": {
+        "mean": -7.120960469013982,
+        "std": 17.440886892912307,
+        "min": -63.340660095214844,
+        "max": 8.571428298950195
+      },
+      "shoulder_lift": {
+        "mean": -61.95367179029704,
+        "std": 53.929154291224684,
+        "min": -98.76923370361328,
+        "max": 49.978023529052734
+      },
+      "elbow_flex": {
+        "mean": 52.0662855448759,
+        "std": 58.37376505331842,
+        "min": -75.25274658203125,
+        "max": 94.06593322753906
+      },
+      "wrist_flex": {
+        "mean": 64.54580488294323,
+        "std": 16.997468790194667,
+        "min": 50.373626708984375,
+        "max": 97.05494689941406
+      },
+      "wrist_roll": {
+        "mean": -2.219700494231735,
+        "std": 0.16280027211339798,
+        "min": -2.681318759918213,
+        "max": -1.890109896659851
+      },
+      "gripper": {
+        "mean": 4.800153633996026,
+        "std": 9.387926340514161,
+        "min": 0.7806955575942993,
+        "max": 42.725337982177734
+      }
+    },
+    "so101_cube_xy_grid35_v1": {
+      "shoulder_pan": {
+        "mean": -29.38765656857788,
+        "std": 30.977867763851407,
+        "min": -76.52747344970703,
+        "max": 23.16483497619629
+      },
+      "shoulder_lift": {
+        "mean": -2.213988301774916,
+        "std": 41.42568325783798,
+        "min": -98.5054931640625,
+        "max": 56.39560317993164
+      },
+      "elbow_flex": {
+        "mean": -5.847146986551945,
+        "std": 42.76350325713094,
+        "min": -86.15384674072266,
+        "max": 94.76923370361328
+      },
+      "wrist_flex": {
+        "mean": 76.18952603623171,
+        "std": 14.003994901892396,
+        "min": 39.736263275146484,
+        "max": 97.05494689941406
+      },
+      "wrist_roll": {
+        "mean": -3.437569134415299,
+        "std": 0.47445399609603395,
+        "min": -4.175824165344238,
+        "max": -0.48351648449897766
+      },
+      "gripper": {
+        "mean": 17.468232935416136,
+        "std": 17.447603685225417,
+        "min": 0.7097232341766357,
+        "max": 55.784244537353516
+      }
+    },
+    "so101_cube_xy_grid35_v1_backup_29ep": {
+      "shoulder_pan": {
+        "mean": -29.734173195407067,
+        "std": 31.285025273589568,
+        "min": -76.52747344970703,
+        "max": 22.549449920654297
+      },
+      "shoulder_lift": {
+        "mean": 0.5960190112516842,
+        "std": 41.698975611071795,
+        "min": -98.5054931640625,
+        "max": 56.39560317993164
+      },
+      "elbow_flex": {
+        "mean": -9.323129617192516,
+        "std": 42.960894816009784,
+        "min": -86.15384674072266,
+        "max": 94.76923370361328
+      },
+      "wrist_flex": {
+        "mean": 75.29798977276529,
+        "std": 13.789152003519174,
+        "min": 39.736263275146484,
+        "max": 97.05494689941406
+      },
+      "wrist_roll": {
+        "mean": -3.5254298826980723,
+        "std": 0.310769988247002,
+        "min": -4.175824165344238,
+        "max": -2.9450550079345703
+      },
+      "gripper": {
+        "mean": 18.0746559759572,
+        "std": 17.44816919783583,
+        "min": 0.7097232341766357,
+        "max": 55.784244537353516
+      }
+    },
+    "so101_cube_xy_midpoint_test10_v1": {
+      "shoulder_pan": {
+        "mean": -27.765925312042235,
+        "std": 30.50991198539621,
+        "min": -75.82417297363281,
+        "max": 17.27472496032715
+      },
+      "shoulder_lift": {
+        "mean": -6.376198613643647,
+        "std": 38.952221102740644,
+        "min": -98.32967376708984,
+        "max": 51.29670333862305
+      },
+      "elbow_flex": {
+        "mean": 0.8731000319123268,
+        "std": 39.316932470962826,
+        "min": -57.230770111083984,
+        "max": 94.85713958740234
+      },
+      "wrist_flex": {
+        "mean": 76.5266342163086,
+        "std": 13.296224744253713,
+        "min": 40.263736724853516,
+        "max": 97.05494689941406
+      },
+      "wrist_roll": {
+        "mean": -0.850681209564209,
+        "std": 0.21418955491857594,
+        "min": -1.3626374006271362,
+        "max": -0.48351648449897766
+      },
+      "gripper": {
+        "mean": 15.55663022994995,
+        "std": 16.7108186461572,
+        "min": 0.8516678214073181,
+        "max": 49.60965347290039
+      }
+    },
+    "so101_cube_xy_train_v1": {
+      "shoulder_pan": {
+        "mean": -42.49544595293524,
+        "std": 31.396565539518484,
+        "min": -76.17582702636719,
+        "max": 31.516483306884766
+      },
+      "shoulder_lift": {
+        "mean": 13.232155934874314,
+        "std": 44.24426846346208,
+        "min": -98.5934066772461,
+        "max": 55.25274658203125
+      },
+      "elbow_flex": {
+        "mean": -27.233183151225976,
+        "std": 45.04814431250848,
+        "min": -77.80220031738281,
+        "max": 94.76923370361328
+      },
+      "wrist_flex": {
+        "mean": 83.40668618399219,
+        "std": 16.30173612962647,
+        "min": 37.36263656616211,
+        "max": 97.14286041259766
+      },
+      "wrist_roll": {
+        "mean": -2.463256814940447,
+        "std": 1.0692600419980578,
+        "min": -6.02197790145874,
+        "max": -1.5384615659713745
+      },
+      "gripper": {
+        "mean": 28.23216495785103,
+        "std": 18.826652681224573,
+        "min": 0.7806955575942993,
+        "max": 58.33924865722656
+      }
+    }
+  },
+  "checkpoint_provenance": {
+    "status": "SKIPPED",
+    "reason": "--checkpoint not provided"
+  },
+  "shadow_log_stage_table": [
+    {
+      "file": "shadow_20260808_151308.json",
+      "label": "F01",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "WOULD_CLAMP",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -20.32282257080078,
+        "shoulder_lift": -81.15885925292969,
+        "elbow_flex": 69.96702575683594,
+        "wrist_flex": 63.64560317993164,
+        "wrist_roll": -1.8420171737670898,
+        "gripper": 3.9641666412353516
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -20.32282257080078,
+        "shoulder_lift": -81.15885925292969,
+        "elbow_flex": 69.96702575683594,
+        "wrist_flex": 63.64560317993164,
+        "wrist_roll": -1.8420171737670898,
+        "gripper": 3.9641666412353516
+      },
+      "safety_safe_action": {
+        "shoulder_pan": -13.678901098901099,
+        "shoulder_lift": -94.40043956043957,
+        "elbow_flex": 91.10516483516483,
+        "wrist_flex": 59.43857142857143,
+        "wrist_roll": -1.8420171737670898,
+        "gripper": 3.9641666412353516
+      },
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [
+          "EXCESSIVE_STEP_CLAMPED: -20.32 -> -13.68 (임계값 4.58deg/step)"
+        ],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -81.16 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 69.97 -> 91.11 (임계값 5.73deg/step)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 63.65 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -11.223921471899683,
+        "shoulder_lift": 18.401580307509875,
+        "elbow_flex": -26.868139078328895,
+        "wrist_flex": 8.21703175136021,
+        "wrist_roll": -0.9189402506901667,
+        "gripper": 3.9641666412353516
+      }
+    },
+    {
+      "file": "shadow_20260808_151527.json",
+      "label": "F02",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "WOULD_CLAMP",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -10.95388412475586,
+        "shoulder_lift": -76.73930358886719,
+        "elbow_flex": 68.26190948486328,
+        "wrist_flex": 64.85053253173828,
+        "wrist_roll": -1.643964171409607,
+        "gripper": 3.7940025329589844
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -10.95388412475586,
+        "shoulder_lift": -76.73930358886719,
+        "elbow_flex": 68.26190948486328,
+        "wrist_flex": 64.85053253173828,
+        "wrist_roll": -1.643964171409607,
+        "gripper": 3.7940025329589844
+      },
+      "safety_safe_action": {
+        "shoulder_pan": -10.95388412475586,
+        "shoulder_lift": -94.40043956043957,
+        "elbow_flex": 91.10516483516483,
+        "wrist_flex": 59.43857142857143,
+        "wrist_roll": -1.643964171409607,
+        "gripper": 3.7940025329589844
+      },
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -76.74 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 68.26 -> 91.11 (임계값 5.73deg/step)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 64.85 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -1.8549830258547608,
+        "shoulder_lift": 22.821135971572375,
+        "elbow_flex": -28.57325535030155,
+        "wrist_flex": 9.42196110316685,
+        "wrist_roll": -0.7208872483326838,
+        "gripper": 3.7940025329589844
+      }
+    },
+    {
+      "file": "shadow_20260808_151625.json",
+      "label": "F03",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "WOULD_CLAMP",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -11.035772323608398,
+        "shoulder_lift": -86.9507827758789,
+        "elbow_flex": 75.9981689453125,
+        "wrist_flex": 61.670616149902344,
+        "wrist_roll": -1.7849117517471313,
+        "gripper": 1.303274154663086
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -11.035772323608398,
+        "shoulder_lift": -86.9507827758789,
+        "elbow_flex": 75.9981689453125,
+        "wrist_flex": 61.670616149902344,
+        "wrist_roll": -1.7849117517471313,
+        "gripper": 1.303274154663086
+      },
+      "safety_safe_action": {
+        "shoulder_pan": -11.035772323608398,
+        "shoulder_lift": -94.40043956043957,
+        "elbow_flex": 91.10516483516483,
+        "wrist_flex": 59.43857142857143,
+        "wrist_roll": -1.7849117517471313,
+        "gripper": 1.303274154663086
+      },
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -86.95 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 76.00 -> 91.11 (임계값 5.73deg/step)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 61.67 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -1.9368712247072999,
+        "shoulder_lift": 12.609656784560656,
+        "elbow_flex": -20.836995889852332,
+        "wrist_flex": 6.242044721330913,
+        "wrist_roll": -0.8618348286702082,
+        "gripper": 1.303274154663086
+      }
+    },
+    {
+      "file": "shadow_20260808_151644.json",
+      "label": "F04",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "WOULD_CLAMP",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -15.350080490112305,
+        "shoulder_lift": -89.94432830810547,
+        "elbow_flex": 73.74039459228516,
+        "wrist_flex": 64.10787200927734,
+        "wrist_roll": -1.7736588716506958,
+        "gripper": 3.4656639099121094
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -15.350080490112305,
+        "shoulder_lift": -89.94432830810547,
+        "elbow_flex": 73.74039459228516,
+        "wrist_flex": 64.10787200927734,
+        "wrist_roll": -1.7736588716506958,
+        "gripper": 3.4656639099121094
+      },
+      "safety_safe_action": {
+        "shoulder_pan": -13.678901098901099,
+        "shoulder_lift": -94.40043956043957,
+        "elbow_flex": 91.10516483516483,
+        "wrist_flex": 59.43857142857143,
+        "wrist_roll": -1.7736588716506958,
+        "gripper": 3.4656639099121094
+      },
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [
+          "EXCESSIVE_STEP_CLAMPED: -15.35 -> -13.68 (임계값 4.58deg/step)"
+        ],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -89.94 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 73.74 -> 91.11 (임계값 5.73deg/step)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 64.11 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -6.251179391211206,
+        "shoulder_lift": 9.616111252334093,
+        "elbow_flex": -23.094770242879676,
+        "wrist_flex": 8.679300580705913,
+        "wrist_roll": -0.8505819485737727,
+        "gripper": 3.4656639099121094
+      }
+    },
+    {
+      "file": "shadow_20260808_151702.json",
+      "label": "F05",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "WOULD_CLAMP",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -13.094799041748047,
+        "shoulder_lift": -82.83648681640625,
+        "elbow_flex": 71.8843765258789,
+        "wrist_flex": 62.90734100341797,
+        "wrist_roll": -1.8274755477905273,
+        "gripper": 3.5256643295288086
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -13.094799041748047,
+        "shoulder_lift": -82.83648681640625,
+        "elbow_flex": 71.8843765258789,
+        "wrist_flex": 62.90734100341797,
+        "wrist_roll": -1.8274755477905273,
+        "gripper": 3.5256643295288086
+      },
+      "safety_safe_action": {
+        "shoulder_pan": -13.094799041748047,
+        "shoulder_lift": -94.40043956043957,
+        "elbow_flex": 91.10516483516483,
+        "wrist_flex": 59.43857142857143,
+        "wrist_roll": -1.8274755477905273,
+        "gripper": 3.5256643295288086
+      },
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -82.84 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 71.88 -> 91.11 (임계값 5.73deg/step)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 62.91 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -3.9958979428469483,
+        "shoulder_lift": 16.723952744033312,
+        "elbow_flex": -24.950788309285926,
+        "wrist_flex": 7.478769574846538,
+        "wrist_roll": -0.9043986247136042,
+        "gripper": 3.5256643295288086
+      }
+    },
+    {
+      "file": "shadow_20260808_152043.json",
+      "label": "T01",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "WOULD_CLAMP",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -15.300858497619629,
+        "shoulder_lift": -83.10096740722656,
+        "elbow_flex": 70.17451477050781,
+        "wrist_flex": 64.88152313232422,
+        "wrist_roll": -1.6590864658355713,
+        "gripper": 3.490891456604004
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -15.300858497619629,
+        "shoulder_lift": -83.10096740722656,
+        "elbow_flex": 70.17451477050781,
+        "wrist_flex": 64.88152313232422,
+        "wrist_roll": -1.6590864658355713,
+        "gripper": 3.490891456604004
+      },
+      "safety_safe_action": {
+        "shoulder_pan": -13.678901098901099,
+        "shoulder_lift": -94.40043956043957,
+        "elbow_flex": 91.10516483516483,
+        "wrist_flex": 59.43857142857143,
+        "wrist_roll": -1.6590864658355713,
+        "gripper": 3.490891456604004
+      },
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [
+          "EXCESSIVE_STEP_CLAMPED: -15.30 -> -13.68 (임계값 4.58deg/step)"
+        ],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -83.10 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 70.17 -> 91.11 (임계값 5.73deg/step)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 64.88 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -6.20195739871853,
+        "shoulder_lift": 16.459472153213,
+        "elbow_flex": -26.66065006465702,
+        "wrist_flex": 9.452951703752788,
+        "wrist_roll": -0.7360095427586482,
+        "gripper": 3.490891456604004
+      }
+    },
+    {
+      "file": "shadow_20260808_152102.json",
+      "label": "T05",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "REJECT",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -15.06221866607666,
+        "shoulder_lift": -80.24724578857422,
+        "elbow_flex": 64.8058090209961,
+        "wrist_flex": 63.793365478515625,
+        "wrist_roll": -1.8183737993240356,
+        "gripper": 4.85760498046875
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -15.06221866607666,
+        "shoulder_lift": -80.24724578857422,
+        "elbow_flex": 64.8058090209961,
+        "wrist_flex": 63.793365478515625,
+        "wrist_roll": -1.8183737993240356,
+        "gripper": 4.85760498046875
+      },
+      "safety_safe_action": null,
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [
+          "EXCESSIVE_STEP_CLAMPED: -15.06 -> -13.68 (임계값 4.58deg/step)"
+        ],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -80.25 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_GROSS: |delta|=32.03deg (임계값 5.73deg의 5.0배 초과)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 63.79 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -5.963317567175562,
+        "shoulder_lift": 19.313193771865343,
+        "elbow_flex": -32.02935581416874,
+        "wrist_flex": 8.364794049944194,
+        "wrist_roll": -0.8952968762471125,
+        "gripper": 4.85760498046875
+      }
+    },
+    {
+      "file": "shadow_20260808_152122.json",
+      "label": "T08",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "WOULD_CLAMP",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -16.666095733642578,
+        "shoulder_lift": -83.82740783691406,
+        "elbow_flex": 75.18567657470703,
+        "wrist_flex": 64.87774658203125,
+        "wrist_roll": -1.7933378219604492,
+        "gripper": 2.888291358947754
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -16.666095733642578,
+        "shoulder_lift": -83.82740783691406,
+        "elbow_flex": 75.18567657470703,
+        "wrist_flex": 64.87774658203125,
+        "wrist_roll": -1.7933378219604492,
+        "gripper": 2.888291358947754
+      },
+      "safety_safe_action": {
+        "shoulder_pan": -13.678901098901099,
+        "shoulder_lift": -94.40043956043957,
+        "elbow_flex": 91.10516483516483,
+        "wrist_flex": 59.43857142857143,
+        "wrist_roll": -1.7933378219604492,
+        "gripper": 2.888291358947754
+      },
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [
+          "EXCESSIVE_STEP_CLAMPED: -16.67 -> -13.68 (임계값 4.58deg/step)"
+        ],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -83.83 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 75.19 -> 91.11 (임계값 5.73deg/step)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 64.88 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -7.56719463474148,
+        "shoulder_lift": 15.7330317235255,
+        "elbow_flex": -21.6494882604578,
+        "wrist_flex": 9.44917515345982,
+        "wrist_roll": -0.8702608988835261,
+        "gripper": 2.888291358947754
+      }
+    },
+    {
+      "file": "shadow_20260808_152140.json",
+      "label": "T10",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "WOULD_CLAMP",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -12.772754669189453,
+        "shoulder_lift": -84.36005401611328,
+        "elbow_flex": 72.23723602294922,
+        "wrist_flex": 63.10945129394531,
+        "wrist_roll": -1.8421661853790283,
+        "gripper": 3.8726015090942383
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -12.772754669189453,
+        "shoulder_lift": -84.36005401611328,
+        "elbow_flex": 72.23723602294922,
+        "wrist_flex": 63.10945129394531,
+        "wrist_roll": -1.8421661853790283,
+        "gripper": 3.8726015090942383
+      },
+      "safety_safe_action": {
+        "shoulder_pan": -12.772754669189453,
+        "shoulder_lift": -94.40043956043957,
+        "elbow_flex": 91.10516483516483,
+        "wrist_flex": 59.43857142857143,
+        "wrist_roll": -1.8421661853790283,
+        "gripper": 3.8726015090942383
+      },
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -84.36 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 72.24 -> 91.11 (임계값 5.73deg/step)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 63.11 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -3.6738535702883546,
+        "shoulder_lift": 15.20038554432628,
+        "elbow_flex": -24.597928812215613,
+        "wrist_flex": 7.680879865373882,
+        "wrist_roll": -0.9190892623021052,
+        "gripper": 3.8726015090942383
+      }
+    },
+    {
+      "file": "shadow_20260808_152359.json",
+      "label": "T05-R2",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "REJECT",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -14.733083724975586,
+        "shoulder_lift": -75.7873764038086,
+        "elbow_flex": 64.77658081054688,
+        "wrist_flex": 64.85411071777344,
+        "wrist_roll": -1.5368362665176392,
+        "gripper": 1.4082450866699219
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -14.733083724975586,
+        "shoulder_lift": -75.7873764038086,
+        "elbow_flex": 64.77658081054688,
+        "wrist_flex": 64.85411071777344,
+        "wrist_roll": -1.5368362665176392,
+        "gripper": 1.4082450866699219
+      },
+      "safety_safe_action": null,
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [
+          "EXCESSIVE_STEP_CLAMPED: -14.73 -> -13.68 (임계값 4.58deg/step)"
+        ],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -75.79 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_GROSS: |delta|=32.06deg (임계값 5.73deg의 5.0배 초과)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 64.85 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -5.634182626074487,
+        "shoulder_lift": 23.77306315663097,
+        "elbow_flex": -32.05858402461796,
+        "wrist_flex": 9.425539289202007,
+        "wrist_roll": -0.613759343440716,
+        "gripper": 1.4082450866699219
+      }
+    },
+    {
+      "file": "shadow_20260808_152416.json",
+      "label": "T05-R3",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "WOULD_CLAMP",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -13.992609024047852,
+        "shoulder_lift": -82.67071533203125,
+        "elbow_flex": 75.4440689086914,
+        "wrist_flex": 62.320892333984375,
+        "wrist_roll": -1.888195276260376,
+        "gripper": 3.3213653564453125
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -13.992609024047852,
+        "shoulder_lift": -82.67071533203125,
+        "elbow_flex": 75.4440689086914,
+        "wrist_flex": 62.320892333984375,
+        "wrist_roll": -1.888195276260376,
+        "gripper": 3.3213653564453125
+      },
+      "safety_safe_action": {
+        "shoulder_pan": -13.678901098901099,
+        "shoulder_lift": -94.40043956043957,
+        "elbow_flex": 91.10516483516483,
+        "wrist_flex": 59.43857142857143,
+        "wrist_roll": -1.888195276260376,
+        "gripper": 3.3213653564453125
+      },
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [
+          "EXCESSIVE_STEP_CLAMPED: -13.99 -> -13.68 (임계값 4.58deg/step)"
+        ],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -82.67 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 75.44 -> 91.11 (임계값 5.73deg/step)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 62.32 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -4.893707925146753,
+        "shoulder_lift": 16.889724228408312,
+        "elbow_flex": -21.391095926473426,
+        "wrist_flex": 6.892320905412944,
+        "wrist_roll": -0.9651183531834528,
+        "gripper": 3.3213653564453125
+      }
+    },
+    {
+      "file": "shadow_20260808_152433.json",
+      "label": "T05-R4",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "WOULD_CLAMP",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -14.452776908874512,
+        "shoulder_lift": -76.89383697509766,
+        "elbow_flex": 70.13922119140625,
+        "wrist_flex": 62.046424865722656,
+        "wrist_roll": -1.886372447013855,
+        "gripper": 4.309082984924316
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -14.452776908874512,
+        "shoulder_lift": -76.89383697509766,
+        "elbow_flex": 70.13922119140625,
+        "wrist_flex": 62.046424865722656,
+        "wrist_roll": -1.886372447013855,
+        "gripper": 4.309082984924316
+      },
+      "safety_safe_action": {
+        "shoulder_pan": -13.678901098901099,
+        "shoulder_lift": -94.40043956043957,
+        "elbow_flex": 91.10516483516483,
+        "wrist_flex": 59.43857142857143,
+        "wrist_roll": -1.886372447013855,
+        "gripper": 4.309082984924316
+      },
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [
+          "EXCESSIVE_STEP_CLAMPED: -14.45 -> -13.68 (임계값 4.58deg/step)"
+        ],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -76.89 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 70.14 -> 91.11 (임계값 5.73deg/step)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 62.05 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -5.353875809973413,
+        "shoulder_lift": 22.666602585341906,
+        "elbow_flex": -26.695943643758582,
+        "wrist_flex": 6.617853437151226,
+        "wrist_roll": -0.9632955239369319,
+        "gripper": 4.309082984924316
+      }
+    },
+    {
+      "file": "shadow_20260808_152451.json",
+      "label": "T05-R5",
+      "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+      "safety_decision": "WOULD_CLAMP",
+      "state": {
+        "shoulder_pan": -9.098901098901099,
+        "shoulder_lift": -99.56043956043956,
+        "elbow_flex": 96.83516483516483,
+        "wrist_flex": 55.42857142857143,
+        "wrist_roll": -0.9230769230769231,
+        "gripper": 0.0
+      },
+      "raw_action_post_postprocessor": {
+        "shoulder_pan": -16.296953201293945,
+        "shoulder_lift": -81.83543395996094,
+        "elbow_flex": 75.5094223022461,
+        "wrist_flex": 62.19074249267578,
+        "wrist_roll": -1.9141405820846558,
+        "gripper": 3.6113014221191406
+      },
+      "adapter_mapped_action": {
+        "shoulder_pan": -16.296953201293945,
+        "shoulder_lift": -81.83543395996094,
+        "elbow_flex": 75.5094223022461,
+        "wrist_flex": 62.19074249267578,
+        "wrist_roll": -1.9141405820846558,
+        "gripper": 3.6113014221191406
+      },
+      "safety_safe_action": {
+        "shoulder_pan": -13.678901098901099,
+        "shoulder_lift": -94.40043956043957,
+        "elbow_flex": 91.10516483516483,
+        "wrist_flex": 59.43857142857143,
+        "wrist_roll": -1.9141405820846558,
+        "gripper": 3.6113014221191406
+      },
+      "safety_per_joint_reasons": {
+        "shoulder_pan": [
+          "EXCESSIVE_STEP_CLAMPED: -16.30 -> -13.68 (임계값 4.58deg/step)"
+        ],
+        "shoulder_lift": [
+          "EXCESSIVE_STEP_CLAMPED: -81.84 -> -94.40 (임계값 5.16deg/step)"
+        ],
+        "elbow_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 75.51 -> 91.11 (임계값 5.73deg/step)"
+        ],
+        "wrist_flex": [
+          "EXCESSIVE_STEP_CLAMPED: 62.19 -> 59.44 (임계값 4.01deg/step)"
+        ],
+        "wrist_roll": [],
+        "gripper": []
+      },
+      "delta_raw_action_minus_state": {
+        "shoulder_pan": -7.198052102392847,
+        "shoulder_lift": 17.725005600478625,
+        "elbow_flex": -21.32574253291874,
+        "wrist_flex": 6.762171064104351,
+        "wrist_roll": -0.9910636590077326,
+        "gripper": 3.6113014221191406
+      }
+    }
+  ],
+  "nearest_frame_and_trajectory_analysis": {
+    "shadow_state_used": {
+      "shoulder_pan": -9.098901098901099,
+      "shoulder_lift": -99.56043956043956,
+      "elbow_flex": 96.83516483516483,
+      "wrist_flex": 55.42857142857143,
+      "wrist_roll": -0.9230769230769231,
+      "gripper": 0.0
+    },
+    "shadow_action_used": {
+      "shoulder_pan": -15.06221866607666,
+      "shoulder_lift": -80.24724578857422,
+      "elbow_flex": 64.8058090209961,
+      "wrist_flex": 63.793365478515625,
+      "wrist_roll": -1.8183737993240356,
+      "gripper": 4.85760498046875
+    },
+    "shadow_delta": {
+      "shoulder_pan": -5.963317567175562,
+      "shoulder_lift": 19.313193771865343,
+      "elbow_flex": -32.02935581416874,
+      "wrist_flex": 8.364794049944194,
+      "wrist_roll": -0.8952968762471125,
+      "gripper": 4.85760498046875
+    },
+    "top5_nearest_frames": [
+      {
+        "episode": 15,
+        "frame": 5,
+        "l2_dist_deg": 3.745082632755676,
+        "n_frames": 298
+      },
+      {
+        "episode": 24,
+        "frame": 4,
+        "l2_dist_deg": 3.9034804141270976,
+        "n_frames": 298
+      },
+      {
+        "episode": 14,
+        "frame": 4,
+        "l2_dist_deg": 4.061306868898442,
+        "n_frames": 298
+      },
+      {
+        "episode": 25,
+        "frame": 0,
+        "l2_dist_deg": 4.066825120214545,
+        "n_frames": 298
+      },
+      {
+        "episode": 1,
+        "frame": 5,
+        "l2_dist_deg": 4.277480870834724,
+        "n_frames": 298
+      }
+    ],
+    "best_match": {
+      "episode": 15,
+      "frame": 5,
+      "l2_dist_deg": 3.745082632755676,
+      "match_state": {
+        "shoulder_pan": -7.604395389556885,
+        "shoulder_lift": -100.43955993652344,
+        "elbow_flex": 95.95604705810547,
+        "wrist_flex": 54.81318664550781,
+        "wrist_roll": -3.912087917327881,
+        "gripper": 0.966183602809906
+      },
+      "gt_immediate_delta_action_minus_state": {
+        "shoulder_pan": -1.6703295707702637,
+        "shoulder_lift": 2.1977996826171875,
+        "elbow_flex": -1.626373291015625,
+        "wrist_flex": -5.670330047607422,
+        "wrist_roll": 0.2637362480163574,
+        "gripper": 0.8081243634223938
+      },
+      "horizon_displacement_state_t_plus_k_minus_state_t": {
+        "5": {
+          "shoulder_pan": -0.615384578704834,
+          "shoulder_lift": 1.8461532592773438,
+          "elbow_flex": 0.0879058837890625,
+          "wrist_flex": -4.3076934814453125,
+          "wrist_roll": 0.0,
+          "gripper": 0.4830917716026306
+        },
+        "10": {
+          "shoulder_pan": -1.054945468902588,
+          "shoulder_lift": 2.4615402221679688,
+          "elbow_flex": -0.26374053955078125,
+          "wrist_flex": -4.659339904785156,
+          "wrist_roll": 0.0,
+          "gripper": 0.4830917716026306
+        },
+        "15": {
+          "shoulder_pan": -0.9670329093933105,
+          "shoulder_lift": 5.538459777832031,
+          "elbow_flex": -4.6593475341796875,
+          "wrist_flex": -4.659339904785156,
+          "wrist_roll": 0.0,
+          "gripper": 0.4830917716026306
+        },
+        "20": {
+          "shoulder_pan": -0.9670329093933105,
+          "shoulder_lift": 14.769233703613281,
+          "elbow_flex": -10.989013671875,
+          "wrist_flex": -4.659339904785156,
+          "wrist_roll": 0.0,
+          "gripper": 0.4830917716026306
+        },
+        "25": {
+          "shoulder_pan": -0.8791213035583496,
+          "shoulder_lift": 25.670326232910156,
+          "elbow_flex": -20.571434020996094,
+          "wrist_flex": -4.659339904785156,
+          "wrist_roll": 0.0,
+          "gripper": 0.4830917716026306
+        },
+        "30": {
+          "shoulder_pan": -0.8791213035583496,
+          "shoulder_lift": 36.74725341796875,
+          "elbow_flex": -32.087913513183594,
+          "wrist_flex": -4.659339904785156,
+          "wrist_roll": 0.0,
+          "gripper": 0.4830917716026306
+        },
+        "35": {
+          "shoulder_pan": -0.8791213035583496,
+          "shoulder_lift": 46.41758346557617,
+          "elbow_flex": -42.28571701049805,
+          "wrist_flex": -4.659339904785156,
+          "wrist_roll": 0.0,
+          "gripper": 0.4830917716026306
+        },
+        "40": {
+          "shoulder_pan": -0.8791213035583496,
+          "shoulder_lift": 54.153846740722656,
+          "elbow_flex": -50.02198028564453,
+          "wrist_flex": -4.659339904785156,
+          "wrist_roll": 0.0,
+          "gripper": 0.4830917716026306
+        },
+        "45": {
+          "shoulder_pan": -1.1428570747375488,
+          "shoulder_lift": 62.68131637573242,
+          "elbow_flex": -58.109893798828125,
+          "wrist_flex": -4.659339904785156,
+          "wrist_roll": 0.0,
+          "gripper": 0.4830917716026306
+        },
+        "50": {
+          "shoulder_pan": -4.483517169952393,
+          "shoulder_lift": 72.87911987304688,
+          "elbow_flex": -69.18681335449219,
+          "wrist_flex": -1.3186798095703125,
+          "wrist_roll": 0.0,
+          "gripper": 0.4830917716026306
+        },
+        "60": {
+          "shoulder_pan": -8.791210174560547,
+          "shoulder_lift": 91.16483306884766,
+          "elbow_flex": -90.10989379882812,
+          "wrist_flex": 8.439559936523438,
+          "wrist_roll": 0.0,
+          "gripper": 0.4830917716026306
+        },
+        "80": {
+          "shoulder_pan": -9.05494499206543,
+          "shoulder_lift": 117.80220031738281,
+          "elbow_flex": -114.37362670898438,
+          "wrist_flex": 19.340660095214844,
+          "wrist_roll": 0.0,
+          "gripper": 6.280193328857422
+        },
+        "100": {
+          "shoulder_pan": -11.69230842590332,
+          "shoulder_lift": 131.78021240234375,
+          "elbow_flex": -126.76923370361328,
+          "wrist_flex": 28.571426391601562,
+          "wrist_roll": 0.0,
+          "gripper": 39.475502014160156
+        }
+      }
+    },
+    "dataset_wide_mean_horizon_displacement_all_35_episodes": {
+      "10": {
+        "shoulder_pan": -1.7808475494384766,
+        "shoulder_lift": 7.663422584533691,
+        "elbow_flex": -0.44960829615592957,
+        "wrist_flex": -6.716483116149902,
+        "wrist_roll": 0.005023547448217869,
+        "gripper": 0.5343586206436157
+      },
+      "15": {
+        "shoulder_pan": -1.8185243606567383,
+        "shoulder_lift": 8.339088439941406,
+        "elbow_flex": -0.7510207891464233,
+        "wrist_flex": -6.834536075592041,
+        "wrist_roll": 0.005023547448217869,
+        "gripper": 0.544217586517334
+      },
+      "20": {
+        "shoulder_pan": -1.8160126209259033,
+        "shoulder_lift": 12.493563652038574,
+        "elbow_flex": -4.498587131500244,
+        "wrist_flex": -6.827001571655273,
+        "wrist_roll": 0.005023547448217869,
+        "gripper": 0.5521047711372375
+      },
+      "25": {
+        "shoulder_pan": -1.8160126209259033,
+        "shoulder_lift": 20.47347068786621,
+        "elbow_flex": -11.091992378234863,
+        "wrist_flex": -6.7868123054504395,
+        "wrist_roll": 0.005023547448217869,
+        "gripper": 0.5383021831512451
+      },
+      "30": {
+        "shoulder_pan": -1.8009417057037354,
+        "shoulder_lift": 29.877553939819336,
+        "elbow_flex": -19.524017333984375,
+        "wrist_flex": -6.399999618530273,
+        "wrist_roll": 0.005023547448217869,
+        "gripper": 0.5639356374740601
+      },
+      "35": {
+        "shoulder_pan": -1.6703294515609741,
+        "shoulder_lift": 39.60817337036133,
+        "elbow_flex": -29.297325134277344,
+        "wrist_flex": -4.7849297523498535,
+        "wrist_roll": 0.005023547448217869,
+        "gripper": 0.5678792595863342
+      },
+      "40": {
+        "shoulder_pan": -1.4894816875457764,
+        "shoulder_lift": 49.35133361816406,
+        "elbow_flex": -39.82668685913086,
+        "wrist_flex": -1.3915231227874756,
+        "wrist_roll": 0.005023547448217869,
+        "gripper": 0.5856255292892456
+      },
+      "45": {
+        "shoulder_pan": -1.4040817022323608,
+        "shoulder_lift": 58.80314636230469,
+        "elbow_flex": -50.44395065307617,
+        "wrist_flex": 3.104552745819092,
+        "wrist_roll": 0.005023547448217869,
+        "gripper": 0.9977324604988098
+      },
+      "50": {
+        "shoulder_pan": -1.0097332000732422,
+        "shoulder_lift": 67.92842864990234,
+        "elbow_flex": -60.709571838378906,
+        "wrist_flex": 7.778963565826416,
+        "wrist_roll": 0.005023547448217869,
+        "gripper": 2.1413779258728027
+      },
+      "60": {
+        "shoulder_pan": 0.4194662868976593,
+        "shoulder_lift": 84.99842834472656,
+        "elbow_flex": -77.62637329101562,
+        "wrist_flex": 14.510518074035645,
+        "wrist_roll": 0.005023547448217869,
+        "gripper": 6.317658424377441
+      },
+      "80": {
+        "shoulder_pan": 0.1105182096362114,
+        "shoulder_lift": 112.80375671386719,
+        "elbow_flex": -102.08100891113281,
+        "wrist_flex": 21.87755012512207,
+        "wrist_roll": 0.005023547448217869,
+        "gripper": 21.768709182739258
+      }
+    },
+    "estimated_matching_horizon_per_key_joint": {
+      "shoulder_lift": {
+        "shadow_delta_deg": 19.313193771865343,
+        "estimated_matching_horizon_frames": 24.27300098184632,
+        "estimated_matching_horizon_seconds": 0.8091000327282106
+      },
+      "elbow_flex": {
+        "shadow_delta_deg": -32.02935581416874,
+        "estimated_matching_horizon_frames": 36.297339169877084,
+        "estimated_matching_horizon_seconds": 1.2099113056625694
+      },
+      "wrist_flex": {
+        "shadow_delta_deg": 8.364794049944194,
+        "estimated_matching_horizon_frames": 50.87027518443674,
+        "estimated_matching_horizon_seconds": 1.6956758394812248
+      }
+    },
+    "interpretation": "If the model's delivered first action (chunk index 0, what select_action() actually returns) closely matched the IMMEDIATE next-step GT delta, values here would resemble 'gt_immediate_delta_action_minus_state' (small, single-digit degrees, matching the prior episode-start analysis). Instead, the Shadow delta magnitude for the 3 key joints lines up with the dataset's own state displacement roughly 0.7s-1.7s into the episode (see estimated_matching_horizon_per_key_joint) - i.e. within or near the chunk's own chunk_size=50 (1.67s @ 30fps) horizon, but far later than index 0's nominal 33ms step. This does not by itself distinguish a training-time temporal-alignment bug (C) from an undertrained flow-matching policy whose early chunk indices have not yet differentiated from later ones (D) - that requires the live chunk dump (see checkpoint section)."
+  },
+  "live_action_chunk_dump": {
+    "status": "SKIPPED",
+    "reason": "No usable --checkpoint directory. This sandbox has neither the checkpoint files nor a reachable VLA HTTP server (checked: filesystem search under $HOME for 'pretrained_model'/'train_config.json'/'*smolvla_grid35*' found nothing; no VLA_SERVER_URL set; localhost:9200/health unreachable). Re-run this script with --checkpoint pointing at the real outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model directory (e.g. on the Desktop machine) to get the actual chunk_index 0-49 dump."
+  },
+  "safety_threshold_math": {
+    "excessive_step_deg": {
+      "shoulder_pan": 4.58,
+      "shoulder_lift": 5.16,
+      "elbow_flex": 5.73,
+      "wrist_flex": 4.01,
+      "wrist_roll": 1.15,
+      "gripper": 9.17
+    },
+    "GROSS_STEP_MULTIPLIER": 5.0,
+    "reject_threshold_deg": {
+      "shoulder_pan": 22.9,
+      "shoulder_lift": 25.8,
+      "elbow_flex": 28.650000000000002,
+      "wrist_flex": 20.049999999999997,
+      "wrist_roll": 5.75,
+      "gripper": 45.85
+    },
+    "would_clamp_threshold_deg": {
+      "shoulder_pan": 4.58,
+      "shoulder_lift": 5.16,
+      "elbow_flex": 5.73,
+      "wrist_flex": 4.01,
+      "wrist_roll": 1.15,
+      "gripper": 9.17
+    }
+  },
+  "verdict": {
+    "verdict": "E",
+    "rationale": "Code review rules out A (adapter/client are pure passthrough, all state/action wiring is name-keyed not positional, the only positional-order risk - checkpoint raw tensor -> JOINT_ORDER - is architecturally low-risk since every dataset in this repo declares the same joint order) with high confidence, and rules out a bug in the RUNTIME chunk-extraction call site (select_action() correctly pops chunk index 0 per LeRobot's own API contract) with high confidence. B (normalization/denormalization) could not be verified - the checkpoint's baked-in policy_postprocessor.json is not present on this machine, and no VLA HTTP server was reachable, so its embedded stats couldn't be inspected. The strongest concrete finding is a dataset-wide, reproducible match between the delivered first-action delta and the Grid35 dataset's own state displacement roughly 0.7-1.7s into the episode (see nearest_frame_and_trajectory_analysis) for all 3 key joints - consistent with either a training-time temporal-alignment bug (C, unverifiable further without checkpoint/training config access) or an undertrained flow-matching policy whose early chunk indices have not differentiated from later ones (D, plausible given only 35 episodes / 10k training steps). Distinguishing C from D requires the live action-chunk dump (chunk index 0-49), which this script performs automatically once pointed at a real checkpoint via --checkpoint - it was SKIPPED here because no checkpoint files or reachable VLA server exist on this machine.",
+    "a_mapping_adapter_bug": "RULED_OUT (code-verified)",
+    "b_normalization_bug": "UNVERIFIED",
+    "c_chunk_extraction_bug_in_runtime_call_site": "RULED_OUT (code-verified, select_action pops index 0 correctly)",
+    "c_prime_temporal_alignment_at_training_time": "UNVERIFIED - plausible per trajectory-horizon-match finding",
+    "d_policy_itself_predicts_large_first_action": "PLAUSIBLE - leading hypothesis given clean runtime pipeline + small (35ep/10k-step) checkpoint"
+  }
+}
