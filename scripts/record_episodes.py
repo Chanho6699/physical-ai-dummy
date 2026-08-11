@@ -36,6 +36,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--episodes", type=int, default=5)
     parser.add_argument("--episode-seconds", type=float, default=30.0)
     parser.add_argument("--reset-seconds", type=float, default=20.0)
+    parser.add_argument(
+        "--sync-warmup-seconds",
+        type=float,
+        default=3.0,
+        help=(
+            "Seconds of active leader/follower teleoperation held right before each "
+            "episode's dataset recording starts, so the follower settles onto the "
+            "leader's pose before frames are written. Additional time, not deducted "
+            "from --episode-seconds/--reset-seconds."
+        ),
+    )
     parser.add_argument("--fps", type=int, default=30)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--display-data", action="store_true")
@@ -54,6 +65,7 @@ def main() -> int:
         num_episodes=args.episodes,
         episode_time_s=args.episode_seconds,
         reset_time_s=args.reset_seconds,
+        sync_warmup_s=args.sync_warmup_seconds,
         fps=args.fps,
         resume=args.resume,
         display_data=args.display_data,

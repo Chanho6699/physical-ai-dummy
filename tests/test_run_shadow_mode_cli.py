@@ -97,6 +97,52 @@ def test_scene_label_and_note_default_to_none(cli_module) -> None:
     args = cli_module.parse_args(["--task", "pick", "--follower-port", "/dev/ttyACM0"])
     assert args.scene_label is None
     assert args.scene_note is None
+    assert args.heldout_episode_index is None
+
+
+def test_heldout_episode_index_parses_as_int(cli_module) -> None:
+    args = cli_module.parse_args(
+        [
+            "--task", "pick", "--follower-port", "/dev/ttyACM0",
+            "--eval-mode", "midpoint-shadow", "--scene-label", "T01", "--heldout-episode-index", "0",
+        ]
+    )
+    assert args.scene_label == "T01"
+    assert args.heldout_episode_index == 0
+
+
+# ---------------------------------------------------------------------------
+# build_scene_metadata - 순수 함수, 하드웨어 불필요. held-out episode index/label/
+# capture_timestamp는 사람이 지정한 값만 담고 물체의 실제 XY는 절대 추정하지 않는다.
+# ---------------------------------------------------------------------------
+
+
+def test_build_scene_metadata_returns_none_when_nothing_given(cli_module) -> None:
+    assert cli_module.build_scene_metadata(scene_label=None, scene_note=None, heldout_episode_index=None) is None
+
+
+def test_build_scene_metadata_carries_label_index_and_capture_timestamp(cli_module) -> None:
+    from datetime import datetime, timezone
+
+    fixed_now = datetime(2026, 8, 8, 12, 0, 0, tzinfo=timezone.utc)
+    meta = cli_module.build_scene_metadata(
+        scene_label="T01", scene_note=None, heldout_episode_index=0, now=fixed_now
+    )
+    assert meta == {
+        "label": "T01",
+        "note": None,
+        "heldout_episode_index": 0,
+        "capture_timestamp": "2026-08-08T12:00:00+00:00",
+    }
+
+
+def test_build_scene_metadata_no_xy_keys(cli_module) -> None:
+    """물체의 실제 x/y 좌표를 임의로 정의/가정해서 넣지 않는다는 불변식을 고정한다."""
+    meta = cli_module.build_scene_metadata(scene_label="T01", scene_note=None, heldout_episode_index=0)
+    assert "x" not in meta
+    assert "y" not in meta
+    assert "position" not in meta
+    assert "xy" not in meta
 
 
 # ---------------------------------------------------------------------------

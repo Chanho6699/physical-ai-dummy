@@ -22,7 +22,7 @@ follower에는 어떤 명령도 보내지 않는다 (``REAL_SO101_WRITE=DISABLED
         --task "Pick up the cube and place it in the target area." \\
         --checkpoint outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model \\
         --expected-train-dataset data/so101_cube_xy_grid35_v1 \\
-        --eval-mode midpoint-shadow --scene-label T01 \\
+        --eval-mode midpoint-shadow --scene-label T01 --heldout-episode-index 0 \\
         --follower-port /dev/serial/by-id/usb-1a86_USB_Single_Serial_5B14113538-if00 \\
         --follower-id chanho_follower
 
@@ -40,6 +40,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -96,6 +97,32 @@ def build_checkpoint_metadata(checkpoint_dir: Path, *, expected_train_dataset: P
     }
 
 
+def build_scene_metadata(
+    *,
+    scene_label: str | None,
+    scene_note: str | None,
+    heldout_episode_index: int | None,
+    now: datetime | None = None,
+) -> dict | None:
+    """report의 ``scene_metadata``를 만든다 - 사람이 CLI로 지정한 값만 담는다.
+
+    ``label``/``heldout_episode_index``는 사람이 ``--scene-label``/``--heldout-episode-index``로
+    명시한 값을 그대로 옮길 뿐, 라벨 문자열에서 index를 추정하거나 물체의 실제 XY 좌표를
+    추정/가정하지 않는다(요구사항: "임의의 x/y 좌표를 정의하거나 가정하지 마라"). 세 인자가
+    모두 ``None``이면 scene_metadata 자체를 남기지 않는다(``None``).
+    """
+    if scene_label is None and scene_note is None and heldout_episode_index is None:
+        return None
+    return {
+        "label": scene_label,
+        "note": scene_note,
+        "heldout_episode_index": heldout_episode_index,
+        # 실제 캡처(이 CLI 실행)가 일어난 시각 - UTC ISO8601. held-out dataset의 episode
+        # 기록 시각이 아니라 "이 Shadow capture를 실행한 시각"이다.
+        "capture_timestamp": (now or datetime.now(timezone.utc)).isoformat(),
+    }
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Shadow Mode v1 (single-step)")
     parser.add_argument("--task", required=True, help="VLA에 전달할 task instruction")
@@ -135,6 +162,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "XY는 자동으로 기록하지 않습니다(현재 dataset metadata에 없음).",
     )
     parser.add_argument("--scene-note", default=None, help="scene에 대한 자유 형식 메모")
+    parser.add_argument(
+        "--heldout-episode-index",
+        type=int,
+        default=None,
+        help="이 scene이 대응하는 held-out 데이터셋(예: data/so101_cube_xy_midpoint_test10_v2_clean)의 "
+        "episode_index(0~9) - 사람이 명시적으로 지정합니다(예: --scene-label T01 --heldout-episode-index 0). "
+        "라벨 문자열에서 자동 추정하지 않습니다.",
+    )
 
     parser.add_argument("--hardware-config", default=str(DEFAULT_HARDWARE_CONFIG_PATH))
     parser.add_argument("--follower-port", required=True)
@@ -170,9 +205,11 @@ def main(argv: list[str] | None = None) -> int:
         print("[오류] --checkpoint 또는 --vla-server-url(또는 환경변수 VLA_SERVER_URL) 중 하나가 필요합니다.")
         return 2
 
-    scene_metadata = None
-    if args.scene_label or args.scene_note:
-        scene_metadata = {"label": args.scene_label, "note": args.scene_note}
+    scene_metadata = build_scene_metadata(
+        scene_label=args.scene_label,
+        scene_note=args.scene_note,
+        heldout_episode_index=args.heldout_episode_index,
+    )
 
     camera_source = None
     state_source = None

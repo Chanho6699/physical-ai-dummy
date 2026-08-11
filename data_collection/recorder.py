@@ -10,6 +10,12 @@ from pathlib import Path
 
 from .config import HardwareConfig, load_hardware_config
 
+# The runner script that lerobot-record's own Python interpreter executes
+# instead of the plain `lerobot-record` console script, so a sync-warmup
+# stage can run inside the real LeRobot recording lifecycle. See its module
+# docstring for why this indirection is necessary.
+_RUNNER_SCRIPT = Path(__file__).resolve().parent / "lerobot_record_runner.py"
+
 
 class RecordingError(RuntimeError):
     """Raised when an episode recording cannot be started or completed."""
@@ -27,6 +33,14 @@ class RecordingRequest:
     resume: bool = False
     display_data: bool = False
     streaming_encoding: bool = False
+    # Seconds of active leader->follower teleoperation, held right after the
+    # reset phase (and after the initial connect, for episode 1) *before* the
+    # real dataset recording starts. Lets the follower settle onto the
+    # leader's current pose so that catch-up motion isn't captured as the
+    # episode's first recorded frames. Does not shrink episode_time_s /
+    # reset_time_s - it is strictly additional time. See
+    # data_collection/lerobot_record_runner.py for where this is enforced.
+    sync_warmup_s: float = 3.0
 
     @property
     def dataset_root(self) -> Path:
@@ -51,6 +65,8 @@ class RecordingRequest:
             raise RecordingError("fps must be greater than 0.")
         if not self.task.strip():
             raise RecordingError("task must not be empty.")
+        if self.sync_warmup_s < 0:
+            raise RecordingError("sync_warmup_s must be 0 or greater.")
 
 
 def _bool_cli(value: bool) -> str:
@@ -63,6 +79,38 @@ def _check_command(command: str) -> None:
             f"'{command}' was not found. Activate the LeRobot environment first:\n"
             "  source ~/lerobot/lerobot/bin/activate"
         )
+
+
+def _resolve_lerobot_python(lerobot_record_path: str) -> str:
+    """Return the interpreter ``lerobot-record`` itself runs under.
+
+    ``lerobot-record`` is a pip-generated console-script whose first line is
+    a shebang pointing straight at the LeRobot venv's Python (e.g.
+    ``#!/home/user/lerobot/lerobot/bin/python``). Reusing that exact
+    interpreter - instead of assuming ``python3`` on PATH resolves to the
+    same venv - is what lets ``lerobot_record_runner.py`` ``import
+    lerobot.scripts.lerobot_record`` regardless of shell configuration,
+    while still requiring the same "activate the LeRobot environment first"
+    precondition as before (``_check_command`` above).
+    """
+    try:
+        with open(lerobot_record_path, encoding="utf-8") as handle:
+            first_line = handle.readline()
+    except OSError as exc:
+        raise RecordingError(
+            f"Could not read the 'lerobot-record' launcher to find its Python interpreter: {exc}"
+        ) from exc
+
+    if not first_line.startswith("#!"):
+        raise RecordingError(
+            "'lerobot-record' does not look like a Python console-script "
+            f"(no shebang line): {lerobot_record_path}"
+        )
+
+    interpreter = first_line[2:].strip()
+    if not interpreter:
+        raise RecordingError(f"Empty shebang in 'lerobot-record' launcher: {lerobot_record_path}")
+    return interpreter
 
 
 def _check_device_path(path: str, label: str) -> None:
@@ -87,10 +135,11 @@ def check_hardware(hardware: HardwareConfig) -> None:
         )
 
 
-def build_record_command(
+def build_lerobot_record_args(
     hardware: HardwareConfig,
     request: RecordingRequest,
 ) -> list[str]:
+    """CLI flags for the real ``lerobot-record`` entry point (unchanged behavior)."""
     request.validate()
 
     cameras = {
@@ -99,7 +148,6 @@ def build_record_command(
     }
 
     return [
-        "lerobot-record",
         f"--robot.type={hardware.robot.type}",
         f"--robot.port={hardware.robot.port}",
         f"--robot.id={hardware.robot.id}",
@@ -124,6 +172,25 @@ def build_record_command(
     ]
 
 
+def build_record_command(
+    hardware: HardwareConfig,
+    request: RecordingRequest,
+    *,
+    python_executable: str,
+    runner_script: Path = _RUNNER_SCRIPT,
+) -> list[str]:
+    """Full subprocess argv: the LeRobot venv's Python running the sync-warmup
+    runner script, which in turn parses ``--sync-warmup-seconds`` and forwards
+    every other flag to the real ``lerobot-record`` (``lerobot.scripts.lerobot_record``).
+    """
+    return [
+        python_executable,
+        str(runner_script),
+        f"--sync-warmup-seconds={request.sync_warmup_s:g}",
+        *build_lerobot_record_args(hardware, request),
+    ]
+
+
 def _print_korean_guide(request: RecordingRequest, hardware: HardwareConfig) -> None:
     camera_roles = ", ".join(hardware.cameras)
     print("\n" + "=" * 68)
@@ -133,8 +200,10 @@ def _print_korean_guide(request: RecordingRequest, hardware: HardwareConfig) -> 
     print(f"[에피소드] {request.num_episodes}개")
     print(f"[녹화 시간] 각 {request.episode_time_s:g}초")
     print(f"[초기화 시간] 각 {request.reset_time_s:g}초")
+    print(f"[동기화 대기] 매 녹화 시작 전 {request.sync_warmup_s:g}초 (리더/팔로워 안정화, 녹화 시간에 미포함)")
     print(f"[카메라] {camera_roles}")
     print("-" * 68)
+    print("[동기화] 매 녹화 직전 리더암과 팔로워암이 동기화될 때까지 잠시 대기합니다.")
     print("[녹화 중] 작업을 자연스럽게 완료하고 마지막 자세에서 멈추세요.")
     print("[초기화 중] 녹화 종료 안내 뒤에만 물체와 팔을 원위치로 옮기세요.")
     print("[종료] 마지막 에피소드 후 프롬프트가 돌아올 때까지 기다리세요.")
@@ -156,6 +225,9 @@ def record_episodes(
     hardware = load_hardware_config(hardware_config_path)
     check_hardware(hardware)
 
+    if not _RUNNER_SCRIPT.is_file():
+        raise RecordingError(f"Sync-warmup runner script is missing: {_RUNNER_SCRIPT}")
+
     dataset_root = request.dataset_root
     if dataset_root.exists() and not request.resume:
         raise RecordingError(
@@ -166,7 +238,11 @@ def record_episodes(
         raise RecordingError(f"Cannot resume because the dataset does not exist: {dataset_root}")
 
     request.data_dir.expanduser().resolve().mkdir(parents=True, exist_ok=True)
-    command = build_record_command(hardware, request)
+
+    lerobot_record_path = shutil.which("lerobot-record")
+    assert lerobot_record_path is not None  # guaranteed by _check_command above
+    python_executable = _resolve_lerobot_python(lerobot_record_path)
+    command = build_record_command(hardware, request, python_executable=python_executable)
 
     _print_korean_guide(request, hardware)
     print("[실행 명령]")
