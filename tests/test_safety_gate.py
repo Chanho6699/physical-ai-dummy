@@ -164,17 +164,135 @@ def test_direct_construction_still_works_with_default_source_fields() -> None:
 
 
 def test_from_repo_defaults_reports_calibration_source_per_joint() -> None:
-    """실제 캘리브레이션 파일이 없는 환경에서는 gripper를 제외한 5관절이 전부
-    fallback_config여야 하고, gripper는 percent 관례 라벨이어야 한다."""
+    """gripper는 항상 percent 관례 라벨이어야 하고, 나머지 5관절은 "전부 calibration_file"
+    아니면 "전부 fallback_config"로 일관돼야 한다.
+
+    ``configs/follower_safe_mapper.yaml``의 ``calibration_file_path``가 실제로 존재하는
+    노트북(실제 chanho_follower 캘리브레이션 파일이 있는 환경, 2026-08 조사로 확인)에서는
+    calibration_file이어야 하고, 그 파일이 없는 환경(예: 캘리브레이션 캐시가 없는 CI
+    sandbox)에서는 fallback_config여야 한다 - "이 sandbox엔 파일이 없다"고 한쪽만
+    하드코딩하지 않고 실제 파일 존재 여부로 분기한다(과거 버전은 fallback만 하드코딩해서
+    실제 캘리브레이션 파일이 있는 노트북에서 거짓으로 실패했다)."""
     cfg = SafetyGateConfig.from_repo_defaults()
     assert set(cfg.joint_range_source) == set(JOINT_ORDER)
     assert cfg.joint_range_source["gripper"] == RANGE_SOURCE_GRIPPER_CONVENTION
+
+    file_exists = cfg.calibration_file_path is not None and Path(cfg.calibration_file_path).is_file()
+    expected_source = "calibration_file" if file_exists else RANGE_SOURCE_FALLBACK_CONFIG
     for joint in JOINT_ORDER:
         if joint == "gripper":
             continue
-        assert cfg.joint_range_source[joint] in (RANGE_SOURCE_FALLBACK_CONFIG, "calibration_file")
-    # 이 저장소 sandbox에는 실제 캘리브레이션 파일이 없으므로(조사 결과) fallback이어야 한다.
+        assert cfg.joint_range_source[joint] == expected_source
+    assert cfg.uses_calibration_fallback is (not file_exists)
+
+
+# ---------------------------------------------------------------------------
+# 실제 chanho_follower 캘리브레이션 사용 검증 (2026-08 노트북 하드웨어 조사) - mechanical
+# hard-limit이 fallback 숫자가 아니라 ~/.cache/huggingface/lerobot/calibration/robots/
+# so_follower/chanho_follower.json을 실제로 읽어서 나온 값인지 결정적으로 고정한다.
+# ---------------------------------------------------------------------------
+
+REAL_FOLLOWER_CALIBRATION_PATH = Path(
+    "~/.cache/huggingface/lerobot/calibration/robots/so_follower/chanho_follower.json"
+).expanduser()
+
+
+@pytest.mark.skipif(
+    not REAL_FOLLOWER_CALIBRATION_PATH.is_file(),
+    reason="이 노트북의 실제 chanho_follower 캘리브레이션 파일이 없는 환경(예: CI sandbox)에서는 스킵",
+)
+def test_uses_real_chanho_follower_calibration_when_present() -> None:
+    """실제 캘리브레이션 파일이 있으면 fallback이 아니라 그 파일의 raw tick(예: elbow_flex
+    range_min=873/range_max=3084)에서 계산한 degree 값이 mechanical hard-limit이 돼야 한다."""
+    cfg = SafetyGateConfig.from_repo_defaults()
+    assert cfg.uses_calibration_fallback is False
+    assert cfg.calibration_file_path == str(REAL_FOLLOWER_CALIBRATION_PATH)
+    for joint in JOINT_ORDER:
+        if joint == "gripper":
+            continue
+        assert cfg.joint_range_source[joint] == "calibration_file"
+
+    # chanho_follower.json raw range (elbow_flex: 873~3084) -> degree 변환 (LeRobot
+    # MotorNormMode.DEGREES 공식, follower_safe_mapper.py._ticks_to_degrees와 동일).
+    lo, hi = cfg.joint_range_deg["elbow_flex"]
+    expected_hi = (3084 - 873) / 2 * 360 / 4095
+    assert hi == pytest.approx(expected_hi, abs=1e-6)
+    assert lo == pytest.approx(-expected_hi, abs=1e-6)
+
+
+def test_falls_back_when_calibration_file_missing(tmp_path: Path) -> None:
+    """calibration_file_path가 존재하지 않는 파일을 가리키면 fallback_raw_range를 써야
+    한다 - 실제 노트북에 캘리브레이션 파일이 있는지 여부와 무관하게, 임시 mapper config로
+    "파일 없음" 경로 자체를 결정적으로 검증한다."""
+    mapper_yaml = tmp_path / "follower_safe_mapper.yaml"
+    mapper_yaml.write_text(
+        """
+calibration_file_path: "/nonexistent/definitely_missing_chanho_follower.json"
+motor_resolution: 4096
+fallback_raw_range:
+  shoulder_pan: {min: 1070, max: 3135}
+  shoulder_lift: {min: 793, max: 3238}
+  elbow_flex: {min: 873, max: 3084}
+  wrist_flex: {min: 1052, max: 2977}
+  wrist_roll: {min: 0, max: 4095}
+  gripper: {min: 2047, max: 3496}
+leader_to_follower_sign:
+  shoulder_pan: 1.0
+  shoulder_lift: 1.0
+  elbow_flex: 1.0
+  wrist_flex: 1.0
+  wrist_roll: 1.0
+  gripper: 1.0
+rate_limit_deg_per_sec:
+  shoulder_pan: 20
+  shoulder_lift: 15
+  elbow_flex: 20
+  wrist_flex: 15
+  wrist_roll: 25
+  gripper: 30
+""",
+        encoding="utf-8",
+    )
+    cfg = SafetyGateConfig.from_repo_defaults(follower_safe_mapper_config_path=mapper_yaml)
     assert cfg.uses_calibration_fallback is True
+    for joint in JOINT_ORDER:
+        if joint == "gripper":
+            continue
+        assert cfg.joint_range_source[joint] == RANGE_SOURCE_FALLBACK_CONFIG
+
+
+def test_follower_safe_mapper_config_never_points_at_leader_calibration() -> None:
+    """leader 캘리브레이션은 teleop mapping/command envelope 검증용일 뿐 follower
+    mechanical hard-limit으로 복사/재사용되면 안 된다 (요구사항 7번) -
+    ``configs/follower_safe_mapper.yaml``의 ``calibration_file_path``가 실수로
+    ``so_leader`` 캘리브레이션 파일을 가리키는 회귀를 막는다."""
+    cfg = SafetyGateConfig.from_repo_defaults()
+    assert cfg.calibration_file_path is not None
+    assert "so_leader" not in cfg.calibration_file_path
+    assert "leader" not in Path(cfg.calibration_file_path).name
+
+
+def test_real_elbow_flex_present_position_overshoot_is_clamped_not_rejected() -> None:
+    """실물 로그(reports/real_follower_staged_safety_test_v1/reports/stage1_1786433719.json)에서
+    관측된 실제 사례: elbow_flex 현재 위치가 97.626deg로, chanho_follower.json 기준
+    calibrated max(~97.19deg)를 0.4deg 정도 넘겼다. 이는 calibration/fallback 값이 잘못됐다는
+    신호가 아니라 캘리브레이션 종료점 근처의 정상적인 encoder/backlash 수준 변동이다 -
+    GROSS_RANGE_MULTIPLIER(3x) 경계에는 한참 못 미쳐 REJECT가 아니라 MECHANICAL_LIMIT_CLAMPED로
+    안전하게 흡수돼야 한다."""
+    cfg = SafetyGateConfig.from_repo_defaults()
+    lo, hi = cfg.joint_range_deg["elbow_flex"]
+    gate = SafetyGate(cfg)
+
+    current = _current_state(0.0)
+    current["elbow_flex"] = hi  # calibrated max 지점에서 시작
+    real_overshoot_deg = 97.62637362637362  # 실물 로그 관측값
+
+    decision = gate.evaluate(
+        adapted_action=_action(elbow_flex=real_overshoot_deg), current_state_deg=current, observation_valid=True
+    )
+    assert decision.decision == "WOULD_CLAMP"
+    assert any("MECHANICAL_LIMIT_CLAMPED" in r for r in decision.reasons)
+    assert decision.safe_action["elbow_flex"] == pytest.approx(hi, abs=1e-6)
 
 
 def test_from_repo_defaults_no_longer_needs_mujoco_dataset_replay_config() -> None:

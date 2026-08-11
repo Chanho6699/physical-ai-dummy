@@ -70,6 +70,16 @@ RAD2DEG = 180.0 / math.pi
 GRIPPER_RANGE_DEG = (0.0, 100.0)  # 실제로는 percent, readonly_so101_reader.py 관례 재사용
 
 # 한계를 "터무니없이" 벗어났다고 볼 배수 - clamp가 아니라 REJECT로 처리한다.
+#
+# [2026-08 실물 조사 근거] reports/real_follower_staged_safety_test_v1/reports/
+# stage1_1786433719.json에서 elbow_flex 현재 위치가 97.626deg로 관측됐는데,
+# chanho_follower.json(raw range_min=873/range_max=3084) 기준 calibrated max는
+# 97.1868deg다 - 0.44deg(라 raw tick 기준 약 5틱) 초과. GROSS_RANGE_MULTIPLIER=3.0이면
+# gross 경계는 calibrated max보다 약 3*194.37=583deg 더 바깥이라 이 정도 초과는 전혀
+# 건드리지 않고 MECHANICAL_LIMIT_CLAMPED(§1)로만 흡수된다(실제로 stage2_1786430542.json에서
+# "97.34 -> 97.19"로 관측됨) - 이는 calibration/fallback 숫자가 틀렸다는 신호가 아니라
+# 캘리브레이션 종료점 근처의 정상적인 encoder/backlash 수준 변동이다(회귀 테스트:
+# tests/test_safety_gate.py::test_real_elbow_flex_present_position_overshoot_is_clamped_not_rejected).
 GROSS_RANGE_MULTIPLIER = 3.0
 GROSS_STEP_MULTIPLIER = 5.0
 
