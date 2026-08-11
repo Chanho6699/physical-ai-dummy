@@ -244,9 +244,19 @@ def require_interactive_confirmation() -> None:
 def print_step_report(step) -> None:
     print(f"\n--- step {step.step} ---")
     print(f"  before_state_deg = {step.before_state_deg}")
+    reset_latency = (
+        f"{step.session_reset_latency_ms:.1f}ms" if step.session_reset_latency_ms is not None else "n/a"
+    )
+    print(f"  session_reset    = ok={step.session_reset_ok}  latency={reset_latency}")
+    if step.session_reset_error:
+        print(f"  session_reset_error = {step.session_reset_error}")
     if step.step_error:
         print(f"  [중단] step_error = {step.step_error}")
         return
+    print(
+        f"  fresh_inference  = {step.fresh_inference}  "
+        f"(inference={step.predict_inference_latency_ms}ms, request={step.predict_request_latency_ms}ms)"
+    )
     print(f"  raw_action_deg   = {step.raw_action_deg}")
     print(f"  safety_decision  = {step.safety_decision}  reasons={list(step.safety_reasons)}")
     print(f"  written          = {step.written}")

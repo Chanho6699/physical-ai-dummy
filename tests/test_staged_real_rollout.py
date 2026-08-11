@@ -52,19 +52,56 @@ class FakeStateSource:
 
 @dataclass
 class ScriptedVLAClient:
-    """매 step마다 미리 정해둔 action을 하나씩 반환한다."""
+    """매 step마다 미리 정해둔 action을 하나씩 반환한다.
+
+    ``session_reset()``은 기본적으로 항상 성공(``True``)한다 - ``reset_ok_sequence``를 주면
+    step(호출 순서)별로 성공/실패를 스크립트할 수 있다(마지막 값이 그 이후 step에도 반복
+    적용됨). ``call_log``는 reset/predict가 실제로 호출된 순서를 그대로 기록한다 - "매 step
+    반드시 reset -> predict 순서"를 검증하는 데 쓴다.
+    """
 
     actions: list[dict[str, float]]
+    reset_ok_sequence: list[bool] | None = None
     calls: list[dict] = field(default_factory=list)
+    reset_calls: list[dict] = field(default_factory=list)
+    call_log: list[str] = field(default_factory=list)
+
+    def session_reset(self, *, session_id, task) -> bool:
+        idx = len(self.reset_calls)
+        self.reset_calls.append({"session_id": session_id, "task": task})
+        self.call_log.append(f"reset:{session_id}")
+        if self.reset_ok_sequence is None:
+            return True
+        return self.reset_ok_sequence[idx] if idx < len(self.reset_ok_sequence) else self.reset_ok_sequence[-1]
 
     def predict(self, *, session_id, task, sequence, state, images):
         self.calls.append({"sequence": sequence, "state": dict(state), "task": task})
+        self.call_log.append(f"predict:{session_id}:{sequence}")
         action = self.actions[sequence] if sequence < len(self.actions) else self.actions[-1]
         return PredictResult(
             ok=True, session_id=session_id, sequence=sequence, action=dict(action), action_schema_valid=True,
             action_invalid_reason=None, model_id="fake", backend="fake", inference_latency_ms=1.0,
             request_latency_ms=1.0, error_kind=None,
         )
+
+
+class RaisingResetVLAClient:
+    """session_reset()이 항상 예외를 던지는 client - fail-closed 경로 검증용.
+
+    predict()가 호출되면 그 자체로 fail-closed 위반이므로 즉시 AssertionError를 던진다 -
+    "reset 실패했는데 predict가 실행됐다"는 걸 테스트 실패로 직접 드러낸다."""
+
+    def __init__(self) -> None:
+        self.reset_calls: list[dict] = []
+        self.predict_calls: list[dict] = []
+
+    def session_reset(self, *, session_id, task) -> bool:
+        self.reset_calls.append({"session_id": session_id, "task": task})
+        raise RuntimeError("session_reset 통신 실패 (시뮬레이션)")
+
+    def predict(self, *, session_id, task, sequence, state, images):
+        self.predict_calls.append({"session_id": session_id, "sequence": sequence})
+        raise AssertionError("session_reset이 실패했는데 predict가 호출됐다 - fail-closed 위반")
 
 
 class FakeFollower:
@@ -215,5 +252,148 @@ def test_camera_read_failure_halts_before_any_inference_or_write():
     result = runner.run_stage(stage=1, max_steps=1)
     assert result.verdict == ABNORMAL_STOPPED
     assert result.real_follower_write_count == 0
+    assert len(vla.reset_calls) == 0  # 관측 실패 시 reset도 시도하지 않는다
     assert len(vla.calls) == 0  # 관측 실패 시 추론도 시도하지 않는다
     assert len(follower.send_action_calls) == 0
+
+
+# ---------------------------------------------------------------------------
+# 2026-08 receding-horizon 수정 (SmolVLA 50-step stale action queue 문제) - 매 step
+# session_reset -> predict 순서가 강제되는지, reset 실패 시 fail-closed로 멈추는지 검증.
+# ---------------------------------------------------------------------------
+
+
+def test_stage3_ten_steps_calls_session_reset_and_predict_exactly_ten_times_each():
+    """Stage 3, steps=10, 전부 ACCEPT면 session_reset 10회 + predict 10회가 나와야 한다 -
+    reset이 predict 앞에서 매 step 빠짐없이 호출된다는 요구사항의 핵심 회귀."""
+    actions = [{**_neutral(), "shoulder_pan": 1.0} for _ in range(10)]  # 매 step 동일한 작은 delta
+    runner, follower, writer = _make_runner(actions, max_write_count=10)
+
+    result = runner.run_stage(stage=3, max_steps=10)
+
+    assert result.verdict == PASS
+    assert len(result.steps) == 10
+    vla: ScriptedVLAClient = runner._vla_client  # type: ignore[attr-defined]
+    assert len(vla.reset_calls) == 10
+    assert len(vla.calls) == 10
+    for step in result.steps:
+        assert step.session_reset_ok is True
+        assert step.fresh_inference is True
+
+
+def test_session_reset_always_called_immediately_before_predict_each_step():
+    """호출 순서 자체를 검증한다 - 매 step마다 reset이 그 step의 predict보다 먼저 나와야
+    하고, 다른 step의 predict와 뒤섞이면 안 된다."""
+    actions = [{**_neutral(), "shoulder_pan": float(i % 2)} for i in range(4)]  # 0/1 deg 반복 (전부 ACCEPT)
+    runner, follower, writer = _make_runner(actions, max_write_count=4)
+
+    result = runner.run_stage(stage=2, max_steps=4)
+
+    assert result.verdict == PASS
+    vla: ScriptedVLAClient = runner._vla_client  # type: ignore[attr-defined]
+    expected = []
+    for i in range(4):
+        expected.append(f"reset:staged-{i}")
+        expected.append(f"predict:staged-{i}:{i}")
+    assert vla.call_log == expected
+
+
+def test_session_reset_exception_is_fail_closed_no_predict_no_write():
+    """session_reset이 예외를 던지면 그 step은 predict/write를 절대 시도하지 않고 즉시
+    stage가 중단돼야 한다 (fail-closed) - RaisingResetVLAClient의 predict()는 호출되면 그
+    자체로 AssertionError를 던지므로, 이 테스트가 통과한다는 것 자체가 predict가 한 번도
+    호출되지 않았다는 증거다."""
+    follower = FakeFollower(_neutral())
+    writer = StagedFollowerArmedWriter(follower=follower, max_write_count=5)
+    writer.connect()
+    vla = RaisingResetVLAClient()
+    runner = StagedRealRolloutRunner(
+        camera_source=FakeCameraSource(), state_source=FakeStateSource(follower.state), vla_client=vla,
+        safety_gate=SafetyGate(_safety_config()), writer=writer, task="t", checkpoint_label="fake",
+        post_write_settle_s=0.0,
+    )
+
+    result = runner.run_stage(stage=2, max_steps=3)
+
+    assert result.verdict == ABNORMAL_STOPPED
+    assert len(result.steps) == 1  # 첫 step에서 즉시 중단, 나머지 step은 시도조차 안 함
+    step = result.steps[0]
+    assert step.session_reset_ok is False
+    assert "session_reset" in step.step_error
+    assert step.written is False
+    assert step.fresh_inference is False
+    assert result.real_follower_write_count == 0
+    assert len(vla.reset_calls) == 1
+    assert len(vla.predict_calls) == 0  # predict가 단 한 번도 호출되지 않았음을 직접 확인
+    assert len(follower.send_action_calls) == 0
+
+
+def test_session_reset_ok_false_is_also_fail_closed():
+    """session_reset이 예외 없이 그냥 ``ok=False``를 반환하는 경우도 동일하게 fail-closed여야
+    한다 - 예외 경로와 반환값 경로를 둘 다 커버한다."""
+    actions = [{**_neutral(), "shoulder_pan": 1.0}, {**_neutral(), "shoulder_pan": 2.0}]
+    runner, follower, writer = _make_runner(actions, max_write_count=5)
+    vla: ScriptedVLAClient = runner._vla_client  # type: ignore[attr-defined]
+    vla.reset_ok_sequence = [True, False]  # 1번째 step은 성공, 2번째 step부터 실패
+
+    result = runner.run_stage(stage=2, max_steps=3)
+
+    assert result.verdict == ABNORMAL_STOPPED
+    assert len(result.steps) == 2
+    assert result.steps[0].session_reset_ok is True
+    assert result.steps[0].written is True
+    assert result.steps[1].session_reset_ok is False
+    assert result.steps[1].written is False
+    assert result.real_follower_write_count == 1  # 실패 시점 이후로는 write가 전혀 없다
+    assert len(vla.calls) == 1  # 2번째 step은 predict까지 가지 않았다
+    assert len(follower.send_action_calls) == 1
+
+
+def test_would_clamp_still_blocks_write_under_new_reset_predict_sequence():
+    """reset->predict 시퀀스를 넣어도 WOULD_CLAMP은 여전히 write를 막아야 한다 (기존 불변식
+    유지 회귀) - 20deg는 max_step=5.0(WOULD_CLAMP 경계) 초과, gross(25.0) 미만."""
+    action = {**_neutral(), "shoulder_pan": 20.0}
+    runner, follower, writer = _make_runner([action])
+    vla: ScriptedVLAClient = runner._vla_client  # type: ignore[attr-defined]
+
+    result = runner.run_stage(stage=1, max_steps=1)
+
+    assert result.steps[0].safety_decision == "WOULD_CLAMP"
+    assert result.steps[0].session_reset_ok is True  # reset/predict 자체는 정상적으로 일어남
+    assert result.steps[0].fresh_inference is True
+    assert result.verdict == ABNORMAL_STOPPED
+    assert not result.steps[0].written
+    assert len(follower.send_action_calls) == 0
+    assert len(vla.reset_calls) == 1
+    assert len(vla.calls) == 1
+
+
+def test_reject_still_blocks_write_under_new_reset_predict_sequence():
+    """REJECT도 마찬가지로 기존 불변식(write 절대 안 함)이 새 시퀀스에서도 유지돼야 한다."""
+    action = {**_neutral(), "shoulder_pan": 999.0}
+    runner, follower, writer = _make_runner([action])
+
+    result = runner.run_stage(stage=1, max_steps=1)
+
+    assert result.steps[0].safety_decision == "REJECT"
+    assert result.steps[0].session_reset_ok is True
+    assert result.verdict == ABNORMAL_STOPPED
+    assert not result.steps[0].written
+    assert len(follower.send_action_calls) == 0
+
+
+def test_first_non_accept_still_halts_immediately_under_new_sequence():
+    """첫 non-ACCEPT에서 즉시 중단하는 기존 불변식이 reset 삽입 후에도 유지되는지 확인 -
+    3번째 step은 reset조차 시도되지 않아야 한다."""
+    accept_action = {**_neutral(), "shoulder_pan": 1.0}
+    reject_action = {**_neutral(), "shoulder_pan": 999.0}
+    another_accept = {**_neutral(), "shoulder_pan": 2.0}
+    runner, follower, writer = _make_runner([accept_action, reject_action, another_accept], max_write_count=10)
+    vla: ScriptedVLAClient = runner._vla_client  # type: ignore[attr-defined]
+
+    result = runner.run_stage(stage=2, max_steps=3)
+
+    assert result.verdict == ABNORMAL_STOPPED
+    assert len(result.steps) == 2
+    assert len(vla.reset_calls) == 2  # 3번째 step은 reset도 predict도 시도 안 함
+    assert len(vla.calls) == 2
