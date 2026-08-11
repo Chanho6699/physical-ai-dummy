@@ -297,6 +297,97 @@ def test_gripper_normalization_does_not_change_arm_excessive_step_behavior() -> 
     assert decision.per_joint["gripper"].safe_value == 0.0
 
 
+# ---------------------------------------------------------------------------
+# 2026-08 재캘리브레이션 (Candidate B + 실물 Stage 1/3 근거 - configs/safety_gate.yaml
+# 상단 주석 표 참고). shoulder_pan/shoulder_lift/elbow_flex 3개 joint의 excessive-step
+# threshold만 갱신됐고, mechanical range/gross reject 구조/wrist_flex 등 나머지 joint는
+# 변경되지 않았다 - 이 절의 테스트는 그 두 가지(갱신됨/안 됨)를 모두 회귀로 고정한다.
+# ---------------------------------------------------------------------------
+
+
+def test_recalibrated_thresholds_loaded_from_repo_config() -> None:
+    cfg = SafetyGateConfig.from_repo_defaults()
+    assert cfg.max_step_deg["shoulder_pan"] == 6.00
+    assert cfg.max_step_deg["shoulder_lift"] == 9.00
+    assert cfg.max_step_deg["elbow_flex"] == 8.50
+    # 변경 근거가 없었던 3개 joint는 그대로 유지되어야 한다.
+    assert cfg.max_step_deg["wrist_flex"] == 4.01
+    assert cfg.max_step_deg["wrist_roll"] == 1.15
+    assert cfg.max_step_deg["gripper"] == 9.17
+
+
+def _isolated_step(joint: str, before: float, predicted: float) -> dict:
+    """다른 5개 joint는 delta 0으로 고정한 채, 지정한 joint 하나만 실물 사례의 before(현재
+    state) 값으로 채운다 - 재캘리브레이션 acceptance test용 실물 Stage 1/3 사례 재현 헬퍼.
+    action 쪽은 호출부가 ``_action(**{joint: predicted})``로 직접 만든다."""
+    state = _current_state(0.0)
+    state[joint] = before
+    return state
+
+
+def test_staged_case_A_elbow_flex_7_08deg_now_accepts() -> None:
+    """실물 Stage 3: elbow 97.63->90.54 (delta~7.08deg)는 구 threshold(5.73)에 막혔으나,
+    combined69 학습 분포 안에서 정상적으로 관측되는 크기(max 9.19deg 이내)다 - 재캘리브레이션
+    후에는 ACCEPT되어야 한다."""
+    state = _isolated_step("elbow_flex", 97.6264, 90.5416)
+    cfg = SafetyGateConfig.from_repo_defaults()
+    decision = SafetyGate(cfg).evaluate(
+        adapted_action=_action(elbow_flex=90.5416), current_state_deg=state, observation_valid=True
+    )
+    assert decision.decision == "ACCEPT"
+
+
+def test_staged_case_B_shoulder_pan_5_45deg_now_accepts() -> None:
+    """실물 Stage 1: shoulder_pan +2.68->-2.77 (delta~5.45deg)는 구 threshold(4.58)에
+    막혔으나 학습 분포 p99(5.71deg) 이내다 - 재캘리브레이션 후에는 ACCEPT되어야 한다."""
+    state = _isolated_step("shoulder_pan", 2.6813, -2.7667)
+    cfg = SafetyGateConfig.from_repo_defaults()
+    decision = SafetyGate(cfg).evaluate(
+        adapted_action=_action(shoulder_pan=-2.7667), current_state_deg=state, observation_valid=True
+    )
+    assert decision.decision == "ACCEPT"
+
+
+def test_staged_case_C_shoulder_lift_5_63deg_now_accepts() -> None:
+    """실물 Stage 1: shoulder_lift -96.57->-90.94 (delta~5.63deg)는 구 threshold(5.16)에
+    막혔으나 학습 분포 p95(6.86deg) 이내다 - 재캘리브레이션 후에는 ACCEPT되어야 한다."""
+    state = _isolated_step("shoulder_lift", -96.57, -90.94)
+    cfg = SafetyGateConfig.from_repo_defaults()
+    decision = SafetyGate(cfg).evaluate(
+        adapted_action=_action(shoulder_lift=-90.94), current_state_deg=state, observation_valid=True
+    )
+    assert decision.decision == "ACCEPT"
+
+
+def test_staged_case_D_wrist_flex_13_18deg_still_would_clamp() -> None:
+    """실물 Stage 1: wrist_flex 53.67->40.49 (delta~13.18deg)는 combined69 학습 데이터
+    전체에서 한 번도 관측된 적 없는 magnitude(학습 max 12.53deg 초과)인 true outlier다 -
+    재캘리브레이션 후에도 계속 WOULD_CLAMP돼야 한다(wrist_flex threshold는 변경하지 않음)."""
+    state = _isolated_step("wrist_flex", 53.6703, 40.4879)
+    cfg = SafetyGateConfig.from_repo_defaults()
+    decision = SafetyGate(cfg).evaluate(
+        adapted_action=_action(wrist_flex=40.4879), current_state_deg=state, observation_valid=True
+    )
+    assert decision.decision == "WOULD_CLAMP"
+    assert any("EXCESSIVE_STEP_CLAMPED" in r for r in decision.reasons)
+
+
+def test_recalibration_does_not_loosen_gross_reject_for_a_genuinely_gross_elbow_jump() -> None:
+    """excessive-step threshold를 올려도 GROSS_STEP_MULTIPLIER(5x, safety_gate.py 상수,
+    이번에 변경 안 함)는 그대로이므로, threshold의 5배를 넘는 진짜 gross 위반은 여전히
+    REJECT여야 한다 - 재캘리브레이션이 gross reject 구조 자체를 흔들지 않았음을 고정한다."""
+    cfg = SafetyGateConfig.from_repo_defaults()
+    gate = SafetyGate(cfg)
+    new_elbow_threshold = cfg.max_step_deg["elbow_flex"]
+    assert new_elbow_threshold == 8.50
+    gross_delta = new_elbow_threshold * 5 + 1.0  # 새 GROSS 경계(42.5deg)를 살짝 넘김
+    current = _current_state(0.0)
+    action = _action(elbow_flex=gross_delta)
+    decision = gate.evaluate(adapted_action=action, current_state_deg=current, observation_valid=True)
+    assert decision.decision == "REJECT"
+    assert any("EXCESSIVE_STEP_GROSS" in r for r in decision.reasons)
+
+
 def test_repo_default_gross_step_threshold_does_not_flag_typical_demo_sized_step() -> None:
     """excessive-step CLAMP 임계값은 타이트해도 되지만(진단 목적), GROSS(REJECT)는 정상적인
     시연 동작 크기(수 deg~십수 deg)에서는 절대 걸리면 안 된다 - 안 그러면 REJECT가
