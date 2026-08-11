@@ -1,0 +1,77 @@
+{
+  "candidates": {
+    "A": "V2+V3 reweight2:1 @10000 (accuracy-oriented)",
+    "B": "V3+V4 uniform @10000 (safety-oriented)"
+  },
+  "tracks": [
+    "primary",
+    "secondary"
+  ],
+  "n_scenes": 10,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "n_rollouts": 120,
+  "total_wall_time_s": 6091.4,
+  "real_follower_write_count_total": 0,
+  "candidate_comparison": [
+    {
+      "track": "primary",
+      "candidate": "A",
+      "n_rollouts": 30,
+      "kinematic_pick_drop_success_rate": 0.0,
+      "physics_pick_drop_success_rate": 0.0,
+      "approach_success_rate": 0.333,
+      "grasp_pose_reached_rate": 0.133,
+      "lift_success_rate": 0.633,
+      "bin_vicinity_reached_rate": 0.0,
+      "safety_reject_rate": 0.133,
+      "clamp_free_rate": 0.0,
+      "mean_wall_time_s": 2.52
+    },
+    {
+      "track": "primary",
+      "candidate": "B",
+      "n_rollouts": 30,
+      "kinematic_pick_drop_success_rate": 0.0,
+      "physics_pick_drop_success_rate": 0.0,
+      "approach_success_rate": 0.367,
+      "grasp_pose_reached_rate": 0.2,
+      "lift_success_rate": 0.733,
+      "bin_vicinity_reached_rate": 0.0,
+      "safety_reject_rate": 0.033,
+      "clamp_free_rate": 0.0,
+      "mean_wall_time_s": 2.54
+    },
+    {
+      "track": "secondary",
+      "candidate": "A",
+      "n_rollouts": 30,
+      "kinematic_pick_drop_success_rate": 0.0,
+      "physics_pick_drop_success_rate": 0.0,
+      "approach_success_rate": 0.267,
+      "grasp_pose_reached_rate": 0.1,
+      "lift_success_rate": 0.067,
+      "bin_vicinity_reached_rate": 0.0,
+      "safety_reject_rate": 0.0,
+      "clamp_free_rate": 0.0,
+      "mean_wall_time_s": 99.41
+    },
+    {
+      "track": "secondary",
+      "candidate": "B",
+      "n_rollouts": 30,
+      "kinematic_pick_drop_success_rate": 0.0,
+      "physics_pick_drop_success_rate": 0.0,
+      "approach_success_rate": 0.267,
+      "grasp_pose_reached_rate": 0.1,
+      "lift_success_rate": 0.1,
+      "bin_vicinity_reached_rate": 0.0,
+      "safety_reject_rate": 0.0,
+      "clamp_free_rate": 0.0,
+      "mean_wall_time_s": 97.54
+    }
+  ]
+}

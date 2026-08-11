@@ -1,0 +1,13 @@
+candidate,track,failure_reason,count,share
+A,primary,failed_approach,18,0.6
+A,primary,safety_reject,4,0.133
+A,primary,missed_grasp,4,0.133
+A,primary,wrong_direction,4,0.133
+A,secondary,failed_approach,22,0.733
+A,secondary,missed_grasp,8,0.267
+B,primary,failed_approach,18,0.6
+B,primary,wrong_direction,6,0.2
+B,primary,missed_grasp,5,0.167
+B,primary,safety_reject,1,0.033
+B,secondary,failed_approach,22,0.733
+B,secondary,missed_grasp,8,0.267

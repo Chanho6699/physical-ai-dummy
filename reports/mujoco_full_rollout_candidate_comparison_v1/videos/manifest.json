@@ -1,0 +1,82 @@
+[
+  {
+    "candidate": "A",
+    "track": "primary",
+    "label": "near_miss",
+    "kind": "closest_near_miss (no full success in this group)",
+    "scene_id": "mujoco_rollout_test06",
+    "seed": "2",
+    "trajectory": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/trajectories/A_primary_mujoco_rollout_test06_seed2.json",
+    "video": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/videos/A_primary_near_miss_mujoco_rollout_test06_seed2.mp4"
+  },
+  {
+    "candidate": "A",
+    "track": "primary",
+    "label": "failure",
+    "kind": "failed_approach",
+    "scene_id": "mujoco_rollout_test01",
+    "seed": "1",
+    "trajectory": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/trajectories/A_primary_mujoco_rollout_test01_seed1.json",
+    "video": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/videos/A_primary_failure_mujoco_rollout_test01_seed1.mp4"
+  },
+  {
+    "candidate": "A",
+    "track": "secondary",
+    "label": "near_miss",
+    "kind": "closest_near_miss (no full success in this group)",
+    "scene_id": "mujoco_rollout_test05",
+    "seed": "0",
+    "trajectory": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/trajectories/A_secondary_mujoco_rollout_test05_seed0.json",
+    "video": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/videos/A_secondary_near_miss_mujoco_rollout_test05_seed0.mp4"
+  },
+  {
+    "candidate": "A",
+    "track": "secondary",
+    "label": "failure",
+    "kind": "failed_approach",
+    "scene_id": "mujoco_rollout_test03",
+    "seed": "0",
+    "trajectory": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/trajectories/A_secondary_mujoco_rollout_test03_seed0.json",
+    "video": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/videos/A_secondary_failure_mujoco_rollout_test03_seed0.mp4"
+  },
+  {
+    "candidate": "B",
+    "track": "primary",
+    "label": "near_miss",
+    "kind": "closest_near_miss (no full success in this group)",
+    "scene_id": "mujoco_rollout_test06",
+    "seed": "2",
+    "trajectory": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/trajectories/B_primary_mujoco_rollout_test06_seed2.json",
+    "video": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/videos/B_primary_near_miss_mujoco_rollout_test06_seed2.mp4"
+  },
+  {
+    "candidate": "B",
+    "track": "primary",
+    "label": "failure",
+    "kind": "failed_approach",
+    "scene_id": "mujoco_rollout_test01",
+    "seed": "0",
+    "trajectory": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/trajectories/B_primary_mujoco_rollout_test01_seed0.json",
+    "video": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/videos/B_primary_failure_mujoco_rollout_test01_seed0.mp4"
+  },
+  {
+    "candidate": "B",
+    "track": "secondary",
+    "label": "near_miss",
+    "kind": "closest_near_miss (no full success in this group)",
+    "scene_id": "mujoco_rollout_test05",
+    "seed": "0",
+    "trajectory": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/trajectories/B_secondary_mujoco_rollout_test05_seed0.json",
+    "video": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/videos/B_secondary_near_miss_mujoco_rollout_test05_seed0.mp4"
+  },
+  {
+    "candidate": "B",
+    "track": "secondary",
+    "label": "failure",
+    "kind": "failed_approach",
+    "scene_id": "mujoco_rollout_test01",
+    "seed": "2",
+    "trajectory": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/trajectories/B_secondary_mujoco_rollout_test01_seed2.json",
+    "video": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/mujoco_full_rollout_candidate_comparison_v1/videos/B_secondary_failure_mujoco_rollout_test01_seed2.mp4"
+  }
+]

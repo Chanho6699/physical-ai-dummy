@@ -1,0 +1,271 @@
+{
+  "schema": "mujoco_rollout_scenes_v1",
+  "note": "These are NOT historical T01-T10 (no real cube/bin coordinates exist anywhere in this repo for that label - see docs/mujoco_scene_to_so101_semantics.md). cube_xy/bin_center_xy are synthetic but FK-reachability-verified; initial_pose_deg is real recorded data.",
+  "scene_path": "simulation/mujoco/assets/scene_pick_drop.xml",
+  "cube_half_size": 0.012,
+  "cube_mass_kg": 0.015,
+  "bin_inner_half": 0.05,
+  "bin_wall_height": 0.035,
+  "scenes": [
+    {
+      "scene_id": "mujoco_rollout_test01",
+      "cube_xy": [
+        0.16,
+        0.16
+      ],
+      "cube_z_init": 0.014,
+      "bin_center_xy": [
+        0.3,
+        -0.3
+      ],
+      "initial_pose_deg": {
+        "shoulder_pan": -5.846153736114502,
+        "shoulder_lift": -98.4175796508789,
+        "elbow_flex": 96.3956069946289,
+        "wrist_flex": 48.659339904785156,
+        "wrist_roll": -6.373626232147217,
+        "gripper": 0.7591442465782166
+      },
+      "initial_pose_source": {
+        "dataset": "data/so101_cube_xy_midpoint_test10_v2_clean",
+        "episode_index": 0,
+        "frame_index": 0,
+        "note": "Real recorded observation.state, frame 0 of this episode - not invented."
+      }
+    },
+    {
+      "scene_id": "mujoco_rollout_test02",
+      "cube_xy": [
+        0.22,
+        0.16
+      ],
+      "cube_z_init": 0.014,
+      "bin_center_xy": [
+        0.3,
+        -0.3
+      ],
+      "initial_pose_deg": {
+        "shoulder_pan": -4.9670329093933105,
+        "shoulder_lift": -98.5054931640625,
+        "elbow_flex": 96.21977996826172,
+        "wrist_flex": 48.74725341796875,
+        "wrist_roll": -6.373626232147217,
+        "gripper": 0.6901311278343201
+      },
+      "initial_pose_source": {
+        "dataset": "data/so101_cube_xy_midpoint_test10_v2_clean",
+        "episode_index": 1,
+        "frame_index": 0,
+        "note": "Real recorded observation.state, frame 0 of this episode - not invented."
+      }
+    },
+    {
+      "scene_id": "mujoco_rollout_test03",
+      "cube_xy": [
+        0.28,
+        0.16
+      ],
+      "cube_z_init": 0.014,
+      "bin_center_xy": [
+        0.3,
+        -0.3
+      ],
+      "initial_pose_deg": {
+        "shoulder_pan": -3.472527503967285,
+        "shoulder_lift": -98.4175796508789,
+        "elbow_flex": 96.21977996826172,
+        "wrist_flex": 49.18681335449219,
+        "wrist_roll": -6.461538314819336,
+        "gripper": 1.3802622556686401
+      },
+      "initial_pose_source": {
+        "dataset": "data/so101_cube_xy_midpoint_test10_v2_clean",
+        "episode_index": 2,
+        "frame_index": 0,
+        "note": "Real recorded observation.state, frame 0 of this episode - not invented."
+      }
+    },
+    {
+      "scene_id": "mujoco_rollout_test04",
+      "cube_xy": [
+        0.16,
+        0.02
+      ],
+      "cube_z_init": 0.014,
+      "bin_center_xy": [
+        0.3,
+        -0.3
+      ],
+      "initial_pose_deg": {
+        "shoulder_pan": -3.2087912559509277,
+        "shoulder_lift": -98.4175796508789,
+        "elbow_flex": 96.48351287841797,
+        "wrist_flex": 48.74725341796875,
+        "wrist_roll": -6.373626232147217,
+        "gripper": 0.483091801404953
+      },
+      "initial_pose_source": {
+        "dataset": "data/so101_cube_xy_midpoint_test10_v2_clean",
+        "episode_index": 3,
+        "frame_index": 0,
+        "note": "Real recorded observation.state, frame 0 of this episode - not invented."
+      }
+    },
+    {
+      "scene_id": "mujoco_rollout_test05",
+      "cube_xy": [
+        0.22,
+        0.02
+      ],
+      "cube_z_init": 0.014,
+      "bin_center_xy": [
+        0.3,
+        -0.3
+      ],
+      "initial_pose_deg": {
+        "shoulder_pan": -6.637362480163574,
+        "shoulder_lift": -98.5934066772461,
+        "elbow_flex": 96.48351287841797,
+        "wrist_flex": 49.36263656616211,
+        "wrist_roll": -6.461538314819336,
+        "gripper": 0.828157365322113
+      },
+      "initial_pose_source": {
+        "dataset": "data/so101_cube_xy_midpoint_test10_v2_clean",
+        "episode_index": 4,
+        "frame_index": 0,
+        "note": "Real recorded observation.state, frame 0 of this episode - not invented."
+      }
+    },
+    {
+      "scene_id": "mujoco_rollout_test06",
+      "cube_xy": [
+        0.28,
+        0.02
+      ],
+      "cube_z_init": 0.014,
+      "bin_center_xy": [
+        0.3,
+        -0.3
+      ],
+      "initial_pose_deg": {
+        "shoulder_pan": -4.439560413360596,
+        "shoulder_lift": -98.76923370361328,
+        "elbow_flex": 96.21977996826172,
+        "wrist_flex": 50.5054931640625,
+        "wrist_roll": -6.461538314819336,
+        "gripper": 1.0351966619491577
+      },
+      "initial_pose_source": {
+        "dataset": "data/so101_cube_xy_midpoint_test10_v2_clean",
+        "episode_index": 5,
+        "frame_index": 0,
+        "note": "Real recorded observation.state, frame 0 of this episode - not invented."
+      }
+    },
+    {
+      "scene_id": "mujoco_rollout_test07",
+      "cube_xy": [
+        0.16,
+        -0.12
+      ],
+      "cube_z_init": 0.014,
+      "bin_center_xy": [
+        0.3,
+        -0.3
+      ],
+      "initial_pose_deg": {
+        "shoulder_pan": -5.934065818786621,
+        "shoulder_lift": -98.4175796508789,
+        "elbow_flex": 96.30769348144531,
+        "wrist_flex": 50.153846740722656,
+        "wrist_roll": -6.461538314819336,
+        "gripper": 1.1042097806930542
+      },
+      "initial_pose_source": {
+        "dataset": "data/so101_cube_xy_midpoint_test10_v2_clean",
+        "episode_index": 6,
+        "frame_index": 0,
+        "note": "Real recorded observation.state, frame 0 of this episode - not invented."
+      }
+    },
+    {
+      "scene_id": "mujoco_rollout_test08",
+      "cube_xy": [
+        0.22,
+        -0.12
+      ],
+      "cube_z_init": 0.014,
+      "bin_center_xy": [
+        0.3,
+        -0.3
+      ],
+      "initial_pose_deg": {
+        "shoulder_pan": -5.494505405426025,
+        "shoulder_lift": -98.68132019042969,
+        "elbow_flex": 96.21977996826172,
+        "wrist_flex": 50.153846740722656,
+        "wrist_roll": -6.461538314819336,
+        "gripper": 0.483091801404953
+      },
+      "initial_pose_source": {
+        "dataset": "data/so101_cube_xy_midpoint_test10_v2_clean",
+        "episode_index": 7,
+        "frame_index": 0,
+        "note": "Real recorded observation.state, frame 0 of this episode - not invented."
+      }
+    },
+    {
+      "scene_id": "mujoco_rollout_test09",
+      "cube_xy": [
+        0.28,
+        -0.12
+      ],
+      "cube_z_init": 0.014,
+      "bin_center_xy": [
+        0.3,
+        -0.3
+      ],
+      "initial_pose_deg": {
+        "shoulder_pan": -7.252747058868408,
+        "shoulder_lift": -98.76923370361328,
+        "elbow_flex": 96.21977996826172,
+        "wrist_flex": 49.36263656616211,
+        "wrist_roll": -6.373626232147217,
+        "gripper": 0.8971704840660095
+      },
+      "initial_pose_source": {
+        "dataset": "data/so101_cube_xy_midpoint_test10_v2_clean",
+        "episode_index": 8,
+        "frame_index": 0,
+        "note": "Real recorded observation.state, frame 0 of this episode - not invented."
+      }
+    },
+    {
+      "scene_id": "mujoco_rollout_test10",
+      "cube_xy": [
+        0.22,
+        0.22
+      ],
+      "cube_z_init": 0.014,
+      "bin_center_xy": [
+        0.3,
+        -0.3
+      ],
+      "initial_pose_deg": {
+        "shoulder_pan": -5.406593322753906,
+        "shoulder_lift": -98.5054931640625,
+        "elbow_flex": 96.30769348144531,
+        "wrist_flex": 48.74725341796875,
+        "wrist_roll": -6.373626232147217,
+        "gripper": 1.1732228994369507
+      },
+      "initial_pose_source": {
+        "dataset": "data/so101_cube_xy_midpoint_test10_v2_clean",
+        "episode_index": 9,
+        "frame_index": 0,
+        "note": "Real recorded observation.state, frame 0 of this episode - not invented."
+      }
+    }
+  ]
+}

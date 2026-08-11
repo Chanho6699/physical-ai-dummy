@@ -1,0 +1,5 @@
+track,candidate,n_rollouts,kinematic_pick_drop_success_rate,physics_pick_drop_success_rate,approach_success_rate,grasp_pose_reached_rate,lift_success_rate,bin_vicinity_reached_rate,safety_reject_rate,clamp_free_rate,mean_wall_time_s
+primary,A,30,0.0,0.0,0.333,0.133,0.633,0.0,0.133,0.0,2.52
+primary,B,30,0.0,0.0,0.367,0.2,0.733,0.0,0.033,0.0,2.54
+secondary,A,30,0.0,0.0,0.267,0.1,0.067,0.0,0.0,0.0,99.41
+secondary,B,30,0.0,0.0,0.267,0.1,0.1,0.0,0.0,0.0,97.54
