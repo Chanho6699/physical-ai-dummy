@@ -1,0 +1,45 @@
+{
+  "synthetic": true,
+  "mode": "SYNTHETIC_OFFLINE_PROXY",
+  "provenance": {
+    "statement": "NOT a live SO-101 hardware Shadow capture. This analysis session has no SO-101 hardware attached (no /dev/serial/by-id/*, no /dev/video*), so scripts/run_shadow_mode.py could not be run for this scene. Built instead from the held-out local/so101_cube_xy_midpoint_test10_v2_clean dataset (never used in training) by taking episode 8's frame_index=0 (state + first workspace/wrist frame) as this scene's reference observation, per explicit user decision (2026-08-08).",
+    "source_dataset": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_xy_midpoint_test10_v2_clean",
+    "source_repo_id": "local/so101_cube_xy_midpoint_test10_v2_clean",
+    "source_episode_index": 8,
+    "source_frame_index": 0,
+    "mapping_rule": "episode_index N -> T0(N+1), sequential (episode 0 -> T01 already has a real capture and is not reused here).",
+    "generated_at": "2026-08-08T13:33:45.417454+00:00",
+    "generated_by": "scripts/build_synthetic_midpoint_shadow_reports.py"
+  },
+  "generated_at": "2026-08-08T13:33:45.417454+00:00",
+  "task": "Pick up the cube and place it in the target area.",
+  "scene_metadata": {
+    "label": "T09",
+    "note": "Synthetic offline proxy for held-out scene T09 (see provenance)."
+  },
+  "observation": {
+    "state": {
+      "shoulder_pan": -7.252747058868408,
+      "shoulder_lift": -98.76923370361328,
+      "elbow_flex": 96.21977996826172,
+      "wrist_flex": 49.36263656616211,
+      "wrist_roll": -6.373626232147217,
+      "gripper": 0.8971704840660095
+    },
+    "camera_frame_paths": {
+      "workspace_path": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/grid35_v2_shadow_T09/images/workspace.jpg",
+      "wrist_path": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/grid35_v2_shadow_T09/images/wrist.jpg"
+    }
+  },
+  "vla": {
+    "raw_action": {
+      "shoulder_pan": -7.692307472229004,
+      "shoulder_lift": -98.24176025390625,
+      "elbow_flex": 94.24176025390625,
+      "wrist_flex": 49.58241653442383,
+      "wrist_roll": -6.109889984130859,
+      "gripper": 1.1355571746826172
+    },
+    "raw_action_note": "This is the held-out dataset's own recorded demonstration action at this frame, NOT a live VLA output (there was no live inference to source it from). It is used only as an informational value; the seed-sweep's GT-delta lookup (nearest_frame_trajectory_analysis) matches on observation.state alone against the *training* dataset, so this field does not influence the GT reference used for scoring."
+  }
+}

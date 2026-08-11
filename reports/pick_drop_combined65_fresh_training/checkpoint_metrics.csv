@@ -1,0 +1,5 @@
+checkpoint_step,checkpoint_path,train_loss,lr,grad_norm,gpu_mem_gb,logged_at,checkpoint_saved,offline_action_mae,offline_pred_state_delta_median,offline_pred_state_delta_p95,offline_would_pass,offline_would_clamp,offline_would_reject,offline_frames_evaluated
+2500,outputs/pick_drop_combined65/smolvla_pick_drop_combined65_fresh/checkpoints/002500/pretrained_model,0.124,8.6e-05,3.364,2.44,2026-08-09 12:58:08,True,4.71568,3.367311,14.036769,256,3011,21,3288
+5000,outputs/pick_drop_combined65/smolvla_pick_drop_combined65_fresh/checkpoints/005000/pretrained_model,0.082,5.2e-05,2.382,2.44,2026-08-09 13:14:56,True,4.34042,3.047258,17.552394,375,2809,104,3288
+7500,outputs/pick_drop_combined65/smolvla_pick_drop_combined65_fresh/checkpoints/007500/pretrained_model,0.066,1.7e-05,2.037,2.44,2026-08-09 13:31:50,True,3.412268,2.393179,13.581555,688,2590,10,3288
+10000,outputs/pick_drop_combined65/smolvla_pick_drop_combined65_fresh/checkpoints/010000/pretrained_model,0.053,2.5e-06,1.726,2.44,2026-08-09 13:48:37,True,3.639608,2.418811,15.346473,659,2568,61,3288

@@ -35,9 +35,9 @@ from __future__ import annotations
 
 import time
 
-from runtime.common.vla_contract import validate_joint_dict
+from runtime.common.vla_contract import validate_action_chunk, validate_joint_dict
 from runtime.desktop.vla_server import PolicyInferenceError, SmolVLAPolicyRunner
-from runtime.laptop.vla_client import HealthResult, PredictResult
+from runtime.laptop.vla_client import ChunkPredictResult, HealthResult, PredictResult
 
 
 class InProcessVLAClientError(RuntimeError):
@@ -120,6 +120,62 @@ class InProcessSmolVLAClient:
             request_latency_ms=elapsed_ms,
             error_kind=None if action is not None else "schema",
             error_message=None if action is not None else reason,
+        )
+
+    def predict_chunk(
+        self,
+        *,
+        session_id: str,
+        task: str,
+        sequence: int,
+        state: dict[str, float],
+        images: dict[str, object],
+    ) -> ChunkPredictResult:
+        """``VLAHttpClient.predict_chunk()``와 같은 논리적 결과 형태(``ChunkPredictResult``)를
+        유지한다 - ``self._policy_runner.predict_chunk(...)``를 직접 호출할 뿐, HTTP
+        인코딩/디코딩 왕복이 없다(``predict()``와 동일한 in-process 원칙). ``server_received_at``/
+        ``server_responded_at``은 실제 원격 서버가 없으므로 이 호출 자체의 wall-clock
+        시작/종료로 채운다(``request_latency_ms``==``inference_latency_ms``인 것과 같은 원칙)."""
+        t0 = time.monotonic()
+        server_received_at = time.time()
+        try:
+            raw_chunk = self._policy_runner.predict_chunk(task=task, state=state, images=images)
+        except PolicyInferenceError as exc:
+            elapsed_ms = (time.monotonic() - t0) * 1000.0
+            return ChunkPredictResult(
+                ok=False, session_id=session_id, sequence=sequence, chunk=None, chunk_schema_valid=False,
+                chunk_invalid_reason=None, chunk_size=None, chunk_index_spacing_s=None,
+                model_id=self._policy_runner.model_id, backend=self._policy_runner.backend_name,
+                inference_latency_ms=elapsed_ms, request_latency_ms=elapsed_ms, requested_at_monotonic=t0,
+                error_kind="inference", error_message=str(exc),
+                server_received_at=server_received_at, server_responded_at=time.time(),
+            )
+        elapsed_ms = (time.monotonic() - t0) * 1000.0
+
+        spacing_s = self._policy_runner.chunk_index_spacing_s
+        chunk, reason = validate_action_chunk(raw_chunk, context="response.chunk")
+        if chunk is not None and (spacing_s is None or spacing_s <= 0):
+            chunk = None
+            reason = f"policy_runner.chunk_index_spacing_s가 유효하지 않습니다: {spacing_s!r}"
+
+        return ChunkPredictResult(
+            ok=chunk is not None,
+            session_id=session_id,
+            sequence=sequence,
+            chunk=chunk,
+            chunk_schema_valid=chunk is not None,
+            chunk_invalid_reason=reason,
+            chunk_size=len(chunk) if chunk is not None else None,
+            chunk_index_spacing_s=spacing_s if chunk is not None else None,
+            model_id=self._policy_runner.model_id,
+            backend=self._policy_runner.backend_name,
+            inference_latency_ms=elapsed_ms,
+            request_latency_ms=elapsed_ms,
+            requested_at_monotonic=t0,
+            error_kind=None if chunk is not None else "schema",
+            error_message=None if chunk is not None else reason,
+            server_received_at=server_received_at,
+            server_responded_at=time.time(),
         )
 
     def action_ack(self, *, session_id: str, sequence: int, executed: bool, backend: str, note: str | None = None) -> bool:

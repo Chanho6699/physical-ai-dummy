@@ -241,13 +241,19 @@ def require_interactive_confirmation() -> None:
         raise StagedSafetyTestError("확인 문구가 일치하지 않습니다 - 중단합니다.")
 
 
+def _fmt_ms(value: float | None) -> str:
+    return f"{value:.1f}ms" if value is not None else "n/a"
+
+
 def print_step_report(step) -> None:
     print(f"\n--- step {step.step} ---")
     print(f"  before_state_deg = {step.before_state_deg}")
-    reset_latency = (
-        f"{step.session_reset_latency_ms:.1f}ms" if step.session_reset_latency_ms is not None else "n/a"
+    print(
+        f"  latency(camera={_fmt_ms(step.camera_capture_latency_ms)}, "
+        f"state={_fmt_ms(step.state_read_latency_ms)}, "
+        f"reset={_fmt_ms(step.session_reset_latency_ms)})"
     )
-    print(f"  session_reset    = ok={step.session_reset_ok}  latency={reset_latency}")
+    print(f"  session_reset    = ok={step.session_reset_ok}")
     if step.session_reset_error:
         print(f"  session_reset_error = {step.session_reset_error}")
     if step.step_error:
@@ -255,11 +261,15 @@ def print_step_report(step) -> None:
         return
     print(
         f"  fresh_inference  = {step.fresh_inference}  "
-        f"(inference={step.predict_inference_latency_ms}ms, request={step.predict_request_latency_ms}ms)"
+        f"(inference={_fmt_ms(step.predict_inference_latency_ms)}, "
+        f"request={_fmt_ms(step.predict_request_latency_ms)})"
     )
     print(f"  raw_action_deg   = {step.raw_action_deg}")
-    print(f"  safety_decision  = {step.safety_decision}  reasons={list(step.safety_reasons)}")
-    print(f"  written          = {step.written}")
+    print(
+        f"  safety_decision  = {step.safety_decision}  reasons={list(step.safety_reasons)}  "
+        f"(safety_gate={_fmt_ms(step.safety_gate_latency_ms)})"
+    )
+    print(f"  written          = {step.written}  (write={_fmt_ms(step.write_latency_ms)})")
     if step.written:
         print(f"  sent_action_deg  = {step.sent_action_deg}")
         print(f"  after_state_deg  = {step.after_state_deg}")

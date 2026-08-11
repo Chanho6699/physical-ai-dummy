@@ -24,8 +24,10 @@ import requests
 from runtime.common.vla_contract import (
     ACTION_ACK_PATH,
     HEALTH_PATH,
+    PREDICT_CHUNK_PATH,
     PREDICT_PATH,
     SESSION_RESET_PATH,
+    validate_action_chunk,
     validate_joint_dict,
 )
 
@@ -97,6 +99,36 @@ class PredictResult:
     request_latency_ms: float  # 클라이언트가 측정한 왕복(round-trip) 지연
     error_kind: str | None  # None | "communication" | "inference" | "schema"
     error_message: str | None = None
+
+
+@dataclass(frozen=True)
+class ChunkPredictResult:
+    """``/predict_chunk`` 왕복 결과 - ``PredictResult``와 같은 원칙(통신 성공/schema 유효성
+    분리, fail-closed 오류 구분)을 따르되 단일 action이 아니라 전체 chunk를 담는다."""
+
+    ok: bool
+    session_id: str
+    sequence: int
+    chunk: list[dict[str, float]] | None
+    chunk_schema_valid: bool
+    chunk_invalid_reason: str | None
+    chunk_size: int | None
+    chunk_index_spacing_s: float | None
+    model_id: str | None
+    backend: str | None
+    inference_latency_ms: float | None
+    request_latency_ms: float  # 클라이언트가 측정한 왕복(round-trip) 지연
+    requested_at_monotonic: float  # 이 요청을 보내기 직전의 time.monotonic() - 향후 executor가
+    # chunk의 "나이"(staleness)를 계산할 때 쓸 기준점. wall clock이 아니라 monotonic을 쓴다
+    # (staged_real_rollout.py의 FollowerStateSnapshot.read_at_monotonic과 동일 관례).
+    error_kind: str | None  # None | "communication" | "inference" | "schema"
+    error_message: str | None = None
+    # Phase C-1B - /predict_chunk 응답이 이미 담고 있던 두 필드(PredictChunkResponseModel,
+    # Phase C-1A에서 이미 wire에 포함됨 - 새 필드 추가 아님)를 여기서도 그대로 노출한다.
+    # wall clock이라 control timing 판단에는 쓰지 않는다(모니터링/로그용) - monotonic 필드가
+    # 그 역할을 한다.
+    server_received_at: float | None = None
+    server_responded_at: float | None = None
 
 
 def _encode_image_base64(image_rgb) -> str:
@@ -247,6 +279,73 @@ class VLAHttpClient:
             request_latency_ms=round_trip_ms,
             error_kind=None if action is not None else "schema",
             error_message=None if action is not None else reason,
+        )
+
+    def predict_chunk(
+        self,
+        *,
+        session_id: str,
+        task: str,
+        sequence: int,
+        state: dict[str, float],
+        images: dict[str, "object"],
+    ) -> ChunkPredictResult:
+        """``/predict_chunk`` 호출 - ``predict()``와 완전히 독립된 메서드다(``predict()``는
+        이 메서드 추가로 전혀 바뀌지 않았다). 이미지 인코딩/``_request()`` 재사용은
+        ``predict()``와 동일한 기존 헬퍼를 그대로 쓴다(새 wire 포맷을 만들지 않음).
+
+        HTTP 오류/malformed shape/NaN/joint 누락은 전부 fail-closed로 처리한다 - ``ok=False``
+        와 함께 원인이 구분된 ``error_kind``를 반환할 뿐, 예외를 삼키고 부분적인/추측성
+        chunk를 만들어내지 않는다."""
+        requested_at_monotonic = time.monotonic()
+        encoded_images = {key: _encode_image_base64(arr) for key, arr in images.items()}
+        body = {
+            "session_id": session_id,
+            "task": task,
+            "sequence": sequence,
+            "timestamp": time.time(),
+            "observation": {"state": state, "images": encoded_images},
+        }
+        data, round_trip_ms, error = self._request("POST", PREDICT_CHUNK_PATH, json_body=body)
+
+        if data is None:
+            error_kind = "inference" if error and error.startswith("__INFERENCE__") else "communication"
+            error_message = error.removeprefix("__INFERENCE__") if error_kind == "inference" else error
+            return ChunkPredictResult(
+                ok=False, session_id=session_id, sequence=sequence, chunk=None, chunk_schema_valid=False,
+                chunk_invalid_reason=None, chunk_size=None, chunk_index_spacing_s=None, model_id=None, backend=None,
+                inference_latency_ms=None, request_latency_ms=round_trip_ms,
+                requested_at_monotonic=requested_at_monotonic, error_kind=error_kind, error_message=error_message,
+            )
+
+        declared_chunk_size = data.get("chunk_size")
+        expected_length = declared_chunk_size if isinstance(declared_chunk_size, int) else None
+        chunk, reason = validate_action_chunk(data.get("chunk"), context="response.chunk", expected_length=expected_length)
+
+        spacing_raw = data.get("chunk_index_spacing_s")
+        spacing_valid = isinstance(spacing_raw, (int, float)) and not isinstance(spacing_raw, bool) and spacing_raw > 0
+        if chunk is not None and not spacing_valid:
+            chunk = None
+            reason = f"response.chunk_index_spacing_s가 유효한 양수가 아닙니다: {spacing_raw!r}"
+
+        return ChunkPredictResult(
+            ok=chunk is not None,
+            session_id=str(data.get("session_id", session_id)),
+            sequence=int(data.get("sequence", sequence)),
+            chunk=chunk,
+            chunk_schema_valid=chunk is not None,
+            chunk_invalid_reason=reason,
+            chunk_size=len(chunk) if chunk is not None else None,
+            chunk_index_spacing_s=float(spacing_raw) if chunk is not None else None,
+            model_id=data.get("model_id") if isinstance(data.get("model_id"), str) else None,
+            backend=data.get("backend") if isinstance(data.get("backend"), str) else None,
+            inference_latency_ms=data.get("inference_latency_ms"),
+            request_latency_ms=round_trip_ms,
+            requested_at_monotonic=requested_at_monotonic,
+            error_kind=None if chunk is not None else "schema",
+            error_message=None if chunk is not None else reason,
+            server_received_at=data.get("server_received_at"),
+            server_responded_at=data.get("server_responded_at"),
         )
 
     def action_ack(self, *, session_id: str, sequence: int, executed: bool, backend: str, note: str | None = None) -> bool:

@@ -397,3 +397,72 @@ def test_first_non_accept_still_halts_immediately_under_new_sequence():
     assert len(result.steps) == 2
     assert len(vla.reset_calls) == 2  # 3번째 step은 reset도 predict도 시도 안 함
     assert len(vla.calls) == 2
+
+
+# ---------------------------------------------------------------------------
+# 2026-08 Phase B: closed-loop latency 계측 필드 (camera/state/safety_gate/write) 회귀.
+# 이 필드들은 Fake 경로에서는 항상 매우 작은(거의 0에 가까운) 값만 나온다 - 여기서
+# 검증하는 건 "실제 hardware-bound 값"이 아니라 "계측 코드 자체가 매 경로에서 올바르게
+# 채워지는지"다 (None이어야 할 때 None인지, 채워져야 할 때 음수가 아닌 float인지).
+# ---------------------------------------------------------------------------
+
+
+def test_latency_fields_populated_on_accept_and_write():
+    action = {**_neutral(), "shoulder_pan": 1.0}
+    runner, follower, writer = _make_runner([action], max_write_count=1)
+
+    result = runner.run_stage(stage=1, max_steps=1)
+
+    step = result.steps[0]
+    assert step.safety_decision == "ACCEPT"
+    assert step.written is True
+    for field_name in (
+        "camera_capture_latency_ms", "state_read_latency_ms", "session_reset_latency_ms",
+        "safety_gate_latency_ms", "write_latency_ms",
+    ):
+        value = getattr(step, field_name)
+        assert value is not None, f"{field_name}가 ACCEPT+write 경로에서 None이면 안 됨"
+        assert value >= 0.0, f"{field_name}가 음수: {value}"
+
+
+def test_camera_and_state_latency_recorded_even_when_session_reset_fails():
+    """reset이 실패해도(fail-closed로 predict/write는 안 하지만), 이미 성공한 관측 단계의
+    camera/state latency는 진단용으로 그대로 남아있어야 한다."""
+    follower = FakeFollower(_neutral())
+    writer = StagedFollowerArmedWriter(follower=follower, max_write_count=5)
+    writer.connect()
+    vla = RaisingResetVLAClient()
+    runner = StagedRealRolloutRunner(
+        camera_source=FakeCameraSource(), state_source=FakeStateSource(follower.state), vla_client=vla,
+        safety_gate=SafetyGate(_safety_config()), writer=writer, task="t", checkpoint_label="fake",
+        post_write_settle_s=0.0,
+    )
+
+    result = runner.run_stage(stage=1, max_steps=1)
+
+    step = result.steps[0]
+    assert step.session_reset_ok is False
+    assert step.camera_capture_latency_ms is not None
+    assert step.camera_capture_latency_ms >= 0.0
+    assert step.state_read_latency_ms is not None
+    assert step.state_read_latency_ms >= 0.0
+    # reset 이후 단계(추론/safety/write)는 아예 시도되지 않았으므로 전부 None이어야 한다.
+    assert step.predict_inference_latency_ms is None
+    assert step.safety_gate_latency_ms is None
+    assert step.write_latency_ms is None
+
+
+def test_safety_gate_latency_recorded_but_write_latency_none_on_would_clamp():
+    """WOULD_CLAMP은 write를 하지 않으므로 write_latency_ms는 None이어야 하지만,
+    safety_gate.evaluate() 자체는 호출됐으므로 safety_gate_latency_ms는 채워져야 한다."""
+    action = {**_neutral(), "shoulder_pan": 20.0}  # WOULD_CLAMP (max_step=5.0, gross=25.0)
+    runner, follower, writer = _make_runner([action])
+
+    result = runner.run_stage(stage=1, max_steps=1)
+
+    step = result.steps[0]
+    assert step.safety_decision == "WOULD_CLAMP"
+    assert step.safety_gate_latency_ms is not None
+    assert step.safety_gate_latency_ms >= 0.0
+    assert step.write_latency_ms is None
+    assert step.written is False

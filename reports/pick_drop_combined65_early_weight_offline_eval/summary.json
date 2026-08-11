@@ -1,0 +1,142 @@
+{
+  "eval_dataset": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_xy_midpoint_test10_v2_clean",
+  "train_dataset": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_pick_drop_combined65_v1",
+  "task": "Pick up the cube and drop it into the bin.",
+  "seed": 42,
+  "safety_gate_available": true,
+  "safety_gate_unavailable_reason": null,
+  "rows": [
+    {
+      "checkpoint_step": 2500,
+      "checkpoint": "outputs/pick_drop_combined65/combined65_early_weight_v1/checkpoints/002500/pretrained_model",
+      "num_frames_evaluated": 3288,
+      "num_episodes_evaluated": 10,
+      "action_mae": 4.653376,
+      "action_mae_per_joint": {
+        "shoulder_pan": 4.678076,
+        "shoulder_lift": 7.417807,
+        "elbow_flex": 6.758769,
+        "wrist_flex": 3.440324,
+        "wrist_roll": 0.334475,
+        "gripper": 5.290805
+      },
+      "pred_state_delta_median": 3.274874,
+      "pred_state_delta_p95": 14.255709,
+      "pred_state_delta_max": 41.368126,
+      "gt_demo_delta_median": 0.791206,
+      "gt_demo_delta_p95": 6.637362,
+      "gt_demo_delta_max": 15.170199,
+      "would_pass": 244,
+      "would_clamp": 3025,
+      "would_reject": 19,
+      "joint_clamp_count": {
+        "shoulder_pan": 1518,
+        "shoulder_lift": 1863,
+        "elbow_flex": 1357,
+        "wrist_flex": 1137,
+        "wrist_roll": 22,
+        "gripper": 1186
+      },
+      "warnings": []
+    },
+    {
+      "checkpoint_step": 5000,
+      "checkpoint": "outputs/pick_drop_combined65/combined65_early_weight_v1/checkpoints/005000/pretrained_model",
+      "num_frames_evaluated": 3288,
+      "num_episodes_evaluated": 10,
+      "action_mae": 4.429281,
+      "action_mae_per_joint": {
+        "shoulder_pan": 4.019108,
+        "shoulder_lift": 6.025999,
+        "elbow_flex": 7.351407,
+        "wrist_flex": 3.87879,
+        "wrist_roll": 0.223727,
+        "gripper": 5.076653
+      },
+      "pred_state_delta_median": 3.115744,
+      "pred_state_delta_p95": 18.035674,
+      "pred_state_delta_max": 43.066654,
+      "gt_demo_delta_median": 0.791206,
+      "gt_demo_delta_p95": 6.637362,
+      "gt_demo_delta_max": 15.170199,
+      "would_pass": 340,
+      "would_clamp": 2837,
+      "would_reject": 111,
+      "joint_clamp_count": {
+        "shoulder_pan": 1196,
+        "shoulder_lift": 1549,
+        "elbow_flex": 1987,
+        "wrist_flex": 974,
+        "wrist_roll": 0,
+        "gripper": 928
+      },
+      "warnings": []
+    },
+    {
+      "checkpoint_step": 7500,
+      "checkpoint": "outputs/pick_drop_combined65/combined65_early_weight_v1/checkpoints/007500/pretrained_model",
+      "num_frames_evaluated": 3288,
+      "num_episodes_evaluated": 10,
+      "action_mae": 3.402267,
+      "action_mae_per_joint": {
+        "shoulder_pan": 2.884848,
+        "shoulder_lift": 4.612122,
+        "elbow_flex": 5.259567,
+        "wrist_flex": 2.896935,
+        "wrist_roll": 0.180455,
+        "gripper": 4.579677
+      },
+      "pred_state_delta_median": 2.411675,
+      "pred_state_delta_p95": 13.808868,
+      "pred_state_delta_max": 38.913552,
+      "gt_demo_delta_median": 0.791206,
+      "gt_demo_delta_p95": 6.637362,
+      "gt_demo_delta_max": 15.170199,
+      "would_pass": 704,
+      "would_clamp": 2577,
+      "would_reject": 7,
+      "joint_clamp_count": {
+        "shoulder_pan": 647,
+        "shoulder_lift": 1266,
+        "elbow_flex": 1707,
+        "wrist_flex": 841,
+        "wrist_roll": 0,
+        "gripper": 532
+      },
+      "warnings": []
+    },
+    {
+      "checkpoint_step": 10000,
+      "checkpoint": "outputs/pick_drop_combined65/combined65_early_weight_v1/checkpoints/010000/pretrained_model",
+      "num_frames_evaluated": 3288,
+      "num_episodes_evaluated": 10,
+      "action_mae": 3.61082,
+      "action_mae_per_joint": {
+        "shoulder_pan": 2.833089,
+        "shoulder_lift": 4.984619,
+        "elbow_flex": 5.894601,
+        "wrist_flex": 3.365688,
+        "wrist_roll": 0.169457,
+        "gripper": 4.417467
+      },
+      "pred_state_delta_median": 2.393775,
+      "pred_state_delta_p95": 15.408231,
+      "pred_state_delta_max": 39.620404,
+      "gt_demo_delta_median": 0.791206,
+      "gt_demo_delta_p95": 6.637362,
+      "gt_demo_delta_max": 15.170199,
+      "would_pass": 664,
+      "would_clamp": 2573,
+      "would_reject": 51,
+      "joint_clamp_count": {
+        "shoulder_pan": 717,
+        "shoulder_lift": 1347,
+        "elbow_flex": 1736,
+        "wrist_flex": 935,
+        "wrist_roll": 0,
+        "gripper": 536
+      },
+      "warnings": []
+    }
+  ]
+}

@@ -20,11 +20,25 @@ class FakePolicyRunner:
 
     backend_name = "smolvla"
 
-    def __init__(self, checkpoint, *, policy_type="smolvla", device=None, fail_load=False, fail_predict=False):
+    def __init__(
+        self,
+        checkpoint,
+        *,
+        policy_type="smolvla",
+        device=None,
+        fail_load=False,
+        fail_predict=False,
+        fail_predict_chunk=False,
+        chunk_size=3,
+        chunk_index_spacing_s=1.0 / 30.0,
+    ):
         self.checkpoint = checkpoint
         self.model_id = checkpoint
         self.reset_calls: list[tuple[str, str]] = []
         self._fail_predict = fail_predict
+        self._fail_predict_chunk = fail_predict_chunk
+        self._chunk_size = chunk_size
+        self.chunk_index_spacing_s = chunk_index_spacing_s
         self._load_error = "가짜 로딩 실패" if fail_load else None
 
     def is_ready(self) -> bool:
@@ -39,6 +53,13 @@ class FakePolicyRunner:
 
             raise PolicyInferenceError("가짜 추론 실패")
         return {joint: state[joint] for joint in JOINT_ORDER}
+
+    def predict_chunk(self, *, task, state, images):
+        if self._fail_predict_chunk:
+            from runtime.desktop.vla_server import PolicyInferenceError
+
+            raise PolicyInferenceError("가짜 chunk 추론 실패")
+        return [{joint: state[joint] for joint in JOINT_ORDER} for _ in range(self._chunk_size)]
 
     def device_label(self) -> str:
         return "cpu (fake)"
@@ -97,6 +118,67 @@ def test_predict_inference_failure_is_reported_as_inference_error(monkeypatch) -
     )
     assert result.ok is False
     assert result.error_kind == "inference"
+
+
+# ---------------------------------------------------------------------------
+# Phase C-1A: predict_chunk() - predict()/PredictResult 기존 테스트는 위 그대로.
+# ---------------------------------------------------------------------------
+
+
+def test_predict_chunk_calls_policy_runner_predict_chunk_directly() -> None:
+    client = InProcessSmolVLAClient(checkpoint="/fake/checkpoint")
+    state = {joint: float(i) for i, joint in enumerate(JOINT_ORDER)}
+    images = {"observation.images.workspace": object(), "observation.images.wrist": object()}
+    result = client.predict_chunk(session_id="s1", task="pick", sequence=0, state=state, images=images)
+    assert result.ok is True
+    assert result.chunk_schema_valid is True
+    assert result.chunk_size == 3  # FakePolicyRunner 기본값
+    assert len(result.chunk) == 3
+    for step in result.chunk:
+        assert step == state
+    assert result.chunk_index_spacing_s == pytest.approx(1.0 / 30.0)
+    assert result.error_kind is None
+    assert result.request_latency_ms >= 0.0
+    assert result.requested_at_monotonic > 0.0
+
+
+def test_predict_chunk_inference_failure_is_reported_as_inference_error(monkeypatch) -> None:
+    monkeypatch.setattr(
+        inprocess_vla_client,
+        "SmolVLAPolicyRunner",
+        lambda checkpoint, **kw: FakePolicyRunner(checkpoint, fail_predict_chunk=True),
+    )
+    client = InProcessSmolVLAClient(checkpoint="/fake/checkpoint")
+    result = client.predict_chunk(
+        session_id="s1", task="pick", sequence=0, state={j: 0.0 for j in JOINT_ORDER}, images={}
+    )
+    assert result.ok is False
+    assert result.error_kind == "inference"
+    assert result.chunk is None
+
+
+def test_predict_chunk_fails_closed_when_spacing_unknown(monkeypatch) -> None:
+    monkeypatch.setattr(
+        inprocess_vla_client,
+        "SmolVLAPolicyRunner",
+        lambda checkpoint, **kw: FakePolicyRunner(checkpoint, chunk_index_spacing_s=None),
+    )
+    client = InProcessSmolVLAClient(checkpoint="/fake/checkpoint")
+    result = client.predict_chunk(
+        session_id="s1", task="pick", sequence=0, state={j: 0.0 for j in JOINT_ORDER}, images={}
+    )
+    assert result.ok is False
+    assert result.error_kind == "schema"
+    assert result.chunk is None
+
+
+def test_predict_chunk_does_not_affect_existing_predict() -> None:
+    client = InProcessSmolVLAClient(checkpoint="/fake/checkpoint")
+    state = {joint: float(i) for i, joint in enumerate(JOINT_ORDER)}
+    client.predict_chunk(session_id="s1", task="pick", sequence=0, state=state, images={})
+    result = client.predict(session_id="s1", task="pick", sequence=1, state=state, images={})
+    assert result.ok is True
+    assert result.action == state
 
 
 def test_action_ack_always_true() -> None:

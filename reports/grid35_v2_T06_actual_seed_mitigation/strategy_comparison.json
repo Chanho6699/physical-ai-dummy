@@ -1,0 +1,298 @@
+{
+  "source": {
+    "seed_sweep_csv": "reports/grid35_v2_T06_actual_seed_sweep/seed_sweep.csv",
+    "seed_sweep_json": "reports/grid35_v2_T06_actual_seed_sweep/seed_sweep.json",
+    "safety_gate_yaml": "configs/safety_gate.yaml",
+    "n_seeds": 20,
+    "note": "No new inference was run for this analysis; all strategies are recombinations/resamplings of the 20 existing seed rows."
+  },
+  "metadata": {
+    "checkpoint": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/outputs/grid35_v2/smolvla_grid35_v2_clean_fresh/checkpoints/007500/pretrained_model",
+    "dataset_root": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_xy_grid35_v2_clean",
+    "shadow_report": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/grid35_v2_shadow_T06_actual/shadow_patched.json",
+    "reference_observation_label": "V2_F02",
+    "task": "Pick up the cube and place it in the target area.",
+    "gt_immediate_delta": {
+      "shoulder_pan": 0.17582416534423828,
+      "shoulder_lift": 3.8681259155273438,
+      "elbow_flex": -4.615386962890625,
+      "wrist_flex": 0.21977996826171875,
+      "wrist_roll": -0.08791208267211914,
+      "gripper": -0.32155507802963257
+    },
+    "nearest_demo_match": {
+      "episode": 33,
+      "frame": 25,
+      "l2_dist_deg": 2.2755438857674424
+    },
+    "thresholds_from_sweep_json": {
+      "shoulder_pan": 4.58,
+      "shoulder_lift": 5.16,
+      "elbow_flex": 5.73,
+      "wrist_flex": 4.01,
+      "wrist_roll": 1.15,
+      "gripper": 9.17
+    },
+    "recommendation_text": "**Primary recommendation: safety-pass resampling, cap=5** (clamp-free rate 71.9%, failure rate 28.1%, avg 3.28 inference calls, GT L2 mean 3.399 deg). It directly targets the deployment failure mode this sweep was run to investigate (Safety Gate truncating first-action joints), it is the only strategy of the four whose stopping rule is deploy-time-realistic (uses only clamp status, never GT), and its inference cost is adaptive (only pays for extra calls when the first draw actually clamps) rather than fixed.\n\n**Secondary / fallback recommendation: safety-pass resampling, cap=3** (clamp-free rate 51.5%, avg 2.43 calls) if the extra latency budget for a 5th inference call is not available on the deployment hardware - it captures most of the benefit of cap=5 at lower worst-case latency.\n\n3-sample and 5-sample median are **not** recommended as the primary mitigation: median clamp-free rate (3-median 10.9%, 5-median 5.9%) does not clearly dominate single-sample (20.0%) or resampling, while always paying the fixed 3x/5x inference cost regardless of whether the first draw was already clamp-free - resampling only pays that cost when needed.\n\nThe 'fix one good seed' baseline (seed 2, clamp-free, GT L2 1.822 deg here) is **not recommended for deployment**: it was selected using GT that will not be available at deploy time, it reflects a single observation against one fixed Shadow reference state, and this whole sweep's own premise - that SmolVLA's flow-matching noise draw materially shifts the first action - means nothing guarantees that seed's favorable behavior transfers to a different observation, task, or checkpoint. It remains useful only as a debug/regression reference, not as a runtime policy.",
+    "next_step_text": "Carry safety-pass resampling (cap=5, fallback cap=3) into the T01-T10 full Shadow verification pass as the candidate mitigation, but re-run this same offline analysis *per task* once each task has its own seed sweep - this T01-only result (clamp-free 71.9% at cap=5) should not be assumed to hold for T02-T10 without their own 20-seed sweeps, since clamp behavior is a function of each task's own first-action delta distribution relative to the (task-independent) Safety Gate thresholds. Concretely: (1) run `sweep_grid35_first_action_seed.py` (or equivalent) for each of T02..T10 against its own Shadow reference observation; (2) re-run this script per task; (3) only adopt a single fixed cap/strategy repo-wide once its clamp-free rate and GT L2 are confirmed acceptable across all 10 tasks, not just T01."
+  },
+  "thresholds_deg": {
+    "shoulder_pan": 4.58,
+    "shoulder_lift": 5.16,
+    "elbow_flex": 5.73,
+    "wrist_flex": 4.01,
+    "wrist_roll": 1.15,
+    "gripper": 9.17
+  },
+  "gt_immediate_delta_deg": {
+    "shoulder_pan": 0.17582416534423828,
+    "shoulder_lift": 3.8681259155273438,
+    "elbow_flex": -4.615386962890625,
+    "wrist_flex": 0.21977996826171875,
+    "wrist_roll": -0.08791208267211914,
+    "gripper": -0.32155507802963257
+  },
+  "reproducibility": {
+    "rng_seed": 20260808,
+    "n_permutations": 20000,
+    "median_combination_method": "exhaustive itertools.combinations (no RNG involved)",
+    "resampling_combination_method": "fixed-RNG-seed permutations of seed draw order, first `cap` entries used per permutation"
+  },
+  "strategies": {
+    "single_random_sample": {
+      "name": "single_random_sample",
+      "n_units_evaluated": 20,
+      "clamp_free_rate": 0.2,
+      "failure_rate": 0.8,
+      "avg_clamp_joint_count": 1.25,
+      "gt_l2_error_deg": {
+        "mean": 4.57369939637701,
+        "median": 3.9349022197311765,
+        "p95": 8.73322679661414,
+        "max": 10.521944642450679
+      },
+      "shoulder_lift_deg": {
+        "mean": 5.9875205000000005,
+        "std": 3.0112704006084456,
+        "min": -1.344879,
+        "max": 13.640014,
+        "range": 14.984893000000001
+      },
+      "elbow_flex_deg": {
+        "mean": -6.30390755,
+        "std": 2.2448898187805226,
+        "min": -11.425778,
+        "max": -1.106725,
+        "range": 10.319053
+      },
+      "avg_inference_count": 1.0,
+      "max_inference_count": 1,
+      "max_inference_cap": 1,
+      "cross_check_vs_seed_sweep_csv_max_abs_l2_diff": 8.992756139747371e-07
+    },
+    "3_sample_median": {
+      "name": "3_sample_median",
+      "n_units_evaluated": 1140,
+      "clamp_free_rate": 0.10877192982456141,
+      "failure_rate": 0.8912280701754386,
+      "avg_clamp_joint_count": 1.3596491228070176,
+      "gt_l2_error_deg": {
+        "mean": 3.5195536693994818,
+        "median": 3.0643775014361676,
+        "p95": 6.666719085657565,
+        "max": 8.083006145713458
+      },
+      "shoulder_lift_deg": {
+        "mean": 5.8012866912280705,
+        "std": 1.52828019134637,
+        "min": 3.142402,
+        "max": 9.762169,
+        "range": 6.6197669999999995
+      },
+      "elbow_flex_deg": {
+        "mean": -6.354404059649123,
+        "std": 1.1829921347807544,
+        "min": -9.67999,
+        "max": -3.219472,
+        "range": 6.460518
+      },
+      "avg_inference_count": 3.0,
+      "max_inference_count": 3,
+      "max_inference_cap": 3,
+      "combination_space": "C(20,3)=1140 (exhaustive, no approximation)"
+    },
+    "5_sample_median": {
+      "name": "5_sample_median",
+      "n_units_evaluated": 15504,
+      "clamp_free_rate": 0.05869453044375645,
+      "failure_rate": 0.9413054695562435,
+      "avg_clamp_joint_count": 1.427373581011352,
+      "gt_l2_error_deg": {
+        "mean": 3.263804123878268,
+        "median": 3.006488092406021,
+        "p95": 5.0213399095252464,
+        "max": 7.221525706539766
+      },
+      "shoulder_lift_deg": {
+        "mean": 5.656410060887514,
+        "std": 1.1190089836486163,
+        "min": 3.688743,
+        "max": 9.626365,
+        "range": 5.937621999999999
+      },
+      "elbow_flex_deg": {
+        "mean": -6.405136331011352,
+        "std": 0.7823552975047091,
+        "min": -8.375249,
+        "max": -3.482167,
+        "range": 4.893082
+      },
+      "avg_inference_count": 5.0,
+      "max_inference_count": 5,
+      "max_inference_cap": 5,
+      "combination_space": "C(20,5)=15504 (exhaustive, no approximation)"
+    },
+    "safety_pass_resampling_max3": {
+      "name": "safety_pass_resampling_max3",
+      "n_units_evaluated": 20000,
+      "clamp_free_rate": 0.51475,
+      "failure_rate": 0.48524999999999996,
+      "avg_clamp_joint_count": 0.76265,
+      "gt_l2_error_deg": {
+        "mean": 3.189041906529383,
+        "median": 2.5889389508605083,
+        "p95": 5.673549100724386,
+        "max": 5.673549100724386
+      },
+      "shoulder_lift_deg": {
+        "mean": 3.9323742433500004,
+        "std": 2.1116545603322345,
+        "min": -1.344879,
+        "max": 5.16,
+        "range": 6.504879
+      },
+      "elbow_flex_deg": {
+        "mean": -4.379247487300001,
+        "std": 1.5564438182127411,
+        "min": -5.73,
+        "max": -1.106725,
+        "range": 4.6232750000000005
+      },
+      "avg_inference_count": 2.4282,
+      "max_inference_count": 3,
+      "max_inference_cap": 3
+    },
+    "safety_pass_resampling_max5": {
+      "name": "safety_pass_resampling_max5",
+      "n_units_evaluated": 20000,
+      "clamp_free_rate": 0.7192,
+      "failure_rate": 0.28080000000000005,
+      "avg_clamp_joint_count": 0.44285,
+      "gt_l2_error_deg": {
+        "mean": 3.3989717517086735,
+        "median": 2.5889389508605083,
+        "p95": 5.673549100724386,
+        "max": 5.673549100724386
+      },
+      "shoulder_lift_deg": {
+        "mean": 3.5633914937,
+        "std": 2.378039264326695,
+        "min": -1.344879,
+        "max": 5.16,
+        "range": 6.504879
+      },
+      "elbow_flex_deg": {
+        "mean": -3.89850244465,
+        "std": 1.5649501371686234,
+        "min": -5.73,
+        "max": -1.106725,
+        "range": 4.6232750000000005
+      },
+      "avg_inference_count": 3.2837,
+      "max_inference_count": 5,
+      "max_inference_cap": 5
+    }
+  },
+  "baseline_fixed_good_seed": {
+    "name": "fixed_good_seed_baseline_only",
+    "chosen_seed": 2,
+    "selection_rule": "min GT L2 among clamp-free seeds in the 0..19 sweep (retrospective, GT-informed - NOT reproducible at deploy time)",
+    "n_units_evaluated": 1,
+    "clamp_free_rate": 1.0,
+    "failure_rate": 0.0,
+    "avg_clamp_joint_count": 0.0,
+    "gt_l2_error_deg": {
+      "mean": 1.8216326157628617,
+      "median": 1.8216326157628617,
+      "p95": 1.8216326157628617,
+      "max": 1.8216326157628617
+    },
+    "shoulder_lift_deg": {
+      "mean": 3.688743,
+      "std": 0.0,
+      "min": 3.688743,
+      "max": 3.688743,
+      "range": 0.0
+    },
+    "elbow_flex_deg": {
+      "mean": -3.982182,
+      "std": 0.0,
+      "min": -3.982182,
+      "max": -3.982182,
+      "range": 0.0
+    },
+    "avg_inference_count": 1.0,
+    "max_inference_count": 1,
+    "max_inference_cap": 1,
+    "caveat": "Degenerate stats (std=0, range=0) are expected and diagnostic, not a virtue: this reflects a single observation (one seed x one fixed Shadow reference state), not a distribution. It says nothing about what this seed would produce against a different observation."
+  },
+  "additional_analysis": {
+    "clamp_rate_reduction": {
+      "single_sample_clamp_free_rate": 0.2,
+      "3_median_clamp_free_rate": 0.10877192982456141,
+      "5_median_clamp_free_rate": 0.05869453044375645,
+      "3_median_reduces_clamp_rate_vs_single": false,
+      "5_median_reduces_clamp_rate_vs_single": false
+    },
+    "gt_l2_improvement": {
+      "single_sample_mean_l2": 4.57369939637701,
+      "3_median_mean_l2": 3.5195536693994818,
+      "5_median_mean_l2": 3.263804123878268,
+      "3_median_improves_mean_l2_vs_single": true,
+      "5_median_improves_mean_l2_vs_single": true
+    },
+    "resampling_3_vs_5": {
+      "max3_clamp_free_rate": 0.51475,
+      "max5_clamp_free_rate": 0.7192,
+      "max5_minus_max3_clamp_free_rate": 0.2044499999999999,
+      "max3_avg_inference_count": 2.4282,
+      "max5_avg_inference_count": 3.2837,
+      "max3_failure_rate": 0.48524999999999996,
+      "max5_failure_rate": 0.28080000000000005,
+      "max3_gt_l2_mean": 3.189041906529383,
+      "max5_gt_l2_mean": 3.3989717517086735,
+      "max5_gt_l2_mean_worse_than_max3": true
+    },
+    "clamp_free_does_not_imply_low_gt_error": {
+      "clamp_free_seeds": [
+        2,
+        8,
+        19,
+        12
+      ],
+      "clamp_free_l2_values": [
+        1.821633,
+        2.588939,
+        4.656873,
+        5.67355
+      ],
+      "clamp_free_l2_mean": 3.68524875,
+      "clamped_l2_mean": 4.795812125,
+      "worst_clamp_free_seed": 12,
+      "worst_clamp_free_l2": 5.67355,
+      "n_clamped_seeds_with_lower_l2_than_worst_clamp_free_seed": 11,
+      "n_clamped_seeds_total": 16,
+      "statement": "seed 12 is clamp-free (0 joints clamp) but has GT L2=5.674 deg, worse than 11/16 clamped seeds. Clamp-free selection (the only signal available at real deploy time, since GT is unknown) does not guarantee low GT error - it only guarantees the action was not truncated by the Safety Gate."
+    }
+  }
+}

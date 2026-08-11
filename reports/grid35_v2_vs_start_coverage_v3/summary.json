@@ -1,0 +1,838 @@
+{
+  "dataset_integrity": {
+    "v2_clean": {
+      "dataset_root": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_xy_grid35_v2_clean",
+      "codebase_version": "v3.0",
+      "fps_meta": 30,
+      "fps_used_in_analysis": 30,
+      "task_strings": [
+        "Pick up the cube and place it in the target area."
+      ],
+      "n_episodes_meta": 35,
+      "n_episodes_loaded": 35,
+      "n_frames_meta": 11505,
+      "n_frames_loaded": 11505,
+      "episode_length_distribution": {
+        "min": 328,
+        "max": 329,
+        "mean": 328.7142857142857,
+        "median": 329.0,
+        "std": 0.4517539514526256,
+        "mean_seconds": 10.957142857142857,
+        "median_seconds": 10.966666666666667
+      },
+      "state_dim": [
+        6
+      ],
+      "action_dim": [
+        6
+      ],
+      "joint_names": [
+        "shoulder_pan.pos",
+        "shoulder_lift.pos",
+        "elbow_flex.pos",
+        "wrist_flex.pos",
+        "wrist_roll.pos",
+        "gripper.pos"
+      ],
+      "camera_features": {
+        "observation.images.workspace": {
+          "n_mp4_files": 35
+        },
+        "observation.images.wrist": {
+          "n_mp4_files": 35
+        }
+      },
+      "nan_inf_check": {
+        "episodes_with_nan": [],
+        "episodes_with_inf": []
+      },
+      "episode_index_continuous_0_to_N-1": true,
+      "frame_index_continuity_issues_episodes": [],
+      "global_index_continuous": true
+    },
+    "v3_start_coverage": {
+      "dataset_root": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_xy_start_coverage_v3",
+      "codebase_version": "v3.0",
+      "fps_meta": 30,
+      "fps_used_in_analysis": 30,
+      "task_strings": [
+        "Pick up the cube and place it in the target area."
+      ],
+      "n_episodes_meta": 30,
+      "n_episodes_loaded": 30,
+      "n_frames_meta": 9822,
+      "n_frames_loaded": 9822,
+      "episode_length_distribution": {
+        "min": 325,
+        "max": 329,
+        "mean": 327.4,
+        "median": 327.5,
+        "std": 1.0832051206181281,
+        "mean_seconds": 10.913333333333332,
+        "median_seconds": 10.916666666666666
+      },
+      "state_dim": [
+        6
+      ],
+      "action_dim": [
+        6
+      ],
+      "joint_names": [
+        "shoulder_pan.pos",
+        "shoulder_lift.pos",
+        "elbow_flex.pos",
+        "wrist_flex.pos",
+        "wrist_roll.pos",
+        "gripper.pos"
+      ],
+      "camera_features": {
+        "observation.images.workspace": {
+          "n_mp4_files": 30
+        },
+        "observation.images.wrist": {
+          "n_mp4_files": 30
+        }
+      },
+      "nan_inf_check": {
+        "episodes_with_nan": [],
+        "episodes_with_inf": []
+      },
+      "episode_index_continuous_0_to_N-1": true,
+      "frame_index_continuity_issues_episodes": [],
+      "global_index_continuous": true
+    }
+  },
+  "safety_thresholds": {
+    "would_clamp_threshold_deg": {
+      "shoulder_pan": 4.58,
+      "shoulder_lift": 5.16,
+      "elbow_flex": 5.73,
+      "wrist_flex": 4.01,
+      "wrist_roll": 1.15,
+      "gripper": 9.17
+    },
+    "reject_threshold_deg": {
+      "shoulder_pan": 22.9,
+      "shoulder_lift": 25.8,
+      "elbow_flex": 28.650000000000002,
+      "wrist_flex": 20.049999999999997,
+      "wrist_roll": 5.75,
+      "gripper": 45.85
+    },
+    "source_file": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/configs/safety_gate.yaml"
+  },
+  "v2_clean": {
+    "label": "v2_clean",
+    "dataset_root": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_xy_grid35_v2_clean",
+    "n_episodes": 35,
+    "timing_summary": {
+      "state_first_movement": {
+        "n": 35,
+        "n_never_moved": 0,
+        "mean_frame": 25.0,
+        "median_frame": 25.0,
+        "p10_frame": 20.0,
+        "p90_frame": 30.6,
+        "mean_s": 0.8333333333333334,
+        "median_s": 0.8333333333333334,
+        "p10_s": 0.6666666666666666,
+        "p90_s": 1.02
+      },
+      "action_first_movement": {
+        "n": 35,
+        "n_never_moved": 0,
+        "mean_frame": 21.428571428571427,
+        "median_frame": 21.0,
+        "p10_frame": 16.0,
+        "p90_frame": 28.0,
+        "mean_s": 0.7142857142857142,
+        "median_s": 0.7,
+        "p10_s": 0.5333333333333333,
+        "p90_s": 0.9333333333333333
+      }
+    },
+    "frame_coverage": {
+      "total_frames": 11505,
+      "n_episodes": 35,
+      "frames_0_15": {
+        "n_frames": 525,
+        "fraction_of_total": 0.04563233376792699
+      },
+      "frames_0_30": {
+        "n_frames": 1050,
+        "fraction_of_total": 0.09126466753585398
+      },
+      "static_segment_data_driven": {
+        "n_frames": 875,
+        "fraction_of_total": 0.07605388961321165
+      },
+      "moving_segment_data_driven": {
+        "n_frames": 10630,
+        "fraction_of_total": 0.9239461103867883
+      },
+      "static_length_distribution_frames": {
+        "mean": 25.0,
+        "median": 25.0,
+        "p10": 20.0,
+        "p90": 30.6,
+        "min": 15.0,
+        "max": 34.0
+      }
+    },
+    "immediate_action_safety_summary": {
+      "shoulder_pan": {
+        "n": 875,
+        "mean_abs_delta_deg": 0.6567786391122,
+        "median_abs_delta_deg": 0.7032966613769531,
+        "p95_abs_delta_deg": 1.1428570747375488,
+        "max_abs_delta_deg": 1.1428570747375488,
+        "would_clamp_threshold_deg": 4.58,
+        "frac_would_clamp": 0.0
+      },
+      "shoulder_lift": {
+        "n": 875,
+        "mean_abs_delta_deg": 0.6143794206891741,
+        "median_abs_delta_deg": 0.4395599365234375,
+        "p95_abs_delta_deg": 2.461534881591797,
+        "max_abs_delta_deg": 4.659339904785156,
+        "would_clamp_threshold_deg": 5.16,
+        "frac_would_clamp": 0.0
+      },
+      "elbow_flex": {
+        "n": 875,
+        "mean_abs_delta_deg": 2.244671709333147,
+        "median_abs_delta_deg": 2.0659332275390625,
+        "p95_abs_delta_deg": 4.0,
+        "max_abs_delta_deg": 6.021980285644531,
+        "would_clamp_threshold_deg": 5.73,
+        "frac_would_clamp": 0.001142857142857143
+      },
+      "wrist_flex": {
+        "n": 875,
+        "mean_abs_delta_deg": 0.5808731820242745,
+        "median_abs_delta_deg": 0.4835166931152344,
+        "p95_abs_delta_deg": 1.1868133544921875,
+        "max_abs_delta_deg": 2.8571434020996094,
+        "would_clamp_threshold_deg": 4.01,
+        "frac_would_clamp": 0.0
+      },
+      "wrist_roll": {
+        "n": 875,
+        "mean_abs_delta_deg": 0.23590580776759557,
+        "median_abs_delta_deg": 0.2637362480163574,
+        "p95_abs_delta_deg": 0.5274724960327148,
+        "max_abs_delta_deg": 0.7032966613769531,
+        "would_clamp_threshold_deg": 1.15,
+        "frac_would_clamp": 0.0
+      },
+      "gripper": {
+        "n": 875,
+        "mean_abs_delta_deg": 0.2873512031010219,
+        "median_abs_delta_deg": 0.3034813404083252,
+        "p95_abs_delta_deg": 0.45762211084365845,
+        "max_abs_delta_deg": 1.2128478288650513,
+        "would_clamp_threshold_deg": 9.17,
+        "frac_would_clamp": 0.0
+      }
+    },
+    "start_pose_diversity": {
+      "n_episodes": 35,
+      "per_joint_start_frame0_stats": {
+        "shoulder_pan": {
+          "std": 0.8463597112470906,
+          "range": 3.6043953895568848,
+          "min": -8.395604133605957,
+          "max": -4.791208744049072
+        },
+        "shoulder_lift": {
+          "std": 1.1851579044148757,
+          "range": 5.538459777832031,
+          "min": -98.85713958740234,
+          "max": -93.31867980957031
+        },
+        "elbow_flex": {
+          "std": 0.3188464064708756,
+          "range": 1.75823974609375,
+          "min": 94.9011001586914,
+          "max": 96.65933990478516
+        },
+        "wrist_flex": {
+          "std": 1.7287755458904561,
+          "range": 9.14285659790039,
+          "min": 42.41758346557617,
+          "max": 51.56044006347656
+        },
+        "wrist_roll": {
+          "std": 2.1758486482861676,
+          "range": 5.362637162208557,
+          "min": -6.461538314819336,
+          "max": -1.0989011526107788
+        },
+        "gripper": {
+          "std": 0.6798290309458707,
+          "range": 2.8985507786273956,
+          "min": 0.483091801404953,
+          "max": 3.3816425800323486
+        }
+      },
+      "start_frame0_pairwise_l2_deg": {
+        "n_pairs": 595,
+        "min": 0.5064341130607352,
+        "median": 3.851261209623281,
+        "mean": 4.133747118587043,
+        "p95": 7.9327740505016395,
+        "max": 11.754521096235505
+      }
+    },
+    "chunk_future_motion_summary": {
+      "chunk_size": 50,
+      "n_static_frames_total": 875,
+      "shoulder_lift": {
+        "chunk0_abs_delta": {
+          "mean": 0.6143794206891741,
+          "median": 0.4395599365234375,
+          "p95": 2.461534881591797
+        },
+        "chunk_mean_abs_delta_over_all_k": {
+          "mean": 20.503087993600026,
+          "median": 19.980659255981447,
+          "p95": 34.056439243316646
+        },
+        "chunk_max_abs_delta_over_all_k": {
+          "mean": 48.59307983943394,
+          "median": 48.087913513183594,
+          "p95": 67.80659275054931
+        },
+        "fraction_static_frames_where_chunk_mean_exceeds_would_clamp": 0.9965714285714286
+      },
+      "elbow_flex": {
+        "chunk0_abs_delta": {
+          "mean": 2.244671709333147,
+          "median": 2.0659332275390625,
+          "p95": 4.0
+        },
+        "chunk_mean_abs_delta_over_all_k": {
+          "mean": 20.974933822261264,
+          "median": 20.258459091186523,
+          "p95": 34.88105598449707
+        },
+        "chunk_max_abs_delta_over_all_k": {
+          "mean": 52.170599409920825,
+          "median": 52.52747344970703,
+          "p95": 73.47692375183105
+        },
+        "fraction_static_frames_where_chunk_mean_exceeds_would_clamp": 0.9965714285714286
+      }
+    }
+  },
+  "v3_start_coverage": {
+    "label": "v3_start_coverage",
+    "dataset_root": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_xy_start_coverage_v3",
+    "n_episodes": 30,
+    "timing_summary": {
+      "state_first_movement": {
+        "n": 30,
+        "n_never_moved": 0,
+        "mean_frame": 44.266666666666666,
+        "median_frame": 38.5,
+        "p10_frame": 20.9,
+        "p90_frame": 73.4,
+        "mean_s": 1.4755555555555555,
+        "median_s": 1.2833333333333334,
+        "p10_s": 0.6966666666666667,
+        "p90_s": 2.4466666666666668
+      },
+      "action_first_movement": {
+        "n": 30,
+        "n_never_moved": 0,
+        "mean_frame": 40.53333333333333,
+        "median_frame": 33.5,
+        "p10_frame": 18.8,
+        "p90_frame": 69.5,
+        "mean_s": 1.3511111111111112,
+        "median_s": 1.1166666666666667,
+        "p10_s": 0.6266666666666667,
+        "p90_s": 2.316666666666667
+      }
+    },
+    "frame_coverage": {
+      "total_frames": 9822,
+      "n_episodes": 30,
+      "frames_0_15": {
+        "n_frames": 450,
+        "fraction_of_total": 0.04581551618814905
+      },
+      "frames_0_30": {
+        "n_frames": 900,
+        "fraction_of_total": 0.0916310323762981
+      },
+      "static_segment_data_driven": {
+        "n_frames": 1328,
+        "fraction_of_total": 0.13520667888413765
+      },
+      "moving_segment_data_driven": {
+        "n_frames": 8494,
+        "fraction_of_total": 0.8647933211158624
+      },
+      "static_length_distribution_frames": {
+        "mean": 44.266666666666666,
+        "median": 38.5,
+        "p10": 20.9,
+        "p90": 73.4,
+        "min": 18.0,
+        "max": 82.0
+      }
+    },
+    "immediate_action_safety_summary": {
+      "shoulder_pan": {
+        "n": 1328,
+        "mean_abs_delta_deg": 0.6075731008706322,
+        "median_abs_delta_deg": 0.7032966613769531,
+        "p95_abs_delta_deg": 0.9670330286026001,
+        "max_abs_delta_deg": 1.1428565979003906,
+        "would_clamp_threshold_deg": 4.58,
+        "frac_would_clamp": 0.0
+      },
+      "shoulder_lift": {
+        "n": 1328,
+        "mean_abs_delta_deg": 0.5506420480199608,
+        "median_abs_delta_deg": 0.4395599365234375,
+        "p95_abs_delta_deg": 1.3186798095703125,
+        "max_abs_delta_deg": 3.9560470581054688,
+        "would_clamp_threshold_deg": 5.16,
+        "frac_would_clamp": 0.0
+      },
+      "elbow_flex": {
+        "n": 1328,
+        "mean_abs_delta_deg": 2.0887723888259337,
+        "median_abs_delta_deg": 1.9780197143554688,
+        "p95_abs_delta_deg": 3.2967044830322267,
+        "max_abs_delta_deg": 5.406593322753906,
+        "would_clamp_threshold_deg": 5.73,
+        "frac_would_clamp": 0.0
+      },
+      "wrist_flex": {
+        "n": 1328,
+        "mean_abs_delta_deg": 0.6823773671345539,
+        "median_abs_delta_deg": 0.8351650238037109,
+        "p95_abs_delta_deg": 1.1868133544921875,
+        "max_abs_delta_deg": 3.0329666137695312,
+        "would_clamp_threshold_deg": 4.01,
+        "frac_would_clamp": 0.0
+      },
+      "wrist_roll": {
+        "n": 1328,
+        "mean_abs_delta_deg": 0.17344100647662059,
+        "median_abs_delta_deg": 0.17582416534423828,
+        "p95_abs_delta_deg": 0.35164833068847656,
+        "max_abs_delta_deg": 0.4395604133605957,
+        "would_clamp_threshold_deg": 1.15,
+        "frac_would_clamp": 0.0
+      },
+      "gripper": {
+        "n": 1328,
+        "mean_abs_delta_deg": 0.3430131719369127,
+        "median_abs_delta_deg": 0.3666168749332428,
+        "p95_abs_delta_deg": 0.4395483434200287,
+        "max_abs_delta_deg": 0.5105206668376923,
+        "would_clamp_threshold_deg": 9.17,
+        "frac_would_clamp": 0.0
+      }
+    },
+    "start_pose_diversity": {
+      "n_episodes": 30,
+      "per_joint_start_frame0_stats": {
+        "shoulder_pan": {
+          "std": 9.557419975089804,
+          "range": 31.824174880981445,
+          "min": -23.25274658203125,
+          "max": 8.571428298950195
+        },
+        "shoulder_lift": {
+          "std": 3.4590872920593645,
+          "range": 10.989013671875,
+          "min": -99.03296661376953,
+          "max": -88.04395294189453
+        },
+        "elbow_flex": {
+          "std": 0.23907538587283206,
+          "range": 0.7912063598632812,
+          "min": 96.21977996826172,
+          "max": 97.010986328125
+        },
+        "wrist_flex": {
+          "std": 7.592719214849425,
+          "range": 27.25274658203125,
+          "min": 23.25274658203125,
+          "max": 50.5054931640625
+        },
+        "wrist_roll": {
+          "std": 0.04144215320379188,
+          "range": 0.08791208267211914,
+          "min": -6.461538314819336,
+          "max": -6.373626232147217
+        },
+        "gripper": {
+          "std": 0.38784031054807516,
+          "range": 1.656314641237259,
+          "min": 0.4140786826610565,
+          "max": 2.0703933238983154
+        }
+      },
+      "start_frame0_pairwise_l2_deg": {
+        "n_pairs": 435,
+        "min": 0.8368558978041958,
+        "median": 17.88314188243097,
+        "mean": 16.439239242140797,
+        "p95": 27.61727574688795,
+        "max": 31.85179270646574
+      }
+    },
+    "chunk_future_motion_summary": {
+      "chunk_size": 50,
+      "n_static_frames_total": 1328,
+      "shoulder_lift": {
+        "chunk0_abs_delta": {
+          "mean": 0.5506420480199608,
+          "median": 0.4395599365234375,
+          "p95": 1.3186798095703125
+        },
+        "chunk_mean_abs_delta_over_all_k": {
+          "mean": 9.531156990240856,
+          "median": 8.094066696166992,
+          "p95": 24.021008781433103
+        },
+        "chunk_max_abs_delta_over_all_k": {
+          "mean": 25.33298006833318,
+          "median": 26.901100158691406,
+          "p95": 50.28131637573239
+        },
+        "fraction_static_frames_where_chunk_mean_exceeds_would_clamp": 0.6069277108433735
+      },
+      "elbow_flex": {
+        "chunk0_abs_delta": {
+          "mean": 2.0887723888259337,
+          "median": 1.9780197143554688,
+          "p95": 3.2967044830322267
+        },
+        "chunk_mean_abs_delta_over_all_k": {
+          "mean": 10.020260753976293,
+          "median": 8.473845901489259,
+          "p95": 23.77300991058349
+        },
+        "chunk_max_abs_delta_over_all_k": {
+          "mean": 24.40785128811756,
+          "median": 24.923080444335938,
+          "p95": 49.274723052978516
+        },
+        "fraction_static_frames_where_chunk_mean_exceeds_would_clamp": 0.6174698795180723
+      }
+    }
+  },
+  "combined_v2_plus_v3": {
+    "label": "combined_v2_plus_v3",
+    "dataset_root": null,
+    "n_episodes": 65,
+    "timing_summary": {
+      "state_first_movement": {
+        "n": 65,
+        "n_never_moved": 0,
+        "mean_frame": 33.89230769230769,
+        "median_frame": 27.0,
+        "p10_frame": 20.0,
+        "p90_frame": 66.4,
+        "mean_s": 1.1297435897435897,
+        "median_s": 0.9,
+        "p10_s": 0.6666666666666666,
+        "p90_s": 2.2133333333333334
+      },
+      "action_first_movement": {
+        "n": 65,
+        "n_never_moved": 0,
+        "mean_frame": 30.246153846153845,
+        "median_frame": 23.0,
+        "p10_frame": 16.4,
+        "p90_frame": 62.2,
+        "mean_s": 1.008205128205128,
+        "median_s": 0.7666666666666667,
+        "p10_s": 0.5466666666666666,
+        "p90_s": 2.0733333333333333
+      }
+    },
+    "frame_coverage": {
+      "total_frames": 21327,
+      "n_episodes": 65,
+      "frames_0_15": {
+        "n_frames": 975,
+        "fraction_of_total": 0.04571669714446476
+      },
+      "frames_0_30": {
+        "n_frames": 1950,
+        "fraction_of_total": 0.09143339428892952
+      },
+      "static_segment_data_driven": {
+        "n_frames": 2203,
+        "fraction_of_total": 0.10329629108641628
+      },
+      "moving_segment_data_driven": {
+        "n_frames": 19124,
+        "fraction_of_total": 0.8967037089135838
+      },
+      "static_length_distribution_frames": {
+        "mean": 33.89230769230769,
+        "median": 27.0,
+        "p10": 20.0,
+        "p90": 66.4,
+        "min": 15.0,
+        "max": 82.0
+      }
+    },
+    "immediate_action_safety_summary": {
+      "shoulder_pan": {
+        "n": 2203,
+        "mean_abs_delta_deg": 0.62711683485219,
+        "median_abs_delta_deg": 0.7032966613769531,
+        "p95_abs_delta_deg": 1.0549449920654297,
+        "max_abs_delta_deg": 1.1428570747375488,
+        "would_clamp_threshold_deg": 4.58,
+        "frac_would_clamp": 0.0
+      },
+      "shoulder_lift": {
+        "n": 2203,
+        "mean_abs_delta_deg": 0.5759576181904381,
+        "median_abs_delta_deg": 0.4395599365234375,
+        "p95_abs_delta_deg": 1.8461532592773438,
+        "max_abs_delta_deg": 4.659339904785156,
+        "would_clamp_threshold_deg": 5.16,
+        "frac_would_clamp": 0.0
+      },
+      "elbow_flex": {
+        "n": 2203,
+        "mean_abs_delta_deg": 2.1506933626996565,
+        "median_abs_delta_deg": 1.9780197143554688,
+        "p95_abs_delta_deg": 3.5604400634765625,
+        "max_abs_delta_deg": 6.021980285644531,
+        "would_clamp_threshold_deg": 5.73,
+        "frac_would_clamp": 0.00045392646391284613
+      },
+      "wrist_flex": {
+        "n": 2203,
+        "mean_abs_delta_deg": 0.6420613607925229,
+        "median_abs_delta_deg": 0.74725341796875,
+        "p95_abs_delta_deg": 1.1868133544921875,
+        "max_abs_delta_deg": 3.0329666137695312,
+        "would_clamp_threshold_deg": 4.01,
+        "frac_would_clamp": 0.0
+      },
+      "wrist_roll": {
+        "n": 2203,
+        "mean_abs_delta_deg": 0.1982511295495226,
+        "median_abs_delta_deg": 0.17582416534423828,
+        "p95_abs_delta_deg": 0.4395604133605957,
+        "max_abs_delta_deg": 0.7032966613769531,
+        "would_clamp_threshold_deg": 1.15,
+        "frac_would_clamp": 0.0
+      },
+      "gripper": {
+        "n": 2203,
+        "mean_abs_delta_deg": 0.32090503633482265,
+        "median_abs_delta_deg": 0.325473427772522,
+        "p95_abs_delta_deg": 0.44586682319641113,
+        "max_abs_delta_deg": 1.2128478288650513,
+        "would_clamp_threshold_deg": 9.17,
+        "frac_would_clamp": 0.0
+      }
+    },
+    "start_pose_diversity": {
+      "n_episodes": 65,
+      "per_joint_start_frame0_stats": {
+        "shoulder_pan": {
+          "std": 6.5233355284953,
+          "range": 31.824174880981445,
+          "min": -23.25274658203125,
+          "max": 8.571428298950195
+        },
+        "shoulder_lift": {
+          "std": 3.3414110718274936,
+          "range": 10.989013671875,
+          "min": -99.03296661376953,
+          "max": -88.04395294189453
+        },
+        "elbow_flex": {
+          "std": 0.3200984307960467,
+          "range": 2.1098861694335938,
+          "min": 94.9011001586914,
+          "max": 97.010986328125
+        },
+        "wrist_flex": {
+          "std": 7.408734581812141,
+          "range": 28.307693481445312,
+          "min": 23.25274658203125,
+          "max": 51.56044006347656
+        },
+        "wrist_roll": {
+          "std": 2.200992093790962,
+          "range": 5.362637162208557,
+          "min": -6.461538314819336,
+          "max": -1.0989011526107788
+        },
+        "gripper": {
+          "std": 0.6229203588632444,
+          "range": 2.967563897371292,
+          "min": 0.4140786826610565,
+          "max": 3.3816425800323486
+        }
+      },
+      "start_frame0_pairwise_l2_deg": {
+        "n_pairs": 2080,
+        "min": 0.5064341130607352,
+        "median": 12.71130698728367,
+        "mean": 12.558685297738778,
+        "p95": 25.412044171554584,
+        "max": 31.85179270646574
+      }
+    },
+    "chunk_future_motion_summary": {
+      "chunk_size": 50,
+      "n_static_frames_total": 2203,
+      "shoulder_lift": {
+        "chunk0_abs_delta": {
+          "mean": 0.5759576181904381,
+          "median": 0.4395599365234375,
+          "p95": 1.8461532592773438
+        },
+        "chunk_mean_abs_delta_over_all_k": {
+          "mean": 13.88905060256009,
+          "median": 13.471650466918945,
+          "p95": 30.282019275665284
+        },
+        "chunk_max_abs_delta_over_all_k": {
+          "mean": 34.571558052769475,
+          "median": 37.010990142822266,
+          "p95": 62.59340629577637
+        },
+        "fraction_static_frames_where_chunk_mean_exceeds_would_clamp": 0.7616886064457558
+      },
+      "elbow_flex": {
+        "chunk0_abs_delta": {
+          "mean": 2.1506933626996565,
+          "median": 1.9780197143554688,
+          "p95": 3.5604400634765625
+        },
+        "chunk_mean_abs_delta_over_all_k": {
+          "mean": 14.371299762033193,
+          "median": 13.441759872436524,
+          "p95": 31.660483509063724
+        },
+        "chunk_max_abs_delta_over_all_k": {
+          "mean": 35.43481661112158,
+          "median": 36.43955993652344,
+          "p95": 67.90329723358155
+        },
+        "fraction_static_frames_where_chunk_mean_exceeds_would_clamp": 0.7680435769405356
+      }
+    }
+  },
+  "conflicting_labels": {
+    "state_close_l2_threshold_deg": 3.0,
+    "conflict_action_diff_threshold_deg": 2.0,
+    "conflict_window_cap_frames": 90,
+    "n_candidates_total": 33351,
+    "n_candidates_within_v2": 19044,
+    "n_candidates_within_v3": 4982,
+    "n_candidates_cross_v2_v3": 9325,
+    "close_state_pair_counts": {
+      "total_close_pairs": 297708,
+      "total_close_within_v2": 137313,
+      "total_close_within_v3": 75486,
+      "total_close_cross": 84909
+    },
+    "conflict_rate_within_v2": 0.13869043717637805,
+    "conflict_rate_within_v3": 0.06599899319079035,
+    "conflict_rate_cross": 0.10982345805509428,
+    "top_5": [
+      {
+        "dataset_a": "v2_clean",
+        "episode_a": 18,
+        "frame_a": 0,
+        "dataset_b": "v2_clean",
+        "episode_b": 22,
+        "frame_b": 23,
+        "state_l2_dist_deg": 2.1905090329113373,
+        "shoulder_lift_action_delta_a": 0.08791351318359375,
+        "shoulder_lift_action_delta_b": 4.659339904785156,
+        "shoulder_lift_diff_deg": 4.5714263916015625,
+        "elbow_flex_action_delta_a": -0.3076934814453125,
+        "elbow_flex_action_delta_b": -6.021980285644531,
+        "elbow_flex_diff_deg": 5.714286804199219,
+        "max_key_joint_diff_deg": 5.714286804199219
+      },
+      {
+        "dataset_a": "v2_clean",
+        "episode_a": 18,
+        "frame_a": 1,
+        "dataset_b": "v2_clean",
+        "episode_b": 22,
+        "frame_b": 23,
+        "state_l2_dist_deg": 2.1905090329113373,
+        "shoulder_lift_action_delta_a": 0.08791351318359375,
+        "shoulder_lift_action_delta_b": 4.659339904785156,
+        "shoulder_lift_diff_deg": 4.5714263916015625,
+        "elbow_flex_action_delta_a": -0.3076934814453125,
+        "elbow_flex_action_delta_b": -6.021980285644531,
+        "elbow_flex_diff_deg": 5.714286804199219,
+        "max_key_joint_diff_deg": 5.714286804199219
+      },
+      {
+        "dataset_a": "v2_clean",
+        "episode_a": 18,
+        "frame_a": 2,
+        "dataset_b": "v2_clean",
+        "episode_b": 22,
+        "frame_b": 23,
+        "state_l2_dist_deg": 2.1905090329113373,
+        "shoulder_lift_action_delta_a": 0.08791351318359375,
+        "shoulder_lift_action_delta_b": 4.659339904785156,
+        "shoulder_lift_diff_deg": 4.5714263916015625,
+        "elbow_flex_action_delta_a": -0.3076934814453125,
+        "elbow_flex_action_delta_b": -6.021980285644531,
+        "elbow_flex_diff_deg": 5.714286804199219,
+        "max_key_joint_diff_deg": 5.714286804199219
+      },
+      {
+        "dataset_a": "v2_clean",
+        "episode_a": 18,
+        "frame_a": 3,
+        "dataset_b": "v2_clean",
+        "episode_b": 22,
+        "frame_b": 23,
+        "state_l2_dist_deg": 2.1905090329113373,
+        "shoulder_lift_action_delta_a": 0.08791351318359375,
+        "shoulder_lift_action_delta_b": 4.659339904785156,
+        "shoulder_lift_diff_deg": 4.5714263916015625,
+        "elbow_flex_action_delta_a": -0.3076934814453125,
+        "elbow_flex_action_delta_b": -6.021980285644531,
+        "elbow_flex_diff_deg": 5.714286804199219,
+        "max_key_joint_diff_deg": 5.714286804199219
+      },
+      {
+        "dataset_a": "v2_clean",
+        "episode_a": 18,
+        "frame_a": 4,
+        "dataset_b": "v2_clean",
+        "episode_b": 22,
+        "frame_b": 23,
+        "state_l2_dist_deg": 2.1905090329113373,
+        "shoulder_lift_action_delta_a": 0.08791351318359375,
+        "shoulder_lift_action_delta_b": 4.659339904785156,
+        "shoulder_lift_diff_deg": 4.5714263916015625,
+        "elbow_flex_action_delta_a": -0.3076934814453125,
+        "elbow_flex_action_delta_b": -6.021980285644531,
+        "elbow_flex_diff_deg": 5.714286804199219,
+        "max_key_joint_diff_deg": 5.714286804199219
+      }
+    ],
+    "note": "State-distance-only screen (no image embedding / no model inference, by design - '저비용' constraint). A flagged pair means two near-identical proprioceptive states (<=3deg L2 across 6 joints) carry substantially different immediate labels (>=2deg on shoulder_lift or elbow_flex action(t)-state(t)); it does not by itself confirm the *visual* context was also near-identical - that would need a frame-level check (see summary.md limitations)."
+  }
+}

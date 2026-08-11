@@ -1,0 +1,248 @@
+{
+  "new_task": "Pick up the cube and drop it into the bin.",
+  "old_task": "Pick up the cube and place it in the target area.",
+  "retask": {
+    "v2": {
+      "repo_id": "so101_cube_pick_drop_grid35_v2_clean",
+      "root": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_pick_drop_grid35_v2_clean",
+      "tasks_before": [
+        "Pick up the cube and place it in the target area."
+      ],
+      "tasks_after": [
+        "Pick up the cube and drop it into the bin."
+      ]
+    },
+    "v3": {
+      "repo_id": "so101_cube_pick_drop_start_coverage_v3_clean",
+      "root": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_pick_drop_start_coverage_v3_clean",
+      "tasks_before": [
+        "Pick up the cube and place it in the target area."
+      ],
+      "tasks_after": [
+        "Pick up the cube and drop it into the bin."
+      ]
+    }
+  },
+  "originals_untouched": {
+    "v2": {
+      "unchanged": true,
+      "n_files_before": 112,
+      "n_files_after": 112,
+      "missing_files": [],
+      "added_files": [],
+      "changed_files": []
+    },
+    "v3": {
+      "unchanged": true,
+      "n_files_before": 112,
+      "n_files_after": 112,
+      "missing_files": [],
+      "added_files": [],
+      "changed_files": []
+    }
+  },
+  "non_task_data_identical": {
+    "v2": {
+      "n_data_files_compared": 35,
+      "n_episode_meta_files_compared": 4,
+      "mismatches": [],
+      "all_non_task_columns_identical": true,
+      "other_files": {
+        "n_checked": 71,
+        "diffs": [],
+        "all_identical": true
+      }
+    },
+    "v3": {
+      "n_data_files_compared": 30,
+      "n_episode_meta_files_compared": 19,
+      "mismatches": [],
+      "all_non_task_columns_identical": true,
+      "other_files": {
+        "n_checked": 61,
+        "diffs": [],
+        "all_identical": true
+      }
+    }
+  },
+  "single_dataset_validation": {
+    "v2": {
+      "n_episodes_meta": 35,
+      "n_episodes_loaded": 35,
+      "n_episodes_ok": true,
+      "n_frames_meta": 11505,
+      "n_frames_loaded": 11505,
+      "n_frames_ok": true,
+      "fps": 30,
+      "fps_ok": true,
+      "state_dim": [
+        6
+      ],
+      "action_dim": [
+        6
+      ],
+      "dims_ok": true,
+      "camera_file_counts": {
+        "observation.images.workspace": 35,
+        "observation.images.wrist": 35
+      },
+      "cameras_ok": true,
+      "task_count": 1,
+      "task_count_ok": true,
+      "task_string": "Pick up the cube and drop it into the bin.",
+      "task_string_ok": true,
+      "all_episode_tasks_correct": true,
+      "nan_found": false,
+      "inf_found": false,
+      "no_nan_inf": true,
+      "all_ok": true
+    },
+    "v3": {
+      "n_episodes_meta": 30,
+      "n_episodes_loaded": 30,
+      "n_episodes_ok": true,
+      "n_frames_meta": 9822,
+      "n_frames_loaded": 9822,
+      "n_frames_ok": true,
+      "fps": 30,
+      "fps_ok": true,
+      "state_dim": [
+        6
+      ],
+      "action_dim": [
+        6
+      ],
+      "dims_ok": true,
+      "camera_file_counts": {
+        "observation.images.workspace": 30,
+        "observation.images.wrist": 30
+      },
+      "cameras_ok": true,
+      "task_count": 1,
+      "task_count_ok": true,
+      "task_string": "Pick up the cube and drop it into the bin.",
+      "task_string_ok": true,
+      "all_episode_tasks_correct": true,
+      "nan_found": false,
+      "inf_found": false,
+      "no_nan_inf": true,
+      "all_ok": true
+    }
+  },
+  "schema_equality_check": {
+    "features_equal_for_merge": true,
+    "fps_a": 30,
+    "fps_b": 30,
+    "fps_equal": true,
+    "robot_type_a": "so_follower",
+    "robot_type_b": "so_follower",
+    "robot_type_equal": true,
+    "feature_keys_a": [
+      "action",
+      "episode_index",
+      "frame_index",
+      "index",
+      "observation.images.workspace",
+      "observation.images.wrist",
+      "observation.state",
+      "task_index",
+      "timestamp"
+    ],
+    "feature_keys_b": [
+      "action",
+      "episode_index",
+      "frame_index",
+      "index",
+      "observation.images.workspace",
+      "observation.images.wrist",
+      "observation.state",
+      "task_index",
+      "timestamp"
+    ],
+    "safe_to_merge": true
+  },
+  "merge_result": {
+    "repo_id": "so101_cube_pick_drop_combined65_v1",
+    "root": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_pick_drop_combined65_v1",
+    "total_episodes": 65,
+    "total_frames": 21327,
+    "tasks": [
+      "Pick up the cube and drop it into the bin."
+    ]
+  },
+  "combined_validation": {
+    "n_episodes": 65,
+    "n_episodes_ok": true,
+    "episode_index_continuous_0_to_64": true,
+    "dataset_from_to_index_boundary_ok": true,
+    "episode_lengths_consistent_with_from_to": true,
+    "total_frames_meta": 21327,
+    "total_frames_from_episode_lengths": 21327,
+    "total_frames_expected": 21327,
+    "total_frames_ok": true,
+    "fps": 30,
+    "fps_ok": true,
+    "state_dim": [
+      6
+    ],
+    "action_dim": [
+      6
+    ],
+    "dims_ok": true,
+    "camera_keys": [
+      "observation.images.workspace",
+      "observation.images.wrist"
+    ],
+    "task_count": 1,
+    "task_count_ok": true,
+    "task_string": "Pick up the cube and drop it into the bin.",
+    "task_string_ok": true,
+    "all_episode_tasks_correct": true,
+    "no_nan_inf": true,
+    "data_reference_issues": [],
+    "video_reference_issues": {
+      "observation.images.workspace": [],
+      "observation.images.wrist": []
+    },
+    "data_and_video_references_ok": true,
+    "all_ok": true
+  },
+  "originals_untouched_final": {
+    "v2": {
+      "unchanged": true,
+      "n_files_before": 112,
+      "n_files_after": 112,
+      "missing_files": [],
+      "added_files": [],
+      "changed_files": []
+    },
+    "v3": {
+      "unchanged": true,
+      "n_files_before": 112,
+      "n_files_after": 112,
+      "missing_files": [],
+      "added_files": [],
+      "changed_files": []
+    }
+  },
+  "coverage_sanity_check": {
+    "on_disk_combined65": {
+      "static_low_motion_fraction": 0.10329629108641628,
+      "start_pose_pairwise_l2_median_deg": 12.71130698728367,
+      "shoulder_lift_would_clamp_frac": 0.0,
+      "elbow_flex_would_clamp_frac": 0.00045392646391284613
+    },
+    "prior_report_in_memory_concat": {
+      "static_low_motion_fraction": 0.10329629108641628,
+      "start_pose_pairwise_l2_median_deg": 12.71130698728367,
+      "shoulder_lift_would_clamp_frac": 0.0,
+      "elbow_flex_would_clamp_frac": 0.00045392646391284613
+    },
+    "matches": {
+      "static_low_motion_fraction": true,
+      "start_pose_pairwise_l2_median_deg": true,
+      "shoulder_lift_would_clamp_frac": true,
+      "elbow_flex_would_clamp_frac": true
+    }
+  }
+}

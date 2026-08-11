@@ -1,0 +1,541 @@
+{
+  "scenes": [
+    {
+      "scene": "T01",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real hardware Shadow capture (run_shadow_mode.py against live SO-101).",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.2,
+      "median3_clamp_free_rate": 0.11228070175438597,
+      "median5_clamp_free_rate": 0.06179050567595459,
+      "resample3_clamp_free_rate": 0.51475,
+      "resample5_clamp_free_rate": 0.7192,
+      "single_gt_l2_mean": 4.616692155300019,
+      "resample3_gt_l2_mean": 3.1035668492470316,
+      "resample5_gt_l2_mean": 3.308483687435423,
+      "resample3_avg_inference": 2.4282,
+      "resample5_avg_inference": 3.2837,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.45,
+        "elbow_flex": 0.75,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.966823758135785,
+        "shoulder_lift": 5.1273517063685885,
+        "elbow_flex": -7.08021777645572,
+        "wrist_flex": 0.6643664663964571,
+        "wrist_roll": 0.42446896872677603,
+        "gripper": 0.6804021467744604
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8663931641498636,
+        "shoulder_lift": 3.0132877030260365,
+        "elbow_flex": 2.303187076858453,
+        "wrist_flex": 0.9319978307885665,
+        "wrist_roll": 0.15732250029480144,
+        "gripper": 0.5650696262976422
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.217054168253552
+      },
+      "reference_observation_label": "V2_F02"
+    },
+    {
+      "scene": "T02",
+      "synthetic": true,
+      "data_kind": "synthetic_offline_proxy",
+      "provenance_note": "NOT a live SO-101 hardware Shadow capture. This analysis session has no SO-101 hardware attached (no /dev/serial/by-id/*, no /dev/video*), so scripts/run_shadow_mode.py could not be run for this scene. Built instead from the held-out local/so101_cube_xy_midpoint_test10_v2_clean dataset (never used in training) by taking episode 1's frame_index=0 (state + first workspace/wrist frame) as this scene's reference observation, per explicit user decision (2026-08-08).",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.55,
+      "median3_clamp_free_rate": 0.5789473684210527,
+      "median5_clamp_free_rate": 0.6044891640866873,
+      "resample3_clamp_free_rate": 0.92665,
+      "resample5_clamp_free_rate": 0.99215,
+      "single_gt_l2_mean": 5.939193101657598,
+      "resample3_gt_l2_mean": 4.190093442254231,
+      "resample5_gt_l2_mean": 4.082149395555067,
+      "resample3_avg_inference": 1.63815,
+      "resample5_avg_inference": 1.7374,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.45,
+        "elbow_flex": 0.05,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.3000619888305664,
+        "shoulder_lift": 5.15911865234375,
+        "elbow_flex": -2.278318405151367,
+        "wrist_flex": 0.576603889465332,
+        "wrist_roll": 0.2969211578369141,
+        "gripper": 1.0721311688423156
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.9127080698376445,
+        "shoulder_lift": 3.1845205439773583,
+        "elbow_flex": 2.3414076882841424,
+        "wrist_flex": 0.9518604715754431,
+        "wrist_roll": 0.16657228379784939,
+        "gripper": 0.5948073328081998
+      },
+      "nearest_demo_match": {
+        "episode": 34,
+        "frame": 0,
+        "l2_dist_deg": 0.516713518935139
+      },
+      "reference_observation_label": "T02"
+    },
+    {
+      "scene": "T03",
+      "synthetic": true,
+      "data_kind": "synthetic_offline_proxy",
+      "provenance_note": "NOT a live SO-101 hardware Shadow capture. This analysis session has no SO-101 hardware attached (no /dev/serial/by-id/*, no /dev/video*), so scripts/run_shadow_mode.py could not be run for this scene. Built instead from the held-out local/so101_cube_xy_midpoint_test10_v2_clean dataset (never used in training) by taking episode 2's frame_index=0 (state + first workspace/wrist frame) as this scene's reference observation, per explicit user decision (2026-08-08).",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.55,
+      "median3_clamp_free_rate": 0.5789473684210527,
+      "median5_clamp_free_rate": 0.6044891640866873,
+      "resample3_clamp_free_rate": 0.92665,
+      "resample5_clamp_free_rate": 0.99215,
+      "single_gt_l2_mean": 6.48533993264707,
+      "resample3_gt_l2_mean": 4.600553419871134,
+      "resample5_gt_l2_mean": 4.504256234901956,
+      "resample3_avg_inference": 1.63815,
+      "resample5_avg_inference": 1.7374,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.45,
+        "elbow_flex": 0.15,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -1.6796929359436035,
+        "shoulder_lift": 5.687591171264648,
+        "elbow_flex": -3.8601818084716797,
+        "wrist_flex": 0.6154752731323242,
+        "wrist_roll": 0.3968257188796997,
+        "gripper": 0.500341534614563
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8745310407146575,
+        "shoulder_lift": 3.1164341685516646,
+        "elbow_flex": 2.3460971318161885,
+        "wrist_flex": 0.919362336880699,
+        "wrist_roll": 0.15508566979659694,
+        "gripper": 0.5553502557436216
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 14,
+        "l2_dist_deg": 1.3377272867713936
+      },
+      "reference_observation_label": "T03"
+    },
+    {
+      "scene": "T04",
+      "synthetic": true,
+      "data_kind": "synthetic_offline_proxy",
+      "provenance_note": "NOT a live SO-101 hardware Shadow capture. This analysis session has no SO-101 hardware attached (no /dev/serial/by-id/*, no /dev/video*), so scripts/run_shadow_mode.py could not be run for this scene. Built instead from the held-out local/so101_cube_xy_midpoint_test10_v2_clean dataset (never used in training) by taking episode 3's frame_index=0 (state + first workspace/wrist frame) as this scene's reference observation, per explicit user decision (2026-08-08).",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.45,
+      "median3_clamp_free_rate": 0.4605263157894737,
+      "median5_clamp_free_rate": 0.47678018575851394,
+      "resample3_clamp_free_rate": 0.85725,
+      "resample5_clamp_free_rate": 0.9701,
+      "single_gt_l2_mean": 6.852586046269721,
+      "resample3_gt_l2_mean": 4.769561421360592,
+      "resample5_gt_l2_mean": 4.617331104792381,
+      "resample3_avg_inference": 1.83335,
+      "resample5_avg_inference": 2.04315,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.5,
+        "elbow_flex": 0.3,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -1.2061405181884766,
+        "shoulder_lift": 6.001636505126953,
+        "elbow_flex": -4.334524154663086,
+        "wrist_flex": 0.6682846069335937,
+        "wrist_roll": 0.25221297740936277,
+        "gripper": 0.9344565212726593
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8975389376275088,
+        "shoulder_lift": 3.212567250853946,
+        "elbow_flex": 2.4311864231663587,
+        "wrist_flex": 0.9632068121966393,
+        "wrist_roll": 0.1596443452837716,
+        "gripper": 0.5653358975026482
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 14,
+        "l2_dist_deg": 1.792255554193586
+      },
+      "reference_observation_label": "T04"
+    },
+    {
+      "scene": "T05",
+      "synthetic": true,
+      "data_kind": "synthetic_offline_proxy",
+      "provenance_note": "NOT a live SO-101 hardware Shadow capture. This analysis session has no SO-101 hardware attached (no /dev/serial/by-id/*, no /dev/video*), so scripts/run_shadow_mode.py could not be run for this scene. Built instead from the held-out local/so101_cube_xy_midpoint_test10_v2_clean dataset (never used in training) by taking episode 4's frame_index=0 (state + first workspace/wrist frame) as this scene's reference observation, per explicit user decision (2026-08-08).",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.55,
+      "median3_clamp_free_rate": 0.5789473684210527,
+      "median5_clamp_free_rate": 0.6044891640866873,
+      "resample3_clamp_free_rate": 0.92665,
+      "resample5_clamp_free_rate": 0.99215,
+      "single_gt_l2_mean": 6.679655676531349,
+      "resample3_gt_l2_mean": 4.825280624906187,
+      "resample5_gt_l2_mean": 4.75863778092603,
+      "resample3_avg_inference": 1.63815,
+      "resample5_avg_inference": 1.7374,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.45,
+        "elbow_flex": 0.1,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.2417604446411133,
+        "shoulder_lift": 5.884420013427734,
+        "elbow_flex": -3.022364044189453,
+        "wrist_flex": 0.4788059234619141,
+        "wrist_roll": 0.38378331661224363,
+        "gripper": 0.9313520550727844
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8699353302762368,
+        "shoulder_lift": 3.193291175297121,
+        "elbow_flex": 2.366213748980422,
+        "wrist_flex": 0.9561248054439014,
+        "wrist_roll": 0.1580469847432882,
+        "gripper": 0.5385292456703846
+      },
+      "nearest_demo_match": {
+        "episode": 30,
+        "frame": 6,
+        "l2_dist_deg": 0.379309910795808
+      },
+      "reference_observation_label": "T05"
+    },
+    {
+      "scene": "T06",
+      "synthetic": true,
+      "data_kind": "synthetic_offline_proxy",
+      "provenance_note": "NOT a live SO-101 hardware Shadow capture. This analysis session has no SO-101 hardware attached (no /dev/serial/by-id/*, no /dev/video*), so scripts/run_shadow_mode.py could not be run for this scene. Built instead from the held-out local/so101_cube_xy_midpoint_test10_v2_clean dataset (never used in training) by taking episode 5's frame_index=0 (state + first workspace/wrist frame) as this scene's reference observation, per explicit user decision (2026-08-08).",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.45,
+      "median3_clamp_free_rate": 0.42105263157894735,
+      "median5_clamp_free_rate": 0.3955108359133127,
+      "resample3_clamp_free_rate": 0.85835,
+      "resample5_clamp_free_rate": 0.97125,
+      "single_gt_l2_mean": 6.602568362350533,
+      "resample3_gt_l2_mean": 4.629773509452329,
+      "resample5_gt_l2_mean": 4.48702626085779,
+      "resample3_avg_inference": 1.83605,
+      "resample5_avg_inference": 2.04415,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.55,
+        "elbow_flex": 0.1,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.5922445297241211,
+        "shoulder_lift": 5.98389892578125,
+        "elbow_flex": -2.798573303222656,
+        "wrist_flex": 0.23678417205810548,
+        "wrist_roll": 0.3365839719772339,
+        "gripper": 0.9794599294662476
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8494614659143092,
+        "shoulder_lift": 3.1549981421472055,
+        "elbow_flex": 2.2801569564866626,
+        "wrist_flex": 0.9475909492493451,
+        "wrist_roll": 0.1587288269666087,
+        "gripper": 0.5635709207901729
+      },
+      "nearest_demo_match": {
+        "episode": 29,
+        "frame": 0,
+        "l2_dist_deg": 1.3263254705039096
+      },
+      "reference_observation_label": "T06"
+    },
+    {
+      "scene": "T07",
+      "synthetic": true,
+      "data_kind": "synthetic_offline_proxy",
+      "provenance_note": "NOT a live SO-101 hardware Shadow capture. This analysis session has no SO-101 hardware attached (no /dev/serial/by-id/*, no /dev/video*), so scripts/run_shadow_mode.py could not be run for this scene. Built instead from the held-out local/so101_cube_xy_midpoint_test10_v2_clean dataset (never used in training) by taking episode 6's frame_index=0 (state + first workspace/wrist frame) as this scene's reference observation, per explicit user decision (2026-08-08).",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.2,
+      "median3_clamp_free_rate": 0.12280701754385964,
+      "median5_clamp_free_rate": 0.06875644994840041,
+      "resample3_clamp_free_rate": 0.5166,
+      "resample5_clamp_free_rate": 0.72465,
+      "single_gt_l2_mean": 7.987350949420612,
+      "resample3_gt_l2_mean": 5.3802535537233345,
+      "resample5_gt_l2_mean": 5.053184687708383,
+      "resample3_avg_inference": 2.4234,
+      "resample5_avg_inference": 3.26995,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.75,
+        "elbow_flex": 0.3,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.13087177276611328,
+        "shoulder_lift": 6.987991714477539,
+        "elbow_flex": -4.533465576171875,
+        "wrist_flex": 0.3028690338134766,
+        "wrist_roll": 0.25331788063049315,
+        "gripper": 0.8652543306350708
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.89360978844436,
+        "shoulder_lift": 3.1096259226214364,
+        "elbow_flex": 2.280475507263049,
+        "wrist_flex": 0.9465210243911006,
+        "wrist_roll": 0.16360953210518084,
+        "gripper": 0.5506603290788797
+      },
+      "nearest_demo_match": {
+        "episode": 32,
+        "frame": 0,
+        "l2_dist_deg": 0.3045374887957997
+      },
+      "reference_observation_label": "T07"
+    },
+    {
+      "scene": "T08",
+      "synthetic": true,
+      "data_kind": "synthetic_offline_proxy",
+      "provenance_note": "NOT a live SO-101 hardware Shadow capture. This analysis session has no SO-101 hardware attached (no /dev/serial/by-id/*, no /dev/video*), so scripts/run_shadow_mode.py could not be run for this scene. Built instead from the held-out local/so101_cube_xy_midpoint_test10_v2_clean dataset (never used in training) by taking episode 7's frame_index=0 (state + first workspace/wrist frame) as this scene's reference observation, per explicit user decision (2026-08-08).",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.15,
+      "median3_clamp_free_rate": 0.0456140350877193,
+      "median5_clamp_free_rate": 0.008771929824561403,
+      "resample3_clamp_free_rate": 0.4121,
+      "resample5_clamp_free_rate": 0.6071,
+      "single_gt_l2_mean": 8.501786612041675,
+      "resample3_gt_l2_mean": 5.470415259924963,
+      "resample5_gt_l2_mean": 5.114545351926896,
+      "resample3_avg_inference": 2.55945,
+      "resample5_avg_inference": 3.62595,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.85,
+        "elbow_flex": 0.3,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.4236286163330078,
+        "shoulder_lift": 7.568436050415039,
+        "elbow_flex": -4.610239028930664,
+        "wrist_flex": 0.39312400817871096,
+        "wrist_roll": 0.3394178867340088,
+        "gripper": 1.0859577476978302
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8699337797383094,
+        "shoulder_lift": 3.1655783880450614,
+        "elbow_flex": 2.414644682963088,
+        "wrist_flex": 0.9523291756043185,
+        "wrist_roll": 0.1565531439732345,
+        "gripper": 0.5407519966975669
+      },
+      "nearest_demo_match": {
+        "episode": 28,
+        "frame": 0,
+        "l2_dist_deg": 0.477860624165009
+      },
+      "reference_observation_label": "T08"
+    },
+    {
+      "scene": "T09",
+      "synthetic": true,
+      "data_kind": "synthetic_offline_proxy",
+      "provenance_note": "NOT a live SO-101 hardware Shadow capture. This analysis session has no SO-101 hardware attached (no /dev/serial/by-id/*, no /dev/video*), so scripts/run_shadow_mode.py could not be run for this scene. Built instead from the held-out local/so101_cube_xy_midpoint_test10_v2_clean dataset (never used in training) by taking episode 8's frame_index=0 (state + first workspace/wrist frame) as this scene's reference observation, per explicit user decision (2026-08-08).",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.3,
+      "median3_clamp_free_rate": 0.20175438596491227,
+      "median5_clamp_free_rate": 0.13132094943240455,
+      "resample3_clamp_free_rate": 0.6865,
+      "resample5_clamp_free_rate": 0.8728,
+      "single_gt_l2_mean": 7.242065159980281,
+      "resample3_gt_l2_mean": 4.966278102143513,
+      "resample5_gt_l2_mean": 4.709590704423727,
+      "resample3_avg_inference": 2.1744,
+      "resample5_avg_inference": 2.6875,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.7,
+        "elbow_flex": 0.2,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.51022367477417,
+        "shoulder_lift": 6.472272872924805,
+        "elbow_flex": -4.224775695800782,
+        "wrist_flex": 0.9883331298828125,
+        "wrist_roll": 0.2951955795288086,
+        "gripper": 0.14963580369949342
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8374679803900282,
+        "shoulder_lift": 3.006119912378879,
+        "elbow_flex": 2.235331257818112,
+        "wrist_flex": 0.9155405921044225,
+        "wrist_roll": 0.15277053247419464,
+        "gripper": 0.5348641030066185
+      },
+      "nearest_demo_match": {
+        "episode": 30,
+        "frame": 7,
+        "l2_dist_deg": 0.7113040343109408
+      },
+      "reference_observation_label": "T09"
+    },
+    {
+      "scene": "T10",
+      "synthetic": true,
+      "data_kind": "synthetic_offline_proxy",
+      "provenance_note": "NOT a live SO-101 hardware Shadow capture. This analysis session has no SO-101 hardware attached (no /dev/serial/by-id/*, no /dev/video*), so scripts/run_shadow_mode.py could not be run for this scene. Built instead from the held-out local/so101_cube_xy_midpoint_test10_v2_clean dataset (never used in training) by taking episode 9's frame_index=0 (state + first workspace/wrist frame) as this scene's reference observation, per explicit user decision (2026-08-08).",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.55,
+      "median3_clamp_free_rate": 0.5789473684210527,
+      "median5_clamp_free_rate": 0.6044891640866873,
+      "resample3_clamp_free_rate": 0.92665,
+      "resample5_clamp_free_rate": 0.99215,
+      "single_gt_l2_mean": 6.265449149633336,
+      "resample3_gt_l2_mean": 4.4220553091844526,
+      "resample5_gt_l2_mean": 4.327391690292442,
+      "resample3_avg_inference": 1.63815,
+      "resample5_avg_inference": 1.7374,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.45,
+        "elbow_flex": 0.1,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": 0.008761119842529298,
+        "shoulder_lift": 5.684263229370117,
+        "elbow_flex": -3.2888809204101563,
+        "wrist_flex": 0.5499492645263672,
+        "wrist_roll": 0.2643238067626953,
+        "gripper": 0.6388595819473266
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8153644533049036,
+        "shoulder_lift": 2.9845029285365485,
+        "elbow_flex": 2.256165524388736,
+        "wrist_flex": 0.9015443813395547,
+        "wrist_roll": 0.14985536367933736,
+        "gripper": 0.5322229002585424
+      },
+      "nearest_demo_match": {
+        "episode": 34,
+        "frame": 0,
+        "l2_dist_deg": 0.7067293453924489
+      },
+      "reference_observation_label": "T10"
+    }
+  ],
+  "overall": {
+    "n_scenes": 10,
+    "avg_single_clamp_free_rate": 0.395,
+    "avg_median3_clamp_free_rate": 0.3679824561403509,
+    "avg_median5_clamp_free_rate": 0.3560887512899897,
+    "avg_resample3_clamp_free_rate": 0.755215,
+    "avg_resample5_clamp_free_rate": 0.88337,
+    "avg_single_gt_l2_mean": 6.71726871458322,
+    "avg_resample3_gt_l2_mean": 4.635783149206777,
+    "avg_resample5_gt_l2_mean": 4.4962596898820095,
+    "avg_resample3_avg_inference": 1.980745,
+    "avg_resample5_avg_inference": 2.3904,
+    "single_worst_scene": {
+      "scene": "T08",
+      "single_clamp_free_rate": 0.15
+    },
+    "single_best_scene": {
+      "scene": "T02",
+      "single_clamp_free_rate": 0.55
+    },
+    "resample3_worst_scene": {
+      "scene": "T08",
+      "resample3_clamp_free_rate": 0.4121
+    },
+    "resample3_best_scene": {
+      "scene": "T02",
+      "resample3_clamp_free_rate": 0.92665
+    },
+    "resample5_worst_scene": {
+      "scene": "T08",
+      "resample5_clamp_free_rate": 0.6071
+    },
+    "resample5_best_scene": {
+      "scene": "T02",
+      "resample5_clamp_free_rate": 0.99215
+    },
+    "per_joint_avg_clamp_rate": {
+      "shoulder_pan": 0.0,
+      "shoulder_lift": 0.5599999999999999,
+      "elbow_flex": 0.23500000000000001,
+      "wrist_flex": 0.0,
+      "wrist_roll": 0.0,
+      "gripper": 0.0
+    },
+    "per_joint_max_clamp_rate_scene": {
+      "shoulder_pan": "T10",
+      "shoulder_lift": "T08",
+      "elbow_flex": "T01",
+      "wrist_flex": "T10",
+      "wrist_roll": "T10",
+      "gripper": "T10"
+    },
+    "per_joint_max_clamp_rate_value": {
+      "shoulder_pan": 0.0,
+      "shoulder_lift": 0.85,
+      "elbow_flex": 0.75,
+      "wrist_flex": 0.0,
+      "wrist_roll": 0.0,
+      "gripper": 0.0
+    }
+  },
+  "conclusions": {
+    "q1_repeats": "**Yes, it repeats across all 10 scenes.** Every scene (T01-T10) shows the same pattern T01 first surfaced: re-running the identical frozen checkpoint against the identical fixed observation, varying only the flow-matching RNG seed (0..19), swings chunk-index-0 between WOULD_CLAMP and clean. Single-sample clamp-free rate ranges from 15% (T08) to 55% (T02) - never close to 0% or 100%, i.e. never a scene where the seed choice stops mattering. 10/10 scenes have single-sample clamp-free rate below 60%. This is a property of the checkpoint's flow-matching noise sensitivity at this training step (007500), not an artifact specific to T01's particular reference state.",
+    "q2_generalizes": "**Yes, directionally, on every scene** - safety-pass resampling raises the clamp-free rate over the single-sample baseline in all 10/10 scenes at both cap=3 and cap=5, and resample5 clamp-free rate is always >= resample3's (monotonic improvement with cap, as expected since cap=5 draws are a strict superset of cap=3's same permutation prefix). Average clamp-free rate: single 39.5% -> resample3 75.5% -> resample5 88.3%. However the *magnitude* of the benefit is scene-dependent: 6/10 scenes reach >=95% clamp-free at cap=5, but 3/10 stay below 80% (worst: T08 60.7%, T01 71.9%). GT L2 also improves alongside clamp-free rate in every scene (resample5 mean L2 < single-sample mean L2 in all 10 scenes), consistent with T01. Per-joint, shoulder_lift (avg clamp rate 56%) and elbow_flex (avg clamp rate 24%) remain the two joints that clamp by far the most often across every scene, matching T01's finding - the mitigation generalizes to the same failure mode, not a T01-specific one. The 3/5-sample median strategy does **not** generalize as a fix: in T06/T07/T08/T09 it actually *lowers* clamp-free rate below the single-sample baseline (same qualitative failure T01 already flagged) - retained here only as a reference point, not a candidate.",
+    "q3_adopt_cap5": "**Conditionally, not unconditionally.** Resample<=5 is a clear, consistent improvement over both single-sample and median on every one of the 10 scenes tested, its stopping rule is deploy-time-realistic (WOULD_CLAMP status only, no GT), and its cost is adaptive (avg 2.39 inference calls across scenes, not a fixed 5x tax). That supports adopting it as the Shadow-runtime mitigation candidate. But the residual failure rate at cap=5 is not uniformly small: T08 39.3%, T01 28.1% still fail to find a clamp-free draw within 5 attempts, meaning on those scenes the Safety Gate would still end up clipping roughly 1 in 3-to-2.5 real runs even with resampling active. Before treating resample<=5 as sufficient on its own, either (a) raise the cap for scenes with low observed clamp-free base rates, or (b) treat resample<=5's residual failure rate as an accepted, monitored Safety-Gate-clip rate rather than a solved problem. It should not be adopted repo-wide as a single fixed cap without per-scene validation - the cap=3 vs cap=5 gap itself varies by scene (see the comparison table): a cap tuned to T02/T03/T04/T05/T06/T10's easy behavior (all >=95% clamp-free at cap=5) would under-serve T08/T01/T07 (all <80% clamp-free at cap=5).",
+    "q4_retrain_needed": "**Yes - T08/T07 in particular** (plus T01, which already triggered this whole investigation) have a single-sample clamp-free rate at or below 20% - a materially thinner safe-seed pool than the other scenes (T08 15%, T01 20%, T07 20%, vs the T01-T10 average of 39.5%), and resample5 still leaves T08 39.3%, T01 28.1%, T07 27.5% residual failure rate respectively. The signal is not uniform across this group, though: T08/T07 also have above-average checkpoint GT-L2 error (T08 8.50 deg, T07 7.99 deg vs the T01-T10 average of 6.72 deg) - i.e. for T08/T07, resampling more is fighting a checkpoint that is *also* less accurate at that scene geometry, not just noisier, which is the stronger checkpoint/training-data-review signal (does the training grid have thin coverage there?). T01 is the counterexample: its GT-L2 (4.62 deg) is *below* the T01-T10 average despite the thin safe-seed pool, so a thin pool alone does not always imply a systematically-off policy - only when it co-occurs with above-average GT-L2 (as for T08/T07) is checkpoint/training-data review clearly warranted over pure sampling-based mitigation."
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "checkpoint": "outputs/pick_drop_v3_v4_reweight2/smolvla_pick_drop_v3_v4_reweight2_fresh/checkpoints/007500/pretrained_model",
+  "label": "v3_v4_reweight2_7500",
+  "dataset_root": "data/so101_cube_pick_drop_v3_v4_combined69_v1",
+  "shadow_report": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/grid35_v2_shadow_T01/shadow_20260808_211555.json",
+  "task": "Pick up the cube and drop it into the bin.",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "nearest_demo_match": {
+    "episode": 58,
+    "frame": 34,
+    "l2_dist_deg": 2.9337057008719
+  },
+  "would_clamp_threshold_deg": {
+    "shoulder_pan": 4.58,
+    "shoulder_lift": 5.16,
+    "elbow_flex": 5.73,
+    "wrist_flex": 4.01,
+    "wrist_roll": 1.15,
+    "gripper": 9.17
+  },
+  "n_seeds": 20,
+  "chunk_size": 50,
+  "buckets": {
+    "step0": {
+      "chunk_indices": [
+        0
+      ],
+      "mae_overall": 1.9252281188964844,
+      "mae_per_joint": {
+        "shoulder_pan": 3.820469617843628,
+        "shoulder_lift": 2.7449333667755127,
+        "elbow_flex": 2.4370226860046387,
+        "wrist_flex": 0.8148307800292969,
+        "wrist_roll": 0.5957204103469849,
+        "gripper": 1.1383919715881348
+      },
+      "mae_key_joints_mean": 2.5909780263900757
+    },
+    "step1_2": {
+      "chunk_indices": [
+        1,
+        2
+      ],
+      "mae_overall": 2.2378804683685303,
+      "mae_per_joint": {
+        "shoulder_pan": 4.23239278793335,
+        "shoulder_lift": 3.656665325164795,
+        "elbow_flex": 2.9383363723754883,
+        "wrist_flex": 0.8694601058959961,
+        "wrist_roll": 0.5414806604385376,
+        "gripper": 1.1889469623565674
+      },
+      "mae_key_joints_mean": 3.2975008487701416
+    },
+    "step3_plus": {
+      "chunk_indices": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49
+      ],
+      "mae_overall": 5.07996940612793,
+      "mae_per_joint": {
+        "shoulder_pan": 3.7729172706604004,
+        "shoulder_lift": 10.250630378723145,
+        "elbow_flex": 12.00849723815918,
+        "wrist_flex": 2.2217719554901123,
+        "wrist_roll": 0.5377150774002075,
+        "gripper": 1.6882847547531128
+      },
+      "mae_key_joints_mean": 11.129563808441162
+    }
+  }
+}

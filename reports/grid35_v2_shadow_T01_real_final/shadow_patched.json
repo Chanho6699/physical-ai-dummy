@@ -1,0 +1,293 @@
+{
+  "mode": "SHADOW",
+  "backend": "realistic_mujoco",
+  "real_robot_write_enabled": false,
+  "generated_at": 1786200338.3080976,
+  "task": "Pick up the cube and place it in the target area.",
+  "checkpoint": null,
+  "evaluation_mode": "midpoint-shadow",
+  "scene_metadata": {
+    "label": "T01",
+    "note": null,
+    "heldout_episode_index": 0,
+    "capture_timestamp": "2026-08-08T14:45:26.176679+00:00"
+  },
+  "observation": {
+    "fixed_camera_valid": true,
+    "wrist_camera_valid": true,
+    "state_valid": true,
+    "schema_valid": true,
+    "invalid_reasons": [],
+    "state": {
+      "shoulder_pan": -4.175824175824176,
+      "shoulder_lift": -94.28571428571429,
+      "elbow_flex": 97.45054945054945,
+      "wrist_flex": 49.89010989010989,
+      "wrist_roll": -6.373626373626373,
+      "gripper": 1.1042097998619738
+    },
+    "camera_frame_paths": {
+      "workspace_path": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/grid35_v2_shadow_T01_real_final/workspace.jpg",
+      "wrist_path": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/grid35_v2_shadow_T01_real_final/wrist.jpg"
+    }
+  },
+  "communication": {
+    "server_url": "http://100.75.147.72:8000",
+    "health_ok": true,
+    "request_latency_ms": 1790.450389002217,
+    "inference_latency_ms": 1888.4585929990862,
+    "round_trip_latency_ms": 6966.533385995717,
+    "error_kind": null,
+    "error_message": null
+  },
+  "vla": {
+    "raw_action": {
+      "shoulder_pan": -3.5628890991210938,
+      "shoulder_lift": -91.35699462890625,
+      "elbow_flex": 92.50336456298828,
+      "wrist_flex": 52.38499069213867,
+      "wrist_roll": -6.15316104888916,
+      "gripper": 0.3511791229248047
+    },
+    "action_schema_valid": true,
+    "model_id": "outputs/grid35_v2/smolvla_grid35_v2_clean_fresh/checkpoints/007500/pretrained_model",
+    "backend": "smolvla"
+  },
+  "adapter": {
+    "mapped_action": {
+      "shoulder_pan": -3.5628890991210938,
+      "shoulder_lift": -91.35699462890625,
+      "elbow_flex": 92.50336456298828,
+      "wrist_flex": 52.38499069213867,
+      "wrist_roll": -6.15316104888916,
+      "gripper": 0.3511791229248047
+    },
+    "warnings": []
+  },
+  "safety": {
+    "decision": "ACCEPT",
+    "reasons": [],
+    "would_clamp": false,
+    "safe_action": {
+      "shoulder_pan": -3.5628890991210938,
+      "shoulder_lift": -91.35699462890625,
+      "elbow_flex": 92.50336456298828,
+      "wrist_flex": 52.38499069213867,
+      "wrist_roll": -6.15316104888916,
+      "gripper": 0.3511791229248047
+    },
+    "config_source": {
+      "joint_range_source": {
+        "shoulder_pan": "calibration_file",
+        "shoulder_lift": "calibration_file",
+        "elbow_flex": "calibration_file",
+        "wrist_flex": "calibration_file",
+        "wrist_roll": "calibration_file",
+        "gripper": "gripper_percent_convention"
+      },
+      "uses_calibration_fallback": false,
+      "calibration_file_path": "/home/sunglee/.cache/huggingface/lerobot/calibration/robots/so_follower/chanho_follower.json",
+      "excessive_step_config_path": "/home/sunglee/Projects/physical-ai-dummy/configs/safety_gate.yaml"
+    },
+    "per_joint": {
+      "shoulder_pan": {
+        "joint": "shoulder_pan",
+        "raw_value": -3.5628890991210938,
+        "safe_value": -3.5628890991210938,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "shoulder_lift": {
+        "joint": "shoulder_lift",
+        "raw_value": -91.35699462890625,
+        "safe_value": -91.35699462890625,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "elbow_flex": {
+        "joint": "elbow_flex",
+        "raw_value": 92.50336456298828,
+        "safe_value": 92.50336456298828,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "wrist_flex": {
+        "joint": "wrist_flex",
+        "raw_value": 52.38499069213867,
+        "safe_value": 52.38499069213867,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "wrist_roll": {
+        "joint": "wrist_roll",
+        "raw_value": -6.15316104888916,
+        "safe_value": -6.15316104888916,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "gripper": {
+        "joint": "gripper",
+        "raw_value": 0.3511791229248047,
+        "safe_value": 0.3511791229248047,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      }
+    }
+  },
+  "mujoco": {
+    "initial_state": {
+      "shoulder_pan": -4.175824175824176,
+      "shoulder_lift": -94.28571428571429,
+      "elbow_flex": 97.45054945054945,
+      "wrist_flex": 49.89010989010989,
+      "wrist_roll": -6.373626373626373,
+      "gripper": 1.1042097998619738
+    },
+    "final_state": {
+      "shoulder_pan": -4.178089702432396,
+      "shoulder_lift": -94.33736010408447,
+      "elbow_flex": 95.45676489193376,
+      "wrist_flex": 49.748671999391796,
+      "wrist_roll": -6.371384546250652,
+      "gripper": 1.1039848666382193
+    },
+    "realistic_layer_diagnostics": {
+      "shoulder_pan": {
+        "joint": "shoulder_pan",
+        "raw_action": -3.5628890991210938,
+        "processed_action": -4.175824175824176,
+        "simulated_actual_state": -4.175824175824176,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "shoulder_lift": {
+        "joint": "shoulder_lift",
+        "raw_action": -91.35699462890625,
+        "processed_action": -94.28571428571429,
+        "simulated_actual_state": -94.28571428571429,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "elbow_flex": {
+        "joint": "elbow_flex",
+        "raw_action": 92.50336456298828,
+        "processed_action": 97.45054945054945,
+        "simulated_actual_state": 97.45054945054945,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": true,
+        "tracking_error": null
+      },
+      "wrist_flex": {
+        "joint": "wrist_flex",
+        "raw_action": 52.38499069213867,
+        "processed_action": 49.89010989010989,
+        "simulated_actual_state": 49.89010989010989,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "wrist_roll": {
+        "joint": "wrist_roll",
+        "raw_action": -6.15316104888916,
+        "processed_action": -6.373626373626373,
+        "simulated_actual_state": -6.373626373626373,
+        "command_delta": 0.0,
+        "deadband_applied": true,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "gripper": {
+        "joint": "gripper",
+        "raw_action": 0.3511791229248047,
+        "processed_action": 1.1042097998619738,
+        "simulated_actual_state": 1.1042097998619738,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": true,
+        "tracking_error": null
+      }
+    },
+    "processed_command": {
+      "shoulder_pan": -4.175824175824176,
+      "shoulder_lift": -94.28571428571429,
+      "elbow_flex": 97.45054945054945,
+      "wrist_flex": 49.89010989010989,
+      "wrist_roll": -6.373626373626373,
+      "gripper": 1.1042097998619738
+    },
+    "mechanical_violations": [],
+    "tracking_error_deg": {
+      "shoulder_pan": 0.002265526608219659,
+      "shoulder_lift": 0.05164581837017579,
+      "elbow_flex": 1.9937845586156868,
+      "wrist_flex": 0.14143789071809465,
+      "wrist_roll": -0.002241827375721428,
+      "gripper": 0.00022493322375449765
+    },
+    "max_abs_qvel": 1.9149690569478799,
+    "validation_result": {
+      "passed": true,
+      "warnings": [],
+      "failures": [],
+      "checks": {
+        "final_state_finite": true,
+        "no_mechanical_violation": true,
+        "no_rate_anomaly": true,
+        "no_severe_oscillation": true,
+        "realistic_layer_complete": true,
+        "tracking_error_within_bounds": true,
+        "direction_consistent": true
+      }
+    }
+  },
+  "hardware": {
+    "real_follower_write_count": 0
+  },
+  "result": "SHADOW_PASS",
+  "result_reasons": [],
+  "session_id": "20260808_234527",
+  "repo_import_provenance": {
+    "statement": "Real SO-101 hardware Shadow capture (real read-only follower state + real workspace/wrist camera), imported from reports/real_midpoint_shadow_T01_T10/ - the FINAL actual multi-position T01-T10 capture session (distinct from the earlier grid35_v2_shadow_T0N_actual/ import, which was a same-scene repeat; see scripts/import_actual_shadow_t02_t10.py). Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original).",
+    "source_file": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/reports/real_midpoint_shadow_T01_T10/real_midpoint_shadow_T01_T10/T01/shadow.json",
+    "source_scene_folder_label": "T01",
+    "imported_at": "2026-08-08T15:07:13.534783+00:00",
+    "imported_by": "scripts/import_actual_shadow_t01_t10_final.py",
+    "data_quality_note": "Source shadow.json scene_metadata.label = 'T01', heldout_episode_index = 0, evaluation_mode = 'midpoint-shadow' - a DISTINCT label/index per scene (0..9, matching the same T0N<->episode-index convention scripts/build_synthetic_midpoint_shadow_reports.py uses for the synthetic proxies), NOT the earlier import's 'fixed-scene-repeat'/'V2_F02'-for-all pattern. However, the raw follower joint-state readout (observation.state) is itself nearly constant across all 10 scenes: this scene's state differs from T01's by {'shoulder_pan': 0.0, 'shoulder_lift': 0.0, 'elbow_flex': 0.0, 'wrist_flex': 0.0, 'wrist_roll': 0.0, 'gripper': 0.0} deg per joint. That pattern is consistent with an intentional fixed-'midpoint'-observation-pose capture protocol (the arm is held at one repeatable reading pose; only the cube placement in front of the camera differs per held-out scene) rather than a duplicate capture - the workspace/wrist camera frames differ meaningfully scene-to-scene (RMSE vs T01, 0-255 scale: workspace=0.00, wrist=0.00), which a literal duplicate capture would not show. This script does not independently verify actual cube ground-truth position; it records both signals (state diff + image RMSE) so downstream readers can judge the evidence themselves rather than trusting a one-line claim.",
+    "state_diff_vs_t01_deg": {
+      "shoulder_pan": 0.0,
+      "shoulder_lift": 0.0,
+      "elbow_flex": 0.0,
+      "wrist_flex": 0.0,
+      "wrist_roll": 0.0,
+      "gripper": 0.0
+    },
+    "image_rmse_vs_t01_0_255_scale": {
+      "workspace": 0.0,
+      "wrist": 0.0
+    }
+  }
+}

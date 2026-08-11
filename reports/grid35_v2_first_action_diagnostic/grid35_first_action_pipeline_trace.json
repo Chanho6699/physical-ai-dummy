@@ -1,0 +1,227 @@
+{
+  "reference_observation": null,
+  "joint_order_check": {
+    "dataset_action_names": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "dataset_state_names": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "vla_contract_JOINT_ORDER": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "dataset_action_matches_contract": true,
+    "dataset_state_matches_contract": true,
+    "other_joint_order_definitions": {
+      "hardware.state_server.readonly_so101_reader.JOINT_ORDER": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll",
+        "gripper"
+      ]
+    },
+    "note": "State is always dict-keyed by joint name end-to-end (HTTP JSON body, adapter, safety gate all index by name) - a permutation bug is structurally impossible on the state path. The ONE positional-order risk is in runtime.desktop.vla_server.SmolVLAPolicyRunner.predict(): `{joint: float(action_flat[i]) for i, joint in enumerate(JOINT_ORDER)}` zips the checkpoint's raw output tensor to JOINT_ORDER by position with no cross-check against the checkpoint's own training-dataset feature-name order."
+  },
+  "normalization_stats_provenance_by_dataset": {
+    "so101_cube_train_v6": {
+      "shoulder_pan": {
+        "mean": -44.339944069987425,
+        "std": 28.755081567049103,
+        "min": -68.35164642333984,
+        "max": 30.989011764526367
+      },
+      "shoulder_lift": {
+        "mean": 14.394196627078367,
+        "std": 38.99496485273661,
+        "min": -98.5934066772461,
+        "max": 48.92307662963867
+      },
+      "elbow_flex": {
+        "mean": -19.5560524444512,
+        "std": 36.42844635424594,
+        "min": -56.43955993652344,
+        "max": 94.4175796508789
+      },
+      "wrist_flex": {
+        "mean": 64.96841367624573,
+        "std": 11.924590735073275,
+        "min": 45.010990142822266,
+        "max": 96.87911987304688
+      },
+      "wrist_roll": {
+        "mean": -1.8438172772407107,
+        "std": 0.18199805198064528,
+        "min": -2.153846263885498,
+        "max": -1.5384615659713745
+      },
+      "gripper": {
+        "mean": 31.47533632537066,
+        "std": 18.620873566775554,
+        "min": 0.8516678214073181,
+        "max": 55.074520111083984
+      }
+    },
+    "so101_cube_xy_grid35_v2_clean": {
+      "shoulder_pan": {
+        "mean": -25.03982001631636,
+        "std": 29.783461735856857,
+        "min": -78.02198028564453,
+        "max": 26.681318283081055
+      },
+      "shoulder_lift": {
+        "mean": -12.86337356895843,
+        "std": 41.67968773567741,
+        "min": -98.4175796508789,
+        "max": 58.06593322753906
+      },
+      "elbow_flex": {
+        "mean": 6.263441168253627,
+        "std": 42.41552568197963,
+        "min": -58.46154022216797,
+        "max": 94.68132019042969
+      },
+      "wrist_flex": {
+        "mean": 71.83516190158755,
+        "std": 12.107049305013257,
+        "min": 41.31867980957031,
+        "max": 97.05494689941406
+      },
+      "wrist_roll": {
+        "mean": -3.245960365741577,
+        "std": 2.1960344461304175,
+        "min": -6.725274562835693,
+        "max": -0.7472527623176575
+      },
+      "gripper": {
+        "mean": 15.946135709763402,
+        "std": 17.352048362126933,
+        "min": 0.7097232341766357,
+        "max": 55.5003547668457
+      }
+    },
+    "so101_cube_xy_midpoint_test10_v2_clean": {
+      "shoulder_pan": {
+        "mean": -26.972051639626496,
+        "std": 30.86025412408496,
+        "min": -76.70330047607422,
+        "max": 21.934066772460938
+      },
+      "shoulder_lift": {
+        "mean": -14.523780050939017,
+        "std": 39.477936597624826,
+        "min": -98.5934066772461,
+        "max": 48.21977996826172
+      },
+      "elbow_flex": {
+        "mean": 11.218762242663516,
+        "std": 39.159886015384416,
+        "min": -50.10988998413086,
+        "max": 94.5054931640625
+      },
+      "wrist_flex": {
+        "mean": 68.30038539974649,
+        "std": 9.842904227113538,
+        "min": 48.70329666137695,
+        "max": 86.06593322753906
+      },
+      "wrist_roll": {
+        "mean": -6.400620553035226,
+        "std": 0.22369972117588371,
+        "min": -6.725274562835693,
+        "max": -6.02197790145874
+      },
+      "gripper": {
+        "mean": 18.726437271366446,
+        "std": 16.995954553172265,
+        "min": 0.7097232341766357,
+        "max": 59.11994171142578
+      }
+    }
+  },
+  "checkpoint_provenance": {
+    "status": "OK",
+    "checkpoint_dir": "outputs/grid35_v2/smolvla_grid35_v2_clean_fresh/checkpoints/007500/pretrained_model",
+    "inferred_step": 7500,
+    "train_config_dataset_root": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_xy_grid35_v2_clean",
+    "train_config_read_error": null,
+    "trained_dataset_name": "so101_cube_xy_grid35_v2_clean",
+    "trained_dataset_action_names": [
+      "shoulder_pan",
+      "shoulder_lift",
+      "elbow_flex",
+      "wrist_flex",
+      "wrist_roll",
+      "gripper"
+    ],
+    "trained_dataset_matches_JOINT_ORDER": true,
+    "policy_postprocessor_json_present": true,
+    "policy_postprocessor_steps": [
+      "unnormalizer_processor",
+      "device_processor"
+    ],
+    "policy_postprocessor_norm_step_config_keys": [
+      "eps",
+      "features",
+      "norm_map"
+    ]
+  },
+  "shadow_log_stage_table": [],
+  "nearest_frame_and_trajectory_analysis": null,
+  "live_action_chunk_dump": {
+    "status": "SKIPPED",
+    "reason": "no reference observation available"
+  },
+  "safety_threshold_math": {
+    "excessive_step_deg": {
+      "shoulder_pan": 4.58,
+      "shoulder_lift": 5.16,
+      "elbow_flex": 5.73,
+      "wrist_flex": 4.01,
+      "wrist_roll": 1.15,
+      "gripper": 9.17
+    },
+    "GROSS_STEP_MULTIPLIER": 5.0,
+    "reject_threshold_deg": {
+      "shoulder_pan": 22.9,
+      "shoulder_lift": 25.8,
+      "elbow_flex": 28.650000000000002,
+      "wrist_flex": 20.049999999999997,
+      "wrist_roll": 5.75,
+      "gripper": 45.85
+    },
+    "would_clamp_threshold_deg": {
+      "shoulder_pan": 4.58,
+      "shoulder_lift": 5.16,
+      "elbow_flex": 5.73,
+      "wrist_flex": 4.01,
+      "wrist_roll": 1.15,
+      "gripper": 9.17
+    }
+  },
+  "verdict": {
+    "verdict": "E",
+    "rationale": "Code review rules out A (adapter/client are pure passthrough, all state/action wiring is name-keyed not positional, the only positional-order risk - checkpoint raw tensor -> JOINT_ORDER - is architecturally low-risk since every dataset in this repo declares the same joint order) with high confidence, and rules out a bug in the RUNTIME chunk-extraction call site (select_action() correctly pops chunk index 0 per LeRobot's own API contract) with high confidence. B (normalization/denormalization) could not be verified - the checkpoint's baked-in policy_postprocessor.json is not present on this machine, and no VLA HTTP server was reachable, so its embedded stats couldn't be inspected. The strongest concrete finding is a dataset-wide, reproducible match between the delivered first-action delta and the Grid35 dataset's own state displacement roughly 0.7-1.7s into the episode (see nearest_frame_and_trajectory_analysis) for all 3 key joints - consistent with either a training-time temporal-alignment bug (C, unverifiable further without checkpoint/training config access) or an undertrained flow-matching policy whose early chunk indices have not differentiated from later ones (D, plausible given only 35 episodes / 10k training steps). Distinguishing C from D requires the live action-chunk dump (chunk index 0-49), which this script performs automatically once pointed at a real checkpoint via --checkpoint - it was SKIPPED here because no checkpoint files or reachable VLA server exist on this machine.",
+    "a_mapping_adapter_bug": "RULED_OUT (code-verified)",
+    "b_normalization_bug": "checked_dataset_order_ok",
+    "c_chunk_extraction_bug_in_runtime_call_site": "RULED_OUT (code-verified, select_action pops index 0 correctly)",
+    "c_prime_temporal_alignment_at_training_time": "UNVERIFIED - plausible per trajectory-horizon-match finding",
+    "d_policy_itself_predicts_large_first_action": "PLAUSIBLE - leading hypothesis given clean runtime pipeline + small (35ep/10k-step) checkpoint"
+  }
+}

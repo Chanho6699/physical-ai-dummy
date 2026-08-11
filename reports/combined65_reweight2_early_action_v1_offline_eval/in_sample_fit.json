@@ -1,0 +1,59 @@
+{
+  "train_dataset": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_pick_drop_combined65_v1",
+  "task": "Pick up the cube and drop it into the bin.",
+  "seed": 42,
+  "rows": [
+    {
+      "checkpoint_step": 2500,
+      "in_sample_action_mae": 4.856394,
+      "in_sample_action_mae_per_joint": {
+        "shoulder_pan": 4.654913,
+        "shoulder_lift": 7.412096,
+        "elbow_flex": 8.655738,
+        "wrist_flex": 3.720782,
+        "wrist_roll": 0.280887,
+        "gripper": 4.413945
+      },
+      "num_frames_evaluated": 21327
+    },
+    {
+      "checkpoint_step": 5000,
+      "in_sample_action_mae": 3.7507,
+      "in_sample_action_mae_per_joint": {
+        "shoulder_pan": 2.808157,
+        "shoulder_lift": 6.657278,
+        "elbow_flex": 6.451276,
+        "wrist_flex": 2.926084,
+        "wrist_roll": 0.172336,
+        "gripper": 3.489069
+      },
+      "num_frames_evaluated": 21327
+    },
+    {
+      "checkpoint_step": 7500,
+      "in_sample_action_mae": 3.032883,
+      "in_sample_action_mae_per_joint": {
+        "shoulder_pan": 2.195558,
+        "shoulder_lift": 5.262529,
+        "elbow_flex": 5.139838,
+        "wrist_flex": 2.545556,
+        "wrist_roll": 0.158822,
+        "gripper": 2.894994
+      },
+      "num_frames_evaluated": 21327
+    },
+    {
+      "checkpoint_step": 10000,
+      "in_sample_action_mae": 2.884956,
+      "in_sample_action_mae_per_joint": {
+        "shoulder_pan": 2.100681,
+        "shoulder_lift": 4.994542,
+        "elbow_flex": 4.891879,
+        "wrist_flex": 2.465542,
+        "wrist_roll": 0.145331,
+        "gripper": 2.711762
+      },
+      "num_frames_evaluated": 21327
+    }
+  ]
+}

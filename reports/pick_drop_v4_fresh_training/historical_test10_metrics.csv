@@ -1,0 +1,5 @@
+checkpoint_step,train_loss,wall_time_since_start_min,action_mae,action_mae_per_joint,would_pass,would_clamp,would_reject,frames_evaluated,episodes_evaluated,v2_baseline_action_mae,combined65_uniform_action_mae,reinforcement30_only_action_mae
+2500,0.115,15.72,5.048618,"{""shoulder_pan"": 5.732565, ""shoulder_lift"": 8.106743, ""elbow_flex"": 6.810165, ""wrist_flex"": 2.777144, ""wrist_roll"": 1.317947, ""gripper"": 5.547143}",153,3059,76,3288,10,5.387455,4.71568,5.474265
+5000,0.07,32.17,4.566161,"{""shoulder_pan"": 3.617149, ""shoulder_lift"": 7.963428, ""elbow_flex"": 6.768691, ""wrist_flex"": 3.017472, ""wrist_roll"": 0.562192, ""gripper"": 5.468033}",550,2669,69,3288,10,4.290886,4.34042,4.1449
+7500,0.044,48.62,4.128169,"{""shoulder_pan"": 3.023044, ""shoulder_lift"": 6.827013, ""elbow_flex"": 6.46759, ""wrist_flex"": 2.598182, ""wrist_roll"": 0.632031, ""gripper"": 5.221152}",734,2504,50,3288,10,3.984113,3.412268,3.88119
+10000,0.041,65.08,4.06433,"{""shoulder_pan"": 2.930734, ""shoulder_lift"": 6.711167, ""elbow_flex"": 6.502132, ""wrist_flex"": 2.496748, ""wrist_roll"": 0.605234, ""gripper"": 5.139966}",803,2451,34,3288,10,4.220978,3.639608,3.976039

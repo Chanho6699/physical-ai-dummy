@@ -1,0 +1,148 @@
+{
+  "canonical_task": "Pick up the cube and drop it into the bin.",
+  "source_validation": {
+    "v3": {
+      "root": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_pick_drop_start_coverage_v3_clean",
+      "n_episodes_meta": 30,
+      "n_episodes_loaded": 30,
+      "n_episodes_ok": true,
+      "n_frames_meta": 9822,
+      "n_frames_loaded": 9822,
+      "n_frames_ok": true,
+      "fps": 30,
+      "fps_ok": true,
+      "state_dim": [
+        6
+      ],
+      "action_dim": [
+        6
+      ],
+      "dims_ok": true,
+      "task_count": 1,
+      "task_string": "Pick up the cube and drop it into the bin.",
+      "task_string_ok": true,
+      "no_nan_inf": true,
+      "all_ok": true
+    },
+    "v4": {
+      "root": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_pick_drop_generalization_v4",
+      "n_episodes_meta": 39,
+      "n_episodes_loaded": 39,
+      "n_episodes_ok": true,
+      "n_frames_meta": 12795,
+      "n_frames_loaded": 12795,
+      "n_frames_ok": true,
+      "fps": 30,
+      "fps_ok": true,
+      "state_dim": [
+        6
+      ],
+      "action_dim": [
+        6
+      ],
+      "dims_ok": true,
+      "task_count": 1,
+      "task_string": "Pick up the cube and drop it into the bin.",
+      "task_string_ok": true,
+      "no_nan_inf": true,
+      "all_ok": true
+    }
+  },
+  "schema_equality_check": {
+    "features_equal_for_merge": true,
+    "fps_a": 30,
+    "fps_b": 30,
+    "fps_equal": true,
+    "robot_type_a": "so_follower",
+    "robot_type_b": "so_follower",
+    "robot_type_equal": true,
+    "feature_keys_a": [
+      "action",
+      "episode_index",
+      "frame_index",
+      "index",
+      "observation.images.workspace",
+      "observation.images.wrist",
+      "observation.state",
+      "task_index",
+      "timestamp"
+    ],
+    "feature_keys_b": [
+      "action",
+      "episode_index",
+      "frame_index",
+      "index",
+      "observation.images.workspace",
+      "observation.images.wrist",
+      "observation.state",
+      "task_index",
+      "timestamp"
+    ],
+    "safe_to_merge": true
+  },
+  "merge_result": {
+    "repo_id": "so101_cube_pick_drop_v3_v4_combined69_v1",
+    "root": "/home/rlack/Projects/physical-ai-dummy/physical-ai-dummy/data/so101_cube_pick_drop_v3_v4_combined69_v1",
+    "total_episodes": 69,
+    "total_frames": 22617,
+    "tasks": [
+      "Pick up the cube and drop it into the bin."
+    ]
+  },
+  "originals_untouched": {
+    "v3": {
+      "unchanged": true,
+      "n_files_before": 112,
+      "n_files_after": 112,
+      "missing_files": [],
+      "added_files": [],
+      "changed_files": []
+    },
+    "v4": {
+      "unchanged": true,
+      "n_files_before": 138,
+      "n_files_after": 138,
+      "missing_files": [],
+      "added_files": [],
+      "changed_files": []
+    }
+  },
+  "combined_validation": {
+    "n_episodes": 69,
+    "n_episodes_ok": true,
+    "episode_index_continuous": true,
+    "dataset_from_to_index_boundary_ok": true,
+    "episode_lengths_consistent_with_from_to": true,
+    "total_frames_meta": 22617,
+    "total_frames_from_episode_lengths": 22617,
+    "total_frames_expected": 22617,
+    "total_frames_ok": true,
+    "fps": 30,
+    "fps_ok": true,
+    "state_dim": [
+      6
+    ],
+    "action_dim": [
+      6
+    ],
+    "dims_ok": true,
+    "camera_keys": [
+      "observation.images.workspace",
+      "observation.images.wrist"
+    ],
+    "cameras_ok": true,
+    "task_count": 1,
+    "task_count_ok": true,
+    "task_string": "Pick up the cube and drop it into the bin.",
+    "task_string_ok": true,
+    "all_episode_tasks_correct": true,
+    "no_nan_inf": true,
+    "data_reference_issues": [],
+    "video_reference_issues": {
+      "observation.images.workspace": [],
+      "observation.images.wrist": []
+    },
+    "data_and_video_references_ok": true,
+    "all_ok": true
+  }
+}

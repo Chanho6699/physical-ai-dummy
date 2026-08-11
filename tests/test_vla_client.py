@@ -81,6 +81,77 @@ def test_predict_communication_failure_kind() -> None:
     client.close()
 
 
+# ---------------------------------------------------------------------------
+# Phase C-1A: predict_chunk() (/predict_chunk) - predict()/PredictResult는 위 그대로.
+# ---------------------------------------------------------------------------
+
+
+def test_predict_chunk_round_trip(live_fake_vla_server) -> None:
+    base_url, _ = live_fake_vla_server
+    client = VLAHttpClient(VLAClientConfig(server_url=base_url))
+    result = client.predict_chunk(session_id="s1", task="pick up the cube", sequence=0, state=_STATE, images=_IMAGES)
+    assert result.ok is True
+    assert result.chunk_schema_valid is True
+    assert result.chunk_size == 50  # FakePolicyRunner 기본값
+    assert len(result.chunk) == 50
+    for step in result.chunk:
+        assert set(step) == set(JOINT_ORDER)
+    assert result.chunk_index_spacing_s == pytest.approx(1.0 / 30.0)
+    assert result.inference_latency_ms is not None
+    assert result.request_latency_ms >= 0.0
+    assert result.requested_at_monotonic > 0.0
+    assert result.error_kind is None
+    client.close()
+
+
+def test_predict_chunk_distinguishes_inference_failure_from_communication_failure(live_fake_vla_server) -> None:
+    base_url, policy_runner = live_fake_vla_server
+
+    def _boom(*, task, state, images):
+        raise PolicyInferenceError("chunk 모델이 죽었습니다")
+
+    policy_runner.predict_chunk = _boom  # type: ignore[method-assign]
+
+    client = VLAHttpClient(VLAClientConfig(server_url=base_url))
+    result = client.predict_chunk(session_id="s1", task="pick", sequence=0, state=_STATE, images=_IMAGES)
+    assert result.ok is False
+    assert result.error_kind == "inference"
+    assert "chunk 모델이 죽었습니다" in result.error_message
+    client.close()
+
+
+def test_predict_chunk_communication_failure_kind() -> None:
+    client = VLAHttpClient(VLAClientConfig(server_url="http://127.0.0.1:1", timeout_s=1.0, max_retries=1))
+    result = client.predict_chunk(session_id="s1", task="pick", sequence=0, state=_STATE, images=_IMAGES)
+    assert result.ok is False
+    assert result.error_kind == "communication"
+    assert result.chunk is None
+    client.close()
+
+
+def test_predict_chunk_malformed_chunk_shape_is_schema_error(live_fake_vla_server) -> None:
+    """서버가 (스펙을 어기고) 빈 chunk를 반환하면 client가 fail-closed로 schema 오류를
+    내야 한다 - 빈 list/부분 chunk를 그대로 executor에 넘기지 않는다."""
+    base_url, policy_runner = live_fake_vla_server
+    policy_runner.predict_chunk = lambda *, task, state, images: []  # type: ignore[method-assign]
+
+    client = VLAHttpClient(VLAClientConfig(server_url=base_url))
+    result = client.predict_chunk(session_id="s1", task="pick", sequence=0, state=_STATE, images=_IMAGES)
+    assert result.ok is False
+    assert result.chunk is None
+    client.close()
+
+
+def test_predict_chunk_does_not_affect_existing_predict(live_fake_vla_server) -> None:
+    """같은 client/서버에서 predict_chunk를 호출한 뒤에도 predict()가 정상 동작해야 한다."""
+    base_url, _ = live_fake_vla_server
+    client = VLAHttpClient(VLAClientConfig(server_url=base_url))
+    client.predict_chunk(session_id="s1", task="pick", sequence=0, state=_STATE, images=_IMAGES)
+    result = client.predict(session_id="s1", task="pick", sequence=1, state=_STATE, images=_IMAGES)
+    assert result.ok is True
+    client.close()
+
+
 def test_nan_state_is_rejected_over_real_wire(live_fake_vla_server) -> None:
     """실제 프로덕션 경로(requests)는 NaN을 그대로 JSON에 실어 보낸다 - 서버가 422로
     거부하는지, 클라이언트가 그 실패를 통신 실패가 아니라 스키마 문제로 다루는지 확인한다."""

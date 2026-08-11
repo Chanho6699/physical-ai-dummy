@@ -1,0 +1,541 @@
+{
+  "scenes": [
+    {
+      "scene": "T01",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (real read-only follower state + real workspace/wrist camera), imported from reports/real_midpoint_shadow_T01_T10/ - the FINAL actual multi-position T01-T10 capture session (distinct from the earlier grid35_v2_shadow_T0N_actual/ import, which was a same-scene repeat; see scripts/import_actual_shadow_t02_t10.py). Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'T01', heldout_episode_index = 0, evaluation_mode = 'midpoint-shadow' - a DISTINCT label/index per scene (0..9, matching the same T0N<->episode-index convention scripts/build_synthetic_midpoint_shadow_reports.py uses for the synthetic proxies), NOT the earlier import's 'fixed-scene-repeat'/'V2_F02'-for-all pattern. However, the raw follower joint-state readout (observation.state) is itself nearly constant across all 10 scenes: this scene's state differs from T01's by {'shoulder_pan': 0.0, 'shoulder_lift': 0.0, 'elbow_flex': 0.0, 'wrist_flex': 0.0, 'wrist_roll': 0.0, 'gripper': 0.0} deg per joint. That pattern is consistent with an intentional fixed-'midpoint'-observation-pose capture protocol (the arm is held at one repeatable reading pose; only the cube placement in front of the camera differs per held-out scene) rather than a duplicate capture - the workspace/wrist camera frames differ meaningfully scene-to-scene (RMSE vs T01, 0-255 scale: workspace=0.00, wrist=0.00), which a literal duplicate capture would not show. This script does not independently verify actual cube ground-truth position; it records both signals (state diff + image RMSE) so downstream readers can judge the evidence themselves rather than trusting a one-line claim.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.05,
+      "median3_clamp_free_rate": 0.0,
+      "median5_clamp_free_rate": 0.0,
+      "resample3_clamp_free_rate": 0.15165,
+      "resample5_clamp_free_rate": 0.2529,
+      "single_gt_l2_mean": 8.564259195803396,
+      "resample3_gt_l2_mean": 4.324877429521773,
+      "resample5_gt_l2_mean": 4.280867791777206,
+      "resample3_avg_inference": 2.85005,
+      "resample5_avg_inference": 4.49655,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.15,
+        "shoulder_lift": 0.5,
+        "elbow_flex": 0.95,
+        "wrist_flex": 0.05,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -2.594857729922284,
+        "shoulder_lift": 5.061467688424253,
+        "elbow_flex": -10.666679516467411,
+        "wrist_flex": 1.4941424673730197,
+        "wrist_roll": 0.2050160630718688,
+        "gripper": 0.7032841729163467
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 1.4590294291523618,
+        "shoulder_lift": 4.450835454927904,
+        "elbow_flex": 3.320058814112783,
+        "wrist_flex": 1.3936807206279518,
+        "wrist_roll": 0.23799047556426933,
+        "gripper": 0.8299540102914502
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.291815518898852
+      },
+      "reference_observation_label": "T01"
+    },
+    {
+      "scene": "T02",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (real read-only follower state + real workspace/wrist camera), imported from reports/real_midpoint_shadow_T01_T10/ - the FINAL actual multi-position T01-T10 capture session (distinct from the earlier grid35_v2_shadow_T0N_actual/ import, which was a same-scene repeat; see scripts/import_actual_shadow_t02_t10.py). Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'T02', heldout_episode_index = 1, evaluation_mode = 'midpoint-shadow' - a DISTINCT label/index per scene (0..9, matching the same T0N<->episode-index convention scripts/build_synthetic_midpoint_shadow_reports.py uses for the synthetic proxies), NOT the earlier import's 'fixed-scene-repeat'/'V2_F02'-for-all pattern. However, the raw follower joint-state readout (observation.state) is itself nearly constant across all 10 scenes: this scene's state differs from T01's by {'shoulder_pan': 0.0, 'shoulder_lift': 0.0, 'elbow_flex': -0.0879120879120876, 'wrist_flex': 0.0, 'wrist_roll': 0.0, 'gripper': 0.0} deg per joint. That pattern is consistent with an intentional fixed-'midpoint'-observation-pose capture protocol (the arm is held at one repeatable reading pose; only the cube placement in front of the camera differs per held-out scene) rather than a duplicate capture - the workspace/wrist camera frames differ meaningfully scene-to-scene (RMSE vs T01, 0-255 scale: workspace=22.49, wrist=18.99), which a literal duplicate capture would not show. This script does not independently verify actual cube ground-truth position; it records both signals (state diff + image RMSE) so downstream readers can judge the evidence themselves rather than trusting a one-line claim.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.05,
+      "median3_clamp_free_rate": 0.0,
+      "median5_clamp_free_rate": 0.0,
+      "resample3_clamp_free_rate": 0.15165,
+      "resample5_clamp_free_rate": 0.2529,
+      "single_gt_l2_mean": 8.563852473714705,
+      "resample3_gt_l2_mean": 4.3317355761353245,
+      "resample5_gt_l2_mean": 4.251638188786008,
+      "resample3_avg_inference": 2.85005,
+      "resample5_avg_inference": 4.49655,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.15,
+        "shoulder_lift": 0.45,
+        "elbow_flex": 0.95,
+        "wrist_flex": 0.05,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -2.5336703672513856,
+        "shoulder_lift": 5.147917883736753,
+        "elbow_flex": -10.692818484463533,
+        "wrist_flex": 1.9143689459496798,
+        "wrist_roll": 0.22920648894467152,
+        "gripper": 0.5392838524817762
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 1.3852973307042078,
+        "shoulder_lift": 4.3599816589926155,
+        "elbow_flex": 3.24870539206781,
+        "wrist_flex": 1.3553813612728078,
+        "wrist_roll": 0.23127619486979914,
+        "gripper": 0.8038291280801232
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.2181280379823423
+      },
+      "reference_observation_label": "T02"
+    },
+    {
+      "scene": "T03",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (real read-only follower state + real workspace/wrist camera), imported from reports/real_midpoint_shadow_T01_T10/ - the FINAL actual multi-position T01-T10 capture session (distinct from the earlier grid35_v2_shadow_T0N_actual/ import, which was a same-scene repeat; see scripts/import_actual_shadow_t02_t10.py). Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'T03', heldout_episode_index = 2, evaluation_mode = 'midpoint-shadow' - a DISTINCT label/index per scene (0..9, matching the same T0N<->episode-index convention scripts/build_synthetic_midpoint_shadow_reports.py uses for the synthetic proxies), NOT the earlier import's 'fixed-scene-repeat'/'V2_F02'-for-all pattern. However, the raw follower joint-state readout (observation.state) is itself nearly constant across all 10 scenes: this scene's state differs from T01's by {'shoulder_pan': 0.0, 'shoulder_lift': 0.0, 'elbow_flex': -0.0879120879120876, 'wrist_flex': 0.0, 'wrist_roll': 0.0, 'gripper': 0.0} deg per joint. That pattern is consistent with an intentional fixed-'midpoint'-observation-pose capture protocol (the arm is held at one repeatable reading pose; only the cube placement in front of the camera differs per held-out scene) rather than a duplicate capture - the workspace/wrist camera frames differ meaningfully scene-to-scene (RMSE vs T01, 0-255 scale: workspace=22.88, wrist=19.34), which a literal duplicate capture would not show. This script does not independently verify actual cube ground-truth position; it records both signals (state diff + image RMSE) so downstream readers can judge the evidence themselves rather than trusting a one-line claim.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.05,
+      "median3_clamp_free_rate": 0.0,
+      "median5_clamp_free_rate": 0.0,
+      "resample3_clamp_free_rate": 0.15165,
+      "resample5_clamp_free_rate": 0.2529,
+      "single_gt_l2_mean": 9.361052555509222,
+      "resample3_gt_l2_mean": 4.360103649007911,
+      "resample5_gt_l2_mean": 4.258897304174551,
+      "resample3_avg_inference": 2.85005,
+      "resample5_avg_inference": 4.49655,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.15,
+        "shoulder_lift": 0.55,
+        "elbow_flex": 0.95,
+        "wrist_flex": 0.05,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -2.8803444757566345,
+        "shoulder_lift": 6.122197287423276,
+        "elbow_flex": -11.501511035122713,
+        "wrist_flex": 1.7439973181420627,
+        "wrist_roll": 0.2017089351192931,
+        "gripper": 0.7093562172889053
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 1.3915410339698673,
+        "shoulder_lift": 4.3971705100545915,
+        "elbow_flex": 3.2640108763182147,
+        "wrist_flex": 1.3626311992395221,
+        "wrist_roll": 0.22489820579950168,
+        "gripper": 0.7956152334710774
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.2181280379823423
+      },
+      "reference_observation_label": "T03"
+    },
+    {
+      "scene": "T04",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (real read-only follower state + real workspace/wrist camera), imported from reports/real_midpoint_shadow_T01_T10/ - the FINAL actual multi-position T01-T10 capture session (distinct from the earlier grid35_v2_shadow_T0N_actual/ import, which was a same-scene repeat; see scripts/import_actual_shadow_t02_t10.py). Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'T04', heldout_episode_index = 3, evaluation_mode = 'midpoint-shadow' - a DISTINCT label/index per scene (0..9, matching the same T0N<->episode-index convention scripts/build_synthetic_midpoint_shadow_reports.py uses for the synthetic proxies), NOT the earlier import's 'fixed-scene-repeat'/'V2_F02'-for-all pattern. However, the raw follower joint-state readout (observation.state) is itself nearly constant across all 10 scenes: this scene's state differs from T01's by {'shoulder_pan': 0.0, 'shoulder_lift': 0.0, 'elbow_flex': -0.0879120879120876, 'wrist_flex': 0.0, 'wrist_roll': 0.0, 'gripper': 0.0} deg per joint. That pattern is consistent with an intentional fixed-'midpoint'-observation-pose capture protocol (the arm is held at one repeatable reading pose; only the cube placement in front of the camera differs per held-out scene) rather than a duplicate capture - the workspace/wrist camera frames differ meaningfully scene-to-scene (RMSE vs T01, 0-255 scale: workspace=18.86, wrist=19.15), which a literal duplicate capture would not show. This script does not independently verify actual cube ground-truth position; it records both signals (state diff + image RMSE) so downstream readers can judge the evidence themselves rather than trusting a one-line claim.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.05,
+      "median3_clamp_free_rate": 0.0,
+      "median5_clamp_free_rate": 0.0,
+      "resample3_clamp_free_rate": 0.15165,
+      "resample5_clamp_free_rate": 0.2529,
+      "single_gt_l2_mean": 8.42675913334171,
+      "resample3_gt_l2_mean": 4.150290677434353,
+      "resample5_gt_l2_mean": 4.051582860166219,
+      "resample3_avg_inference": 2.85005,
+      "resample5_avg_inference": 4.49655,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.1,
+        "shoulder_lift": 0.5,
+        "elbow_flex": 0.95,
+        "wrist_flex": 0.05,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -2.3432364359006774,
+        "shoulder_lift": 5.228742163521909,
+        "elbow_flex": -10.677116427578767,
+        "wrist_flex": 1.869367915981418,
+        "wrist_roll": 0.19866361460842885,
+        "gripper": 0.3949915932654676
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 1.404317691397042,
+        "shoulder_lift": 4.310397560534793,
+        "elbow_flex": 3.220368158732506,
+        "wrist_flex": 1.3261411703736807,
+        "wrist_roll": 0.22872301713959234,
+        "gripper": 0.7911567841858661
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.2181280379823423
+      },
+      "reference_observation_label": "T04"
+    },
+    {
+      "scene": "T05",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (real read-only follower state + real workspace/wrist camera), imported from reports/real_midpoint_shadow_T01_T10/ - the FINAL actual multi-position T01-T10 capture session (distinct from the earlier grid35_v2_shadow_T0N_actual/ import, which was a same-scene repeat; see scripts/import_actual_shadow_t02_t10.py). Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'T05', heldout_episode_index = 4, evaluation_mode = 'midpoint-shadow' - a DISTINCT label/index per scene (0..9, matching the same T0N<->episode-index convention scripts/build_synthetic_midpoint_shadow_reports.py uses for the synthetic proxies), NOT the earlier import's 'fixed-scene-repeat'/'V2_F02'-for-all pattern. However, the raw follower joint-state readout (observation.state) is itself nearly constant across all 10 scenes: this scene's state differs from T01's by {'shoulder_pan': 0.0, 'shoulder_lift': 0.0, 'elbow_flex': -0.0879120879120876, 'wrist_flex': 0.0, 'wrist_roll': 0.0, 'gripper': 0.0} deg per joint. That pattern is consistent with an intentional fixed-'midpoint'-observation-pose capture protocol (the arm is held at one repeatable reading pose; only the cube placement in front of the camera differs per held-out scene) rather than a duplicate capture - the workspace/wrist camera frames differ meaningfully scene-to-scene (RMSE vs T01, 0-255 scale: workspace=24.24, wrist=21.93), which a literal duplicate capture would not show. This script does not independently verify actual cube ground-truth position; it records both signals (state diff + image RMSE) so downstream readers can judge the evidence themselves rather than trusting a one-line claim.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.05,
+      "median3_clamp_free_rate": 0.0,
+      "median5_clamp_free_rate": 0.0,
+      "resample3_clamp_free_rate": 0.15165,
+      "resample5_clamp_free_rate": 0.2529,
+      "single_gt_l2_mean": 9.192533499691319,
+      "resample3_gt_l2_mean": 4.4626037880200204,
+      "resample5_gt_l2_mean": 4.344540887299378,
+      "resample3_avg_inference": 2.85005,
+      "resample5_avg_inference": 4.49655,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.15,
+        "shoulder_lift": 0.5,
+        "elbow_flex": 0.95,
+        "wrist_flex": 0.05,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -2.955314196597089,
+        "shoulder_lift": 5.014512579781675,
+        "elbow_flex": -11.439040026821932,
+        "wrist_flex": 1.784283382290012,
+        "wrist_roll": 0.19472563109555044,
+        "gripper": 0.6013396309851944
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 1.4370253046153674,
+        "shoulder_lift": 4.349358587677135,
+        "elbow_flex": 3.3054138679630642,
+        "wrist_flex": 1.3561205035745514,
+        "wrist_roll": 0.22508943189881175,
+        "gripper": 0.7838314124398852
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.2181280379823423
+      },
+      "reference_observation_label": "T05"
+    },
+    {
+      "scene": "T06",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (real read-only follower state + real workspace/wrist camera), imported from reports/real_midpoint_shadow_T01_T10/ - the FINAL actual multi-position T01-T10 capture session (distinct from the earlier grid35_v2_shadow_T0N_actual/ import, which was a same-scene repeat; see scripts/import_actual_shadow_t02_t10.py). Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'T06', heldout_episode_index = 5, evaluation_mode = 'midpoint-shadow' - a DISTINCT label/index per scene (0..9, matching the same T0N<->episode-index convention scripts/build_synthetic_midpoint_shadow_reports.py uses for the synthetic proxies), NOT the earlier import's 'fixed-scene-repeat'/'V2_F02'-for-all pattern. However, the raw follower joint-state readout (observation.state) is itself nearly constant across all 10 scenes: this scene's state differs from T01's by {'shoulder_pan': 0.0, 'shoulder_lift': 0.0, 'elbow_flex': -0.0879120879120876, 'wrist_flex': 0.0, 'wrist_roll': 0.0, 'gripper': 0.0} deg per joint. That pattern is consistent with an intentional fixed-'midpoint'-observation-pose capture protocol (the arm is held at one repeatable reading pose; only the cube placement in front of the camera differs per held-out scene) rather than a duplicate capture - the workspace/wrist camera frames differ meaningfully scene-to-scene (RMSE vs T01, 0-255 scale: workspace=26.65, wrist=21.85), which a literal duplicate capture would not show. This script does not independently verify actual cube ground-truth position; it records both signals (state diff + image RMSE) so downstream readers can judge the evidence themselves rather than trusting a one-line claim.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.05,
+      "median3_clamp_free_rate": 0.0,
+      "median5_clamp_free_rate": 0.0,
+      "resample3_clamp_free_rate": 0.15165,
+      "resample5_clamp_free_rate": 0.2529,
+      "single_gt_l2_mean": 9.47077200600399,
+      "resample3_gt_l2_mean": 4.390754268089743,
+      "resample5_gt_l2_mean": 4.262863512523252,
+      "resample3_avg_inference": 2.85005,
+      "resample5_avg_inference": 4.49655,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.15,
+        "shoulder_lift": 0.55,
+        "elbow_flex": 0.95,
+        "wrist_flex": 0.05,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -2.921940459261884,
+        "shoulder_lift": 5.28128885541644,
+        "elbow_flex": -11.815024981655915,
+        "wrist_flex": 1.7710984533959688,
+        "wrist_roll": 0.1789512380138854,
+        "gripper": 0.6194139527320205
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 1.404810073587653,
+        "shoulder_lift": 4.40233306766751,
+        "elbow_flex": 3.265271462222334,
+        "wrist_flex": 1.3150620711882415,
+        "wrist_roll": 0.2257152516205214,
+        "gripper": 0.7918627786741311
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.2181280379823423
+      },
+      "reference_observation_label": "T06"
+    },
+    {
+      "scene": "T07",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (real read-only follower state + real workspace/wrist camera), imported from reports/real_midpoint_shadow_T01_T10/ - the FINAL actual multi-position T01-T10 capture session (distinct from the earlier grid35_v2_shadow_T0N_actual/ import, which was a same-scene repeat; see scripts/import_actual_shadow_t02_t10.py). Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'T07', heldout_episode_index = 6, evaluation_mode = 'midpoint-shadow' - a DISTINCT label/index per scene (0..9, matching the same T0N<->episode-index convention scripts/build_synthetic_midpoint_shadow_reports.py uses for the synthetic proxies), NOT the earlier import's 'fixed-scene-repeat'/'V2_F02'-for-all pattern. However, the raw follower joint-state readout (observation.state) is itself nearly constant across all 10 scenes: this scene's state differs from T01's by {'shoulder_pan': 0.0, 'shoulder_lift': 0.0, 'elbow_flex': -0.0879120879120876, 'wrist_flex': 0.0, 'wrist_roll': 0.0, 'gripper': 0.0} deg per joint. That pattern is consistent with an intentional fixed-'midpoint'-observation-pose capture protocol (the arm is held at one repeatable reading pose; only the cube placement in front of the camera differs per held-out scene) rather than a duplicate capture - the workspace/wrist camera frames differ meaningfully scene-to-scene (RMSE vs T01, 0-255 scale: workspace=20.68, wrist=20.02), which a literal duplicate capture would not show. This script does not independently verify actual cube ground-truth position; it records both signals (state diff + image RMSE) so downstream readers can judge the evidence themselves rather than trusting a one-line claim.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.05,
+      "median3_clamp_free_rate": 0.0,
+      "median5_clamp_free_rate": 0.0,
+      "resample3_clamp_free_rate": 0.15165,
+      "resample5_clamp_free_rate": 0.2529,
+      "single_gt_l2_mean": 9.547074529478863,
+      "resample3_gt_l2_mean": 4.490861416500864,
+      "resample5_gt_l2_mean": 4.3808529099697235,
+      "resample3_avg_inference": 2.85005,
+      "resample5_avg_inference": 4.49655,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.2,
+        "shoulder_lift": 0.55,
+        "elbow_flex": 0.95,
+        "wrist_flex": 0.05,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -2.9744604482755554,
+        "shoulder_lift": 5.633370917184019,
+        "elbow_flex": -11.742099032559235,
+        "wrist_flex": 1.8380477255517307,
+        "wrist_roll": 0.20871538958706654,
+        "gripper": 0.7250044869422256
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 1.3901610688128105,
+        "shoulder_lift": 4.46993798435282,
+        "elbow_flex": 3.272103389424151,
+        "wrist_flex": 1.3695453642195328,
+        "wrist_roll": 0.2361380121543717,
+        "gripper": 0.8181301798775784
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.2181280379823423
+      },
+      "reference_observation_label": "T07"
+    },
+    {
+      "scene": "T08",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (real read-only follower state + real workspace/wrist camera), imported from reports/real_midpoint_shadow_T01_T10/ - the FINAL actual multi-position T01-T10 capture session (distinct from the earlier grid35_v2_shadow_T0N_actual/ import, which was a same-scene repeat; see scripts/import_actual_shadow_t02_t10.py). Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'T08', heldout_episode_index = 7, evaluation_mode = 'midpoint-shadow' - a DISTINCT label/index per scene (0..9, matching the same T0N<->episode-index convention scripts/build_synthetic_midpoint_shadow_reports.py uses for the synthetic proxies), NOT the earlier import's 'fixed-scene-repeat'/'V2_F02'-for-all pattern. However, the raw follower joint-state readout (observation.state) is itself nearly constant across all 10 scenes: this scene's state differs from T01's by {'shoulder_pan': 0.0, 'shoulder_lift': 0.0, 'elbow_flex': -0.0879120879120876, 'wrist_flex': 0.0, 'wrist_roll': 0.0, 'gripper': 0.0} deg per joint. That pattern is consistent with an intentional fixed-'midpoint'-observation-pose capture protocol (the arm is held at one repeatable reading pose; only the cube placement in front of the camera differs per held-out scene) rather than a duplicate capture - the workspace/wrist camera frames differ meaningfully scene-to-scene (RMSE vs T01, 0-255 scale: workspace=21.85, wrist=22.53), which a literal duplicate capture would not show. This script does not independently verify actual cube ground-truth position; it records both signals (state diff + image RMSE) so downstream readers can judge the evidence themselves rather than trusting a one-line claim.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.05,
+      "median3_clamp_free_rate": 0.0,
+      "median5_clamp_free_rate": 0.0,
+      "resample3_clamp_free_rate": 0.15165,
+      "resample5_clamp_free_rate": 0.2529,
+      "single_gt_l2_mean": 9.064478730969984,
+      "resample3_gt_l2_mean": 4.088195824603802,
+      "resample5_gt_l2_mean": 4.010414050971464,
+      "resample3_avg_inference": 2.85005,
+      "resample5_avg_inference": 4.49655,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.05,
+        "shoulder_lift": 0.55,
+        "elbow_flex": 0.95,
+        "wrist_flex": 0.05,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -2.271501721392621,
+        "shoulder_lift": 6.105064719063901,
+        "elbow_flex": -11.330035433926422,
+        "wrist_flex": 1.81218331515134,
+        "wrist_roll": 0.2245435699001769,
+        "gripper": 0.6231062458991348
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 1.416620590373579,
+        "shoulder_lift": 4.413619591002594,
+        "elbow_flex": 3.277922824396203,
+        "wrist_flex": 1.375653591004237,
+        "wrist_roll": 0.23498160931188264,
+        "gripper": 0.8043167035080312
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.2181280379823423
+      },
+      "reference_observation_label": "T08"
+    },
+    {
+      "scene": "T09",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (real read-only follower state + real workspace/wrist camera), imported from reports/real_midpoint_shadow_T01_T10/ - the FINAL actual multi-position T01-T10 capture session (distinct from the earlier grid35_v2_shadow_T0N_actual/ import, which was a same-scene repeat; see scripts/import_actual_shadow_t02_t10.py). Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'T09', heldout_episode_index = 8, evaluation_mode = 'midpoint-shadow' - a DISTINCT label/index per scene (0..9, matching the same T0N<->episode-index convention scripts/build_synthetic_midpoint_shadow_reports.py uses for the synthetic proxies), NOT the earlier import's 'fixed-scene-repeat'/'V2_F02'-for-all pattern. However, the raw follower joint-state readout (observation.state) is itself nearly constant across all 10 scenes: this scene's state differs from T01's by {'shoulder_pan': 0.0, 'shoulder_lift': 0.0, 'elbow_flex': -0.0879120879120876, 'wrist_flex': 0.0, 'wrist_roll': 0.0, 'gripper': 0.0} deg per joint. That pattern is consistent with an intentional fixed-'midpoint'-observation-pose capture protocol (the arm is held at one repeatable reading pose; only the cube placement in front of the camera differs per held-out scene) rather than a duplicate capture - the workspace/wrist camera frames differ meaningfully scene-to-scene (RMSE vs T01, 0-255 scale: workspace=29.58, wrist=24.31), which a literal duplicate capture would not show. This script does not independently verify actual cube ground-truth position; it records both signals (state diff + image RMSE) so downstream readers can judge the evidence themselves rather than trusting a one-line claim.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.05,
+      "median3_clamp_free_rate": 0.0,
+      "median5_clamp_free_rate": 0.0,
+      "resample3_clamp_free_rate": 0.15165,
+      "resample5_clamp_free_rate": 0.2529,
+      "single_gt_l2_mean": 10.122178379324435,
+      "resample3_gt_l2_mean": 4.143087652045624,
+      "resample5_gt_l2_mean": 4.028496691683788,
+      "resample3_avg_inference": 2.85005,
+      "resample5_avg_inference": 4.49655,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.15,
+        "shoulder_lift": 0.55,
+        "elbow_flex": 0.95,
+        "wrist_flex": 0.05,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -2.706847466479291,
+        "shoulder_lift": 6.159291022164487,
+        "elbow_flex": -12.64750293270572,
+        "wrist_flex": 1.6343396490746798,
+        "wrist_roll": 0.16284675440945423,
+        "gripper": 0.3987808751105604
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 1.4238542317482816,
+        "shoulder_lift": 4.47999460812169,
+        "elbow_flex": 3.3006945225073467,
+        "wrist_flex": 1.3329664707683757,
+        "wrist_roll": 0.229257061093495,
+        "gripper": 0.789717647564681
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.2181280379823423
+      },
+      "reference_observation_label": "T09"
+    },
+    {
+      "scene": "T10",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (real read-only follower state + real workspace/wrist camera), imported from reports/real_midpoint_shadow_T01_T10/ - the FINAL actual multi-position T01-T10 capture session (distinct from the earlier grid35_v2_shadow_T0N_actual/ import, which was a same-scene repeat; see scripts/import_actual_shadow_t02_t10.py). Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'T10', heldout_episode_index = 9, evaluation_mode = 'midpoint-shadow' - a DISTINCT label/index per scene (0..9, matching the same T0N<->episode-index convention scripts/build_synthetic_midpoint_shadow_reports.py uses for the synthetic proxies), NOT the earlier import's 'fixed-scene-repeat'/'V2_F02'-for-all pattern. However, the raw follower joint-state readout (observation.state) is itself nearly constant across all 10 scenes: this scene's state differs from T01's by {'shoulder_pan': 0.0, 'shoulder_lift': 0.0, 'elbow_flex': -0.0879120879120876, 'wrist_flex': 0.0, 'wrist_roll': 0.0, 'gripper': 0.0} deg per joint. That pattern is consistent with an intentional fixed-'midpoint'-observation-pose capture protocol (the arm is held at one repeatable reading pose; only the cube placement in front of the camera differs per held-out scene) rather than a duplicate capture - the workspace/wrist camera frames differ meaningfully scene-to-scene (RMSE vs T01, 0-255 scale: workspace=22.34, wrist=19.82), which a literal duplicate capture would not show. This script does not independently verify actual cube ground-truth position; it records both signals (state diff + image RMSE) so downstream readers can judge the evidence themselves rather than trusting a one-line claim.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.05,
+      "median3_clamp_free_rate": 0.0,
+      "median5_clamp_free_rate": 0.0,
+      "resample3_clamp_free_rate": 0.15165,
+      "resample5_clamp_free_rate": 0.2529,
+      "single_gt_l2_mean": 8.926872647319875,
+      "resample3_gt_l2_mean": 4.215829171860375,
+      "resample5_gt_l2_mean": 4.0905621302222865,
+      "resample3_avg_inference": 2.85005,
+      "resample5_avg_inference": 4.49655,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.05,
+        "shoulder_lift": 0.5,
+        "elbow_flex": 0.95,
+        "wrist_flex": 0.05,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -2.4082799806699646,
+        "shoulder_lift": 5.666929190499448,
+        "elbow_flex": -11.225963244595368,
+        "wrist_flex": 2.055514652126438,
+        "wrist_roll": 0.20407972178616324,
+        "gripper": 0.6668241547583877
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 1.360040508713957,
+        "shoulder_lift": 4.300312662592813,
+        "elbow_flex": 3.1427263870658027,
+        "wrist_flex": 1.327068852286773,
+        "wrist_roll": 0.22697312907770734,
+        "gripper": 0.7831912266291703
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.2181280379823423
+      },
+      "reference_observation_label": "T10"
+    }
+  ],
+  "overall": {
+    "n_scenes": 10,
+    "avg_single_clamp_free_rate": 0.05,
+    "avg_median3_clamp_free_rate": 0.0,
+    "avg_median5_clamp_free_rate": 0.0,
+    "avg_resample3_clamp_free_rate": 0.15165,
+    "avg_resample5_clamp_free_rate": 0.2529,
+    "avg_single_gt_l2_mean": 9.12398331511575,
+    "avg_resample3_gt_l2_mean": 4.295833945321979,
+    "avg_resample5_gt_l2_mean": 4.196071632757388,
+    "avg_resample3_avg_inference": 2.85005,
+    "avg_resample5_avg_inference": 4.49655,
+    "single_worst_scene": {
+      "scene": "T01",
+      "single_clamp_free_rate": 0.05
+    },
+    "single_best_scene": {
+      "scene": "T01",
+      "single_clamp_free_rate": 0.05
+    },
+    "resample3_worst_scene": {
+      "scene": "T01",
+      "resample3_clamp_free_rate": 0.15165
+    },
+    "resample3_best_scene": {
+      "scene": "T01",
+      "resample3_clamp_free_rate": 0.15165
+    },
+    "resample5_worst_scene": {
+      "scene": "T01",
+      "resample5_clamp_free_rate": 0.2529
+    },
+    "resample5_best_scene": {
+      "scene": "T01",
+      "resample5_clamp_free_rate": 0.2529
+    },
+    "per_joint_avg_clamp_rate": {
+      "shoulder_pan": 0.13,
+      "shoulder_lift": 0.52,
+      "elbow_flex": 0.95,
+      "wrist_flex": 0.05,
+      "wrist_roll": 0.0,
+      "gripper": 0.0
+    },
+    "per_joint_max_clamp_rate_scene": {
+      "shoulder_pan": "T07",
+      "shoulder_lift": "T09",
+      "elbow_flex": "T10",
+      "wrist_flex": "T10",
+      "wrist_roll": "T10",
+      "gripper": "T10"
+    },
+    "per_joint_max_clamp_rate_value": {
+      "shoulder_pan": 0.2,
+      "shoulder_lift": 0.55,
+      "elbow_flex": 0.95,
+      "wrist_flex": 0.05,
+      "wrist_roll": 0.0,
+      "gripper": 0.0
+    }
+  },
+  "conclusions": {
+    "q1_repeats": "**Yes, it repeats across all 10 scenes.** Every scene (T01-T10) shows the same pattern T01 first surfaced: re-running the identical frozen checkpoint against the identical fixed observation, varying only the flow-matching RNG seed (0..19), swings chunk-index-0 between WOULD_CLAMP and clean. Single-sample clamp-free rate ranges from 5% (T01) to 5% (T01) - never close to 0% or 100%, i.e. never a scene where the seed choice stops mattering. 10/10 scenes have single-sample clamp-free rate below 60%. This is a property of the checkpoint's flow-matching noise sensitivity at this training step (007500), not an artifact specific to T01's particular reference state.",
+    "q2_generalizes": "**Yes, directionally, on every scene** - safety-pass resampling raises the clamp-free rate over the single-sample baseline in all 10/10 scenes at both cap=3 and cap=5, and resample5 clamp-free rate is always >= resample3's (monotonic improvement with cap, as expected since cap=5 draws are a strict superset of cap=3's same permutation prefix). Average clamp-free rate: single 5.0% -> resample3 15.2% -> resample5 25.3%. However the *magnitude* of the benefit is scene-dependent: 0/10 scenes reach >=95% clamp-free at cap=5, but 10/10 stay below 80% (worst: T01 25.3%, T02 25.3%). GT L2 also improves alongside clamp-free rate in every scene (resample5 mean L2 < single-sample mean L2 in all 10 scenes), consistent with T01. Per-joint, shoulder_lift (avg clamp rate 52%) and elbow_flex (avg clamp rate 95%) remain the two joints that clamp by far the most often across every scene, matching T01's finding - the mitigation generalizes to the same failure mode, not a T01-specific one. The 3/5-sample median strategy does **not** generalize as a fix: in T06/T07/T08/T09 it actually *lowers* clamp-free rate below the single-sample baseline (same qualitative failure T01 already flagged) - retained here only as a reference point, not a candidate.",
+    "q3_adopt_cap5": "**Conditionally, not unconditionally.** Resample<=5 is a clear, consistent improvement over both single-sample and median on every one of the 10 scenes tested, its stopping rule is deploy-time-realistic (WOULD_CLAMP status only, no GT), and its cost is adaptive (avg 4.50 inference calls across scenes, not a fixed 5x tax). That supports adopting it as the Shadow-runtime mitigation candidate. But the residual failure rate at cap=5 is not uniformly small: T01 74.7%, T02 74.7% still fail to find a clamp-free draw within 5 attempts, meaning on those scenes the Safety Gate would still end up clipping roughly 1 in 3-to-2.5 real runs even with resampling active. Before treating resample<=5 as sufficient on its own, either (a) raise the cap for scenes with low observed clamp-free base rates, or (b) treat resample<=5's residual failure rate as an accepted, monitored Safety-Gate-clip rate rather than a solved problem. It should not be adopted repo-wide as a single fixed cap without per-scene validation - the cap=3 vs cap=5 gap itself varies by scene (see the comparison table): in this dataset 0/10 scenes reach even the >=95% clamp-free 'easy' bar at cap=5 - every scene tested is in the hard regime (T01/T02/T03/T04/T05/T06/T07/T08/T09/T10, all <80% clamp-free at cap=5), so there is no easy/hard split to tune a single cap between here; a fixed cap=5 would be under-serving all 10 scenes roughly equally, not a subset of them.",
+    "q4_retrain_needed": "**Yes - T02/T03/T04/T05/T06/T07/T08/T09/T10 in particular** (plus T01, which already triggered this whole investigation) have a single-sample clamp-free rate at or below 20% - a materially thinner safe-seed pool than the other scenes (T01 5%, T02 5%, T03 5%, T04 5%, T05 5%, T06 5%, T07 5%, T08 5%, T09 5%, T10 5%, vs the T01-T10 average of 5.0%), and resample5 still leaves T01 74.7%, T02 74.7%, T03 74.7%, T04 74.7%, T05 74.7%, T06 74.7%, T07 74.7%, T08 74.7%, T09 74.7%, T10 74.7% residual failure rate respectively. The signal is not uniform across this group, though: T03/T05/T06/T07/T09 also have above-average checkpoint GT-L2 error (T03 9.36 deg, T05 9.19 deg, T06 9.47 deg, T07 9.55 deg, T09 10.12 deg vs the T01-T10 average of 9.12 deg) - i.e. for T03/T05/T06/T07/T09, resampling more is fighting a checkpoint that is *also* less accurate at that scene geometry, not just noisier, which is the stronger checkpoint/training-data-review signal (does the training grid have thin coverage there?). T01/T02/T04/T08/T10 are the counterexample: its GT-L2 (8.56 deg, 8.56 deg, 8.43 deg, 9.06 deg, 8.93 deg) is *below* the T01-T10 average despite the thin safe-seed pool, so a thin pool alone does not always imply a systematically-off policy - only when it co-occurs with above-average GT-L2 (as for T03/T05/T06/T07/T09) is checkpoint/training-data review clearly warranted over pure sampling-based mitigation."
+  }
+}

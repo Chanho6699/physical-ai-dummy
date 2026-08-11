@@ -69,6 +69,12 @@ HEALTH_PATH = "/health"
 SESSION_RESET_PATH = "/session/reset"
 PREDICT_PATH = "/predict"
 ACTION_ACK_PATH = "/action/ack"
+# Phase C-1A (2026-08) - full SmolVLA action-chunk transport. 기존 PREDICT_PATH(/predict,
+# single chunk[0] action)는 절대 바뀌지 않는다 - 이건 순수 추가(additive) 엔드포인트다.
+# 근거: SmolVLAPolicy.predict_action_chunk()가 이미 (batch, chunk_size, action_dim) 전체를
+# 반환하는 public 메서드이고(select_action()의 action queue를 전혀 건드리지 않음), 이
+# 저장소의 HTTP 계약에는 지금까지 그걸 노출할 방법이 없었다(조사 결과 - A/B/C 판정에서 C).
+PREDICT_CHUNK_PATH = "/predict_chunk"
 
 SCHEMA_VERSION = "shadow_vla_contract_v1"
 BACKEND_SMOLVLA = "smolvla"
@@ -104,4 +110,31 @@ def validate_joint_dict(raw: object, *, context: str) -> tuple[dict[str, float] 
         if math.isinf(fvalue):
             return None, f"{context}['{joint}']가 Inf입니다."
         result[joint] = fvalue
+    return result, None
+
+
+def validate_action_chunk(
+    raw: object, *, context: str, expected_length: int | None = None
+) -> tuple[list[dict[str, float]] | None, str | None]:
+    """``/predict_chunk`` 응답의 ``chunk``(각 원소가 ``validate_joint_dict``를 통과하는
+    {joint: number} 6개인 list)를 검증한다 - Server(응답 만들기 전)와 Client(응답 받은 직후)
+    양쪽에서 재사용해 같은 fail-closed 규칙을 공유한다 (섹션 8 요구사항: NaN/Inf/누락
+    joint/빈 chunk/길이 불일치를 전부 거부).
+
+    원소 하나라도 무효하면 chunk 전체를 무효로 처리한다 - "일부만 쓸 수 있는 chunk"라는
+    개념은 만들지 않는다(향후 executor가 이걸 신뢰하고 그대로 순서대로 쓸 것이기 때문).
+    """
+    if not isinstance(raw, list):
+        return None, f"{context}가 list가 아닙니다: {type(raw)!r}"
+    if len(raw) == 0:
+        return None, f"{context}가 비어 있습니다."
+    if expected_length is not None and len(raw) != expected_length:
+        return None, f"{context} 길이가 기대와 다릅니다: {len(raw)} (기대={expected_length})"
+
+    result: list[dict[str, float]] = []
+    for idx, item in enumerate(raw):
+        validated, reason = validate_joint_dict(item, context=f"{context}[{idx}]")
+        if validated is None:
+            return None, reason
+        result.append(validated)
     return result, None

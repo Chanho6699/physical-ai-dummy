@@ -1,0 +1,541 @@
+{
+  "scenes": [
+    {
+      "scene": "T01",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real hardware Shadow capture (run_shadow_mode.py against live SO-101).",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.2,
+      "median3_clamp_free_rate": 0.11228070175438597,
+      "median5_clamp_free_rate": 0.06179050567595459,
+      "resample3_clamp_free_rate": 0.51475,
+      "resample5_clamp_free_rate": 0.7192,
+      "single_gt_l2_mean": 4.616692155300019,
+      "resample3_gt_l2_mean": 3.1035668492470316,
+      "resample5_gt_l2_mean": 3.308483687435423,
+      "resample3_avg_inference": 2.4282,
+      "resample5_avg_inference": 3.2837,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.45,
+        "elbow_flex": 0.75,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.966823758135785,
+        "shoulder_lift": 5.1273517063685885,
+        "elbow_flex": -7.08021777645572,
+        "wrist_flex": 0.6643664663964571,
+        "wrist_roll": 0.42446896872677603,
+        "gripper": 0.6804021467744604
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8663931641498636,
+        "shoulder_lift": 3.0132877030260365,
+        "elbow_flex": 2.303187076858453,
+        "wrist_flex": 0.9319978307885665,
+        "wrist_roll": 0.15732250029480144,
+        "gripper": 0.5650696262976422
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.217054168253552
+      },
+      "reference_observation_label": "V2_F02"
+    },
+    {
+      "scene": "T02",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (actual follower state + actual workspace/wrist camera), imported from a Windows Downloads folder produced on a different machine. Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'V2_F02', evaluation_mode = 'fixed-scene-repeat'. This matches T01's own fixed scene (V2_F02, fixed-scene-repeat), NOT a spatially distinct held-out position - i.e. despite the T02..T10 folder naming, this capture is a real-hardware repeat of T01's scene, not a different scene geometry. See the actual T01-T10 summary report for the full discussion and its effect on the synthetic-vs-actual comparison.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.2,
+      "median3_clamp_free_rate": 0.12982456140350876,
+      "median5_clamp_free_rate": 0.0869453044375645,
+      "resample3_clamp_free_rate": 0.5181,
+      "resample5_clamp_free_rate": 0.72435,
+      "single_gt_l2_mean": 4.252323389918198,
+      "resample3_gt_l2_mean": 2.8259137752715393,
+      "resample5_gt_l2_mean": 2.9022312565141344,
+      "resample3_avg_inference": 2.42585,
+      "resample5_avg_inference": 3.27225,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.5,
+        "elbow_flex": 0.7,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.2029139571137481,
+        "shoulder_lift": 5.721203940255307,
+        "elbow_flex": -6.2158512450836465,
+        "wrist_flex": 0.6015208548241915,
+        "wrist_roll": 0.27003743491329946,
+        "gripper": 1.1381041636049052
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.7644849839784723,
+        "shoulder_lift": 2.844206503352394,
+        "elbow_flex": 2.106159928542602,
+        "wrist_flex": 0.9198900955026854,
+        "wrist_roll": 0.15150792816883996,
+        "gripper": 0.5323946608615175
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.3042318579841723
+      },
+      "reference_observation_label": "V2_F02"
+    },
+    {
+      "scene": "T03",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (actual follower state + actual workspace/wrist camera), imported from a Windows Downloads folder produced on a different machine. Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'V2_F02', evaluation_mode = 'fixed-scene-repeat'. This matches T01's own fixed scene (V2_F02, fixed-scene-repeat), NOT a spatially distinct held-out position - i.e. despite the T02..T10 folder naming, this capture is a real-hardware repeat of T01's scene, not a different scene geometry. See the actual T01-T10 summary report for the full discussion and its effect on the synthetic-vs-actual comparison.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.15,
+      "median3_clamp_free_rate": 0.07719298245614035,
+      "median5_clamp_free_rate": 0.039538183694530445,
+      "resample3_clamp_free_rate": 0.4099,
+      "resample5_clamp_free_rate": 0.60345,
+      "single_gt_l2_mean": 4.793145809953952,
+      "resample3_gt_l2_mean": 3.0294847917244794,
+      "resample5_gt_l2_mean": 3.129361047862698,
+      "resample3_avg_inference": 2.5621,
+      "resample5_avg_inference": 3.63605,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.55,
+        "elbow_flex": 0.75,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -1.2696637206025176,
+        "shoulder_lift": 5.847873251778745,
+        "elbow_flex": -6.937120852627592,
+        "wrist_flex": 0.7852807348901095,
+        "wrist_roll": 0.40860667071499623,
+        "gripper": 0.6378584971009985
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8275609807287525,
+        "shoulder_lift": 2.993109293709152,
+        "elbow_flex": 2.225191672345548,
+        "wrist_flex": 0.9052635166000486,
+        "wrist_roll": 0.15421698591030453,
+        "gripper": 0.5425094794926073
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.3042318579841723
+      },
+      "reference_observation_label": "V2_F02"
+    },
+    {
+      "scene": "T04",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (actual follower state + actual workspace/wrist camera), imported from a Windows Downloads folder produced on a different machine. Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'V2_F02', evaluation_mode = 'fixed-scene-repeat'. This matches T01's own fixed scene (V2_F02, fixed-scene-repeat), NOT a spatially distinct held-out position - i.e. despite the T02..T10 folder naming, this capture is a real-hardware repeat of T01's scene, not a different scene geometry. See the actual T01-T10 summary report for the full discussion and its effect on the synthetic-vs-actual comparison.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.25,
+      "median3_clamp_free_rate": 0.16666666666666666,
+      "median5_clamp_free_rate": 0.11326109391124871,
+      "resample3_clamp_free_rate": 0.60825,
+      "resample5_clamp_free_rate": 0.8095,
+      "single_gt_l2_mean": 4.27354444246517,
+      "resample3_gt_l2_mean": 3.2163880547050123,
+      "resample5_gt_l2_mean": 3.4555765425939753,
+      "resample3_avg_inference": 2.29705,
+      "resample5_avg_inference": 2.96345,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.45,
+        "elbow_flex": 0.7,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.2484850935883575,
+        "shoulder_lift": 5.155262701851987,
+        "elbow_flex": -6.26109241024478,
+        "wrist_flex": 0.7184377020531955,
+        "wrist_roll": 0.2705405696407775,
+        "gripper": 1.0341517557679911
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8457043847648021,
+        "shoulder_lift": 3.0324810789763927,
+        "elbow_flex": 2.270321192031051,
+        "wrist_flex": 0.9384284265561281,
+        "wrist_roll": 0.16239761351096227,
+        "gripper": 0.5801360770632306
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.3042318579841723
+      },
+      "reference_observation_label": "V2_F02"
+    },
+    {
+      "scene": "T05",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (actual follower state + actual workspace/wrist camera), imported from a Windows Downloads folder produced on a different machine. Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'V2_F02', evaluation_mode = 'fixed-scene-repeat'. This matches T01's own fixed scene (V2_F02, fixed-scene-repeat), NOT a spatially distinct held-out position - i.e. despite the T02..T10 folder naming, this capture is a real-hardware repeat of T01's scene, not a different scene geometry. See the actual T01-T10 summary report for the full discussion and its effect on the synthetic-vs-actual comparison.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.1,
+      "median3_clamp_free_rate": 0.042105263157894736,
+      "median5_clamp_free_rate": 0.01644736842105263,
+      "resample3_clamp_free_rate": 0.2899,
+      "resample5_clamp_free_rate": 0.4506,
+      "single_gt_l2_mean": 4.772756720745489,
+      "resample3_gt_l2_mean": 2.8821174268594634,
+      "resample5_gt_l2_mean": 3.0176569711516805,
+      "resample3_avg_inference": 2.7012,
+      "resample5_avg_inference": 4.03445,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.65,
+        "elbow_flex": 0.75,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.7651983313508086,
+        "shoulder_lift": 6.269096320016049,
+        "elbow_flex": -6.733232150235014,
+        "wrist_flex": 0.8094935721093478,
+        "wrist_roll": 0.3415568574444274,
+        "gripper": 0.6397160639344946
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8315805582988111,
+        "shoulder_lift": 3.0642474428553452,
+        "elbow_flex": 2.2699203981228933,
+        "wrist_flex": 0.9467385159681593,
+        "wrist_roll": 0.15580063980101538,
+        "gripper": 0.5513880659149332
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.3042318579841723
+      },
+      "reference_observation_label": "V2_F02"
+    },
+    {
+      "scene": "T06",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (actual follower state + actual workspace/wrist camera), imported from a Windows Downloads folder produced on a different machine. Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'V2_F02', evaluation_mode = 'fixed-scene-repeat'. This matches T01's own fixed scene (V2_F02, fixed-scene-repeat), NOT a spatially distinct held-out position - i.e. despite the T02..T10 folder naming, this capture is a real-hardware repeat of T01's scene, not a different scene geometry. See the actual T01-T10 summary report for the full discussion and its effect on the synthetic-vs-actual comparison.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.2,
+      "median3_clamp_free_rate": 0.10877192982456141,
+      "median5_clamp_free_rate": 0.05869453044375645,
+      "resample3_clamp_free_rate": 0.51475,
+      "resample5_clamp_free_rate": 0.7192,
+      "single_gt_l2_mean": 4.57369939637701,
+      "resample3_gt_l2_mean": 3.189041906529383,
+      "resample5_gt_l2_mean": 3.3989717517086735,
+      "resample3_avg_inference": 2.4282,
+      "resample5_avg_inference": 3.2837,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.5,
+        "elbow_flex": 0.75,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.5329813055939727,
+        "shoulder_lift": 5.987520645476965,
+        "elbow_flex": -6.303907427944975,
+        "wrist_flex": 1.00791085421384,
+        "wrist_roll": 0.29914526782192985,
+        "gripper": 0.9660570253907939
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8107355312294369,
+        "shoulder_lift": 3.011270425183196,
+        "elbow_flex": 2.244889825383382,
+        "wrist_flex": 0.9667845118420887,
+        "wrist_roll": 0.15683606374745104,
+        "gripper": 0.5580428479193307
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.2755438857674424
+      },
+      "reference_observation_label": "V2_F02"
+    },
+    {
+      "scene": "T07",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (actual follower state + actual workspace/wrist camera), imported from a Windows Downloads folder produced on a different machine. Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'V2_F02', evaluation_mode = 'fixed-scene-repeat'. This matches T01's own fixed scene (V2_F02, fixed-scene-repeat), NOT a spatially distinct held-out position - i.e. despite the T02..T10 folder naming, this capture is a real-hardware repeat of T01's scene, not a different scene geometry. See the actual T01-T10 summary report for the full discussion and its effect on the synthetic-vs-actual comparison.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.2,
+      "median3_clamp_free_rate": 0.11228070175438597,
+      "median5_clamp_free_rate": 0.06179050567595459,
+      "resample3_clamp_free_rate": 0.51475,
+      "resample5_clamp_free_rate": 0.7192,
+      "single_gt_l2_mean": 4.459920996196976,
+      "resample3_gt_l2_mean": 3.0671945373094593,
+      "resample5_gt_l2_mean": 3.259313316276352,
+      "resample3_avg_inference": 2.4282,
+      "resample5_avg_inference": 3.2837,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.45,
+        "elbow_flex": 0.75,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.6512953810639435,
+        "shoulder_lift": 5.5324898227230594,
+        "elbow_flex": -6.602547869839507,
+        "wrist_flex": 1.0502993887597385,
+        "wrist_roll": 0.25732762656369007,
+        "gripper": 0.7607956041871802
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8169317768441786,
+        "shoulder_lift": 2.9730730711847775,
+        "elbow_flex": 2.219888167149174,
+        "wrist_flex": 0.9480084047773316,
+        "wrist_roll": 0.16017427157270123,
+        "gripper": 0.5486420630444976
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.2755438857674424
+      },
+      "reference_observation_label": "V2_F02"
+    },
+    {
+      "scene": "T08",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (actual follower state + actual workspace/wrist camera), imported from a Windows Downloads folder produced on a different machine. Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'V2_F02', evaluation_mode = 'fixed-scene-repeat'. This matches T01's own fixed scene (V2_F02, fixed-scene-repeat), NOT a spatially distinct held-out position - i.e. despite the T02..T10 folder naming, this capture is a real-hardware repeat of T01's scene, not a different scene geometry. See the actual T01-T10 summary report for the full discussion and its effect on the synthetic-vs-actual comparison.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.2,
+      "median3_clamp_free_rate": 0.11228070175438597,
+      "median5_clamp_free_rate": 0.06179050567595459,
+      "resample3_clamp_free_rate": 0.51475,
+      "resample5_clamp_free_rate": 0.7192,
+      "single_gt_l2_mean": 4.178452233329731,
+      "resample3_gt_l2_mean": 2.8855485111946657,
+      "resample5_gt_l2_mean": 3.120459073555128,
+      "resample3_avg_inference": 2.4282,
+      "resample5_avg_inference": 3.2837,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.45,
+        "elbow_flex": 0.75,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.18747395421122431,
+        "shoulder_lift": 5.458722351409582,
+        "elbow_flex": -6.3722839690826705,
+        "wrist_flex": 0.7984536474877657,
+        "wrist_roll": 0.37947175345577994,
+        "gripper": 0.5002028097688452
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.7931219696668746,
+        "shoulder_lift": 3.002690613337354,
+        "elbow_flex": 2.2300815992177734,
+        "wrist_flex": 0.9217207371149908,
+        "wrist_roll": 0.15465861476756726,
+        "gripper": 0.5224105966752365
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.187223058052116
+      },
+      "reference_observation_label": "V2_F02"
+    },
+    {
+      "scene": "T09",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (actual follower state + actual workspace/wrist camera), imported from a Windows Downloads folder produced on a different machine. Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'V2_F02', evaluation_mode = 'fixed-scene-repeat'. This matches T01's own fixed scene (V2_F02, fixed-scene-repeat), NOT a spatially distinct held-out position - i.e. despite the T02..T10 folder naming, this capture is a real-hardware repeat of T01's scene, not a different scene geometry. See the actual T01-T10 summary report for the full discussion and its effect on the synthetic-vs-actual comparison.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.45,
+      "median3_clamp_free_rate": 0.42105263157894735,
+      "median5_clamp_free_rate": 0.3955108359133127,
+      "resample3_clamp_free_rate": 0.86035,
+      "resample5_clamp_free_rate": 0.97085,
+      "single_gt_l2_mean": 4.009280911833921,
+      "resample3_gt_l2_mean": 3.153235430923938,
+      "resample5_gt_l2_mean": 3.2077477084931965,
+      "resample3_avg_inference": 1.82505,
+      "resample5_avg_inference": 2.0295,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.35,
+        "elbow_flex": 0.55,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": -0.5922588243589295,
+        "shoulder_lift": 4.723934982635169,
+        "elbow_flex": -5.7181595183990765,
+        "wrist_flex": 1.0372231787377657,
+        "wrist_roll": 0.21299538455166617,
+        "gripper": 0.9266257395326394
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.8125687905677896,
+        "shoulder_lift": 2.916949442805616,
+        "elbow_flex": 2.1766202435233972,
+        "wrist_flex": 0.9501290066088214,
+        "wrist_roll": 0.1529157127599617,
+        "gripper": 0.5521413316099029
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.187223058052116
+      },
+      "reference_observation_label": "V2_F02"
+    },
+    {
+      "scene": "T10",
+      "synthetic": false,
+      "data_kind": "real_hardware",
+      "provenance_note": "Real SO-101 hardware Shadow capture (actual follower state + actual workspace/wrist camera), imported from a Windows Downloads folder produced on a different machine. Only observation.camera_frame_paths was rewritten here (source paths pointed at the capture machine's own filesystem and do not exist in this repo/session) - every other field is verbatim from the source shadow.json (see shadow_raw.json in this same directory for the untouched original). Source shadow.json scene_metadata.label = 'V2_F02', evaluation_mode = 'fixed-scene-repeat'. This matches T01's own fixed scene (V2_F02, fixed-scene-repeat), NOT a spatially distinct held-out position - i.e. despite the T02..T10 folder naming, this capture is a real-hardware repeat of T01's scene, not a different scene geometry. See the actual T01-T10 summary report for the full discussion and its effect on the synthetic-vs-actual comparison.",
+      "n_seeds": 20,
+      "single_clamp_free_rate": 0.1,
+      "median3_clamp_free_rate": 0.03684210526315789,
+      "median5_clamp_free_rate": 0.012770897832817337,
+      "resample3_clamp_free_rate": 0.2899,
+      "resample5_clamp_free_rate": 0.4506,
+      "single_gt_l2_mean": 4.61118630804416,
+      "resample3_gt_l2_mean": 2.9115681152790835,
+      "resample5_gt_l2_mean": 3.0522552922027515,
+      "resample3_avg_inference": 2.7012,
+      "resample5_avg_inference": 4.03445,
+      "per_joint_clamp_rate": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.7,
+        "elbow_flex": 0.75,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "per_joint_mean_delta": {
+        "shoulder_pan": 0.45730181788350227,
+        "shoulder_lift": 6.326236770965247,
+        "elbow_flex": -6.383732638516264,
+        "wrist_flex": 0.8273816412621798,
+        "wrist_roll": 0.22982044062771595,
+        "gripper": 1.0618061174928446
+      },
+      "per_joint_std_delta": {
+        "shoulder_pan": 0.7896620874549347,
+        "shoulder_lift": 2.884941657066002,
+        "elbow_flex": 2.147352128574513,
+        "wrist_flex": 0.9372302472724258,
+        "wrist_roll": 0.15319147119495652,
+        "gripper": 0.5466202876016684
+      },
+      "nearest_demo_match": {
+        "episode": 33,
+        "frame": 25,
+        "l2_dist_deg": 2.187223058052116
+      },
+      "reference_observation_label": "V2_F02"
+    }
+  ],
+  "overall": {
+    "n_scenes": 10,
+    "avg_single_clamp_free_rate": 0.20500000000000002,
+    "avg_median3_clamp_free_rate": 0.1319298245614035,
+    "avg_median5_clamp_free_rate": 0.09085397316821466,
+    "avg_resample3_clamp_free_rate": 0.50354,
+    "avg_resample5_clamp_free_rate": 0.688615,
+    "avg_single_gt_l2_mean": 4.454100236416463,
+    "avg_resample3_gt_l2_mean": 3.0264059399044054,
+    "avg_resample5_gt_l2_mean": 3.185205664779401,
+    "avg_resample3_avg_inference": 2.422525,
+    "avg_resample5_avg_inference": 3.3104950000000004,
+    "single_worst_scene": {
+      "scene": "T05",
+      "single_clamp_free_rate": 0.1
+    },
+    "single_best_scene": {
+      "scene": "T09",
+      "single_clamp_free_rate": 0.45
+    },
+    "resample3_worst_scene": {
+      "scene": "T05",
+      "resample3_clamp_free_rate": 0.2899
+    },
+    "resample3_best_scene": {
+      "scene": "T09",
+      "resample3_clamp_free_rate": 0.86035
+    },
+    "resample5_worst_scene": {
+      "scene": "T05",
+      "resample5_clamp_free_rate": 0.4506
+    },
+    "resample5_best_scene": {
+      "scene": "T09",
+      "resample5_clamp_free_rate": 0.97085
+    },
+    "per_joint_avg_clamp_rate": {
+      "shoulder_pan": 0.0,
+      "shoulder_lift": 0.505,
+      "elbow_flex": 0.72,
+      "wrist_flex": 0.0,
+      "wrist_roll": 0.0,
+      "gripper": 0.0
+    },
+    "per_joint_max_clamp_rate_scene": {
+      "shoulder_pan": "T10",
+      "shoulder_lift": "T10",
+      "elbow_flex": "T10",
+      "wrist_flex": "T10",
+      "wrist_roll": "T10",
+      "gripper": "T10"
+    },
+    "per_joint_max_clamp_rate_value": {
+      "shoulder_pan": 0.0,
+      "shoulder_lift": 0.7,
+      "elbow_flex": 0.75,
+      "wrist_flex": 0.0,
+      "wrist_roll": 0.0,
+      "gripper": 0.0
+    }
+  },
+  "conclusions": {
+    "q1_repeats": "**Yes, it repeats across all 10 scenes.** Every scene (T01-T10) shows the same pattern T01 first surfaced: re-running the identical frozen checkpoint against the identical fixed observation, varying only the flow-matching RNG seed (0..19), swings chunk-index-0 between WOULD_CLAMP and clean. Single-sample clamp-free rate ranges from 10% (T05) to 45% (T09) - never close to 0% or 100%, i.e. never a scene where the seed choice stops mattering. 10/10 scenes have single-sample clamp-free rate below 60%. This is a property of the checkpoint's flow-matching noise sensitivity at this training step (007500), not an artifact specific to T01's particular reference state.",
+    "q2_generalizes": "**Yes, directionally, on every scene** - safety-pass resampling raises the clamp-free rate over the single-sample baseline in all 10/10 scenes at both cap=3 and cap=5, and resample5 clamp-free rate is always >= resample3's (monotonic improvement with cap, as expected since cap=5 draws are a strict superset of cap=3's same permutation prefix). Average clamp-free rate: single 20.5% -> resample3 50.4% -> resample5 68.9%. However the *magnitude* of the benefit is scene-dependent: 1/10 scenes reach >=95% clamp-free at cap=5, but 8/10 stay below 80% (worst: T05 45.1%, T10 45.1%). GT L2 also improves alongside clamp-free rate in every scene (resample5 mean L2 < single-sample mean L2 in all 10 scenes), consistent with T01. Per-joint, shoulder_lift (avg clamp rate 50%) and elbow_flex (avg clamp rate 72%) remain the two joints that clamp by far the most often across every scene, matching T01's finding - the mitigation generalizes to the same failure mode, not a T01-specific one. The 3/5-sample median strategy does **not** generalize as a fix: in T06/T07/T08/T09 it actually *lowers* clamp-free rate below the single-sample baseline (same qualitative failure T01 already flagged) - retained here only as a reference point, not a candidate.",
+    "q3_adopt_cap5": "**Conditionally, not unconditionally.** Resample<=5 is a clear, consistent improvement over both single-sample and median on every one of the 10 scenes tested, its stopping rule is deploy-time-realistic (WOULD_CLAMP status only, no GT), and its cost is adaptive (avg 3.31 inference calls across scenes, not a fixed 5x tax). That supports adopting it as the Shadow-runtime mitigation candidate. But the residual failure rate at cap=5 is not uniformly small: T05 54.9%, T10 54.9% still fail to find a clamp-free draw within 5 attempts, meaning on those scenes the Safety Gate would still end up clipping roughly 1 in 3-to-2.5 real runs even with resampling active. Before treating resample<=5 as sufficient on its own, either (a) raise the cap for scenes with low observed clamp-free base rates, or (b) treat resample<=5's residual failure rate as an accepted, monitored Safety-Gate-clip rate rather than a solved problem. It should not be adopted repo-wide as a single fixed cap without per-scene validation - the cap=3 vs cap=5 gap itself varies by scene (see the comparison table): a cap tuned to T09's easy behavior (all >=95% clamp-free at cap=5) would under-serve T05/T10/T03/T01/T06/T07/T08/T02 (all <80% clamp-free at cap=5).",
+    "q4_retrain_needed": "**Yes - T05/T10/T03/T06/T07/T08/T02 in particular** (plus T01, which already triggered this whole investigation) have a single-sample clamp-free rate at or below 20% - a materially thinner safe-seed pool than the other scenes (T05 10%, T10 10%, T03 15%, T01 20%, T06 20%, T07 20%, T08 20%, T02 20%, vs the T01-T10 average of 20.5%), and resample5 still leaves T05 54.9%, T10 54.9%, T03 39.7%, T01 28.1%, T06 28.1%, T07 28.1%, T08 28.1%, T02 27.6% residual failure rate respectively. The signal is not uniform across this group, though: T05/T10/T03/T01/T06/T07 also have above-average checkpoint GT-L2 error (T05 4.77 deg, T10 4.61 deg, T03 4.79 deg, T01 4.62 deg, T06 4.57 deg, T07 4.46 deg vs the T01-T10 average of 4.45 deg) - i.e. for T05/T10/T03/T01/T06/T07, resampling more is fighting a checkpoint that is *also* less accurate at that scene geometry, not just noisier, which is the stronger checkpoint/training-data-review signal (does the training grid have thin coverage there?). T08/T02 are the counterexample: its GT-L2 (4.18 deg, 4.25 deg) is *below* the T01-T10 average despite the thin safe-seed pool, so a thin pool alone does not always imply a systematically-off policy - only when it co-occurs with above-average GT-L2 (as for T05/T10/T03/T01/T06/T07) is checkpoint/training-data review clearly warranted over pure sampling-based mitigation."
+  }
+}

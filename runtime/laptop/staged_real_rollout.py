@@ -124,6 +124,16 @@ class StagedStepResult:
     fresh_inference: bool | None  # True: reset이 이 step에서 predict 직전 성공 -> select_action()이
     # 큐가 비어있음을 보장받은 상태에서 이번 obs_t로 새 chunk를 추론했음(계약상 100% 보장, 관측/재추론
     # 결과가 아니라 reset->predict 순서 자체에서 유도됨). None = reset을 시도조차 못 함.
+    # -- Phase B latency 계측 진단 필드 (2026-08 closed-loop latency 분석 요구사항) --------
+    # 이 4개는 모두 이 프로세스 안에서 ``time.monotonic()``으로 직접 감싼 wall-clock 구간이다
+    # (Desktop이 자체 보고하는 predict_*_latency_ms와 달리, 이 필드들은 해당 호출이 시작된
+    # 시점부터 반환될 때까지를 이 파일이 직접 측정한다). 카메라/state/write는 실물
+    # 하드웨어(USB 카메라/시리얼 버스)에 의존하므로, Fake/offline 경로에서는 항상 0에 가까운
+    # 값만 나온다 - 실제 hardware-bound 값은 다음 real staged run에서만 얻을 수 있다.
+    camera_capture_latency_ms: float | None  # camera_source.capture_all() 소요 시간
+    state_read_latency_ms: float | None  # state_source.read() 소요 시간
+    safety_gate_latency_ms: float | None  # safety_gate.evaluate() 소요 시간 (순수 in-process 연산)
+    write_latency_ms: float | None  # writer.write_action_once() 소요 시간 (post_write_settle_s 대기는 제외)
 
     def to_dict(self) -> dict:
         return {
@@ -147,6 +157,10 @@ class StagedStepResult:
             "predict_inference_latency_ms": self.predict_inference_latency_ms,
             "predict_request_latency_ms": self.predict_request_latency_ms,
             "fresh_inference": self.fresh_inference,
+            "camera_capture_latency_ms": self.camera_capture_latency_ms,
+            "state_read_latency_ms": self.state_read_latency_ms,
+            "safety_gate_latency_ms": self.safety_gate_latency_ms,
+            "write_latency_ms": self.write_latency_ms,
         }
 
 
@@ -226,6 +240,8 @@ class StagedRealRolloutRunner:
             reset_ok: bool | None = None,
             reset_error: str | None = None,
             reset_latency_ms: float | None = None,
+            camera_latency_ms: float | None = None,
+            state_latency_ms: float | None = None,
         ) -> tuple[StagedStepResult, bool, str]:
             return (
                 StagedStepResult(
@@ -237,21 +253,39 @@ class StagedRealRolloutRunner:
                     session_reset_latency_ms=reset_latency_ms,
                     predict_inference_latency_ms=None, predict_request_latency_ms=None,
                     fresh_inference=False if reset_ok is False else None,
+                    camera_capture_latency_ms=camera_latency_ms, state_read_latency_ms=state_latency_ms,
+                    safety_gate_latency_ms=None, write_latency_ms=None,
                 ),
                 True,
                 reason,
             )
 
-        # -- 1. 관측 (read-only) --------------------------------------------------------
+        # -- 1. 관측 (read-only) - camera/state 각각 개별 계측 ------------------------------
+        camera_t0 = time.monotonic()
         try:
             camera_frames = self._camera_source.capture_all()
+        except Exception as exc:  # noqa: BLE001
+            return _early_stop(
+                f"observation read 실패(camera): {exc}", camera_latency_ms=(time.monotonic() - camera_t0) * 1000.0
+            )
+        camera_latency_ms = (time.monotonic() - camera_t0) * 1000.0
+
+        state_t0 = time.monotonic()
+        try:
             state_snapshot = self._state_source.read()
         except Exception as exc:  # noqa: BLE001
-            return _early_stop(f"observation read 실패: {exc}")
+            return _early_stop(
+                f"observation read 실패(state): {exc}", camera_latency_ms=camera_latency_ms,
+                state_latency_ms=(time.monotonic() - state_t0) * 1000.0,
+            )
+        state_latency_ms = (time.monotonic() - state_t0) * 1000.0
 
         built: BuiltObservation = build_observation(state_snapshot=state_snapshot, camera_frames=camera_frames)
         if not built.schema_valid:
-            return _early_stop(f"관측 스키마가 유효하지 않습니다: {built.invalid_reasons}")
+            return _early_stop(
+                f"관측 스키마가 유효하지 않습니다: {built.invalid_reasons}",
+                camera_latency_ms=camera_latency_ms, state_latency_ms=state_latency_ms,
+            )
 
         before_state = dict(built.state)
         session_id = f"staged-{i}"
@@ -269,13 +303,15 @@ class StagedRealRolloutRunner:
             return _early_stop(
                 f"VLA session_reset 실패 (fail-closed - predict/write 진행 안 함): {exc}",
                 before=before_state, reset_ok=False, reset_error=str(exc), reset_latency_ms=reset_latency_ms,
+                camera_latency_ms=camera_latency_ms, state_latency_ms=state_latency_ms,
             )
         reset_latency_ms = (time.monotonic() - reset_t0) * 1000.0
         if not reset_ok:
             return _early_stop(
                 "VLA session_reset이 실패를 반환했습니다(ok=False) - fail-closed, predict/write 진행 안 함",
                 before=before_state, reset_ok=False, reset_error="session_reset() returned ok=False",
-                reset_latency_ms=reset_latency_ms,
+                reset_latency_ms=reset_latency_ms, camera_latency_ms=camera_latency_ms,
+                state_latency_ms=state_latency_ms,
             )
 
         # -- 3. VLA 추론 (reset 직후이므로 policy queue가 비어있음이 보장됨 -> 이번 obs_t로 -----
@@ -288,6 +324,7 @@ class StagedRealRolloutRunner:
             return _early_stop(
                 f"VLA {predict.error_kind} 오류: {predict.error_message}", before=before_state,
                 reset_ok=True, reset_error=None, reset_latency_ms=reset_latency_ms,
+                camera_latency_ms=camera_latency_ms, state_latency_ms=state_latency_ms,
             )
         fresh_inference = True  # 위 reset이 이 predict 직전에 성공했으므로 계약상 100% 보장됨.
 
@@ -302,23 +339,30 @@ class StagedRealRolloutRunner:
                 session_reset_ok=True, session_reset_error=None, session_reset_latency_ms=reset_latency_ms,
                 predict_inference_latency_ms=predict.inference_latency_ms,
                 predict_request_latency_ms=predict.request_latency_ms, fresh_inference=fresh_inference,
+                camera_capture_latency_ms=camera_latency_ms, state_read_latency_ms=state_latency_ms,
+                safety_gate_latency_ms=None, write_latency_ms=None,
             )
             return step, True, f"Action Adapter 검증 실패: {adapted.invalid_reason}"
 
-        # -- 5. Safety Gate (변경 없음) ------------------------------------------------------
+        # -- 5. Safety Gate (변경 없음, 계측만 추가) ------------------------------------------
+        safety_t0 = time.monotonic()
         decision: SafetyDecision = self._safety_gate.evaluate(
             adapted_action=adapted, current_state_deg=before_state, observation_valid=True
         )
+        safety_gate_latency_ms = (time.monotonic() - safety_t0) * 1000.0
 
         written = False
         sent_action_deg: dict[str, float] | None = None
         after_state_deg: dict[str, float] | None = None
         delta_deg: dict[str, float] | None = None
         write_error: str | None = None
+        write_latency_ms: float | None = None
 
         if decision.decision == "ACCEPT":
             assert decision.safe_action is not None
+            write_t0 = time.monotonic()
             result = self._writer.write_action_once(decision.safe_action)
+            write_latency_ms = (time.monotonic() - write_t0) * 1000.0
             written = result.executed
             sent_action_deg = result.sent_action_deg
             write_error = result.error
@@ -340,6 +384,8 @@ class StagedRealRolloutRunner:
             session_reset_ok=True, session_reset_error=None, session_reset_latency_ms=reset_latency_ms,
             predict_inference_latency_ms=predict.inference_latency_ms,
             predict_request_latency_ms=predict.request_latency_ms, fresh_inference=fresh_inference,
+            camera_capture_latency_ms=camera_latency_ms, state_read_latency_ms=state_latency_ms,
+            safety_gate_latency_ms=safety_gate_latency_ms, write_latency_ms=write_latency_ms,
         )
 
         if decision.decision != "ACCEPT":
