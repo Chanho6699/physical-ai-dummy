@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from runtime.common.vla_contract import JOINT_ORDER
-from runtime.laptop.action_adapter import AdaptedAction
+from runtime.laptop.action_adapter import AdaptedAction, adapt_vla_action
 from runtime.laptop.safety_gate import (
     RANGE_SOURCE_FALLBACK_CONFIG,
     RANGE_SOURCE_GRIPPER_CONVENTION,
@@ -234,6 +234,67 @@ def test_load_excessive_step_config_valid(tmp_path: Path) -> None:
 # 실제 grid35 checkpoint 010000 REJECT 원인 재현 - 회귀 방지용 (요구사항 4번 분석의 핵심
 # 발견을 코드로 고정한다: ground-truth demonstration은 gross 위반이 없어야 한다).
 # ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# gripper tiny-negative normalization x Safety Gate 통합 회귀 (2026-08 실물 Stage 3 조사
+# 근거 - runtime/laptop/action_adapter.py 모듈 docstring 참고). Action Adapter의 tiny
+# negative normalization이 Safety Gate 자체의 판정(mechanical limit/excessive step/gross
+# reject)에 영향을 주지 않는지 확인한다 - Safety Gate 코드는 이 요구사항에서 수정되지
+# 않았다.
+# ---------------------------------------------------------------------------
+
+
+def test_tiny_negative_gripper_normalized_by_adapter_then_accepted_by_safety_gate() -> None:
+    """실물 Stage 3 재현: gripper raw action=-0.025는 adapter에서 0.0으로 정규화되고,
+    그 결과 Safety Gate에는 gripper=0.0으로 도달해 (다른 관절이 전부 정상이면) ACCEPT된다 -
+    더 이상 gripper 하나 때문에 6관절 전체 write가 막히지 않는다."""
+    raw_action = _current_state(0.0)
+    raw_action["gripper"] = -0.025
+    adapted = adapt_vla_action(raw_action)
+    assert adapted.valid is True
+    assert adapted.command_deg["gripper"] == 0.0
+
+    decision = _gate().evaluate(adapted_action=adapted, current_state_deg=_current_state(0.0), observation_valid=True)
+    assert decision.decision == "ACCEPT"
+    assert decision.safe_action["gripper"] == 0.0
+
+
+def test_moderate_negative_gripper_not_normalized_and_still_would_clamp() -> None:
+    """gripper=-0.3(Candidate B negative prediction의 median 근방)은 adapter를 그대로
+    통과해 Safety Gate에 -0.3으로 도달해야 하고, Safety Gate는 지금까지와 동일하게
+    MECHANICAL_LIMIT_CLAMPED로 WOULD_CLAMP를 반환해야 한다 - tolerance로 삼켜지면 안 된다."""
+    raw_action = _current_state(0.0)
+    raw_action["gripper"] = -0.3
+    adapted = adapt_vla_action(raw_action)
+    assert adapted.valid is True
+    assert adapted.command_deg["gripper"] == -0.3  # 정규화되지 않고 그대로 유지되어야 함
+
+    decision = _gate().evaluate(adapted_action=adapted, current_state_deg=_current_state(0.0), observation_valid=True)
+    assert decision.decision == "WOULD_CLAMP"
+    assert any("MECHANICAL_LIMIT_CLAMPED" in r for r in decision.reasons)
+    assert decision.safe_action["gripper"] == 0.0
+
+
+def test_gripper_normalization_does_not_change_arm_excessive_step_behavior() -> None:
+    """gripper tiny-negative normalization이 같은 action 벡터 안의 arm excessive-step
+    판정에 어떤 영향도 주면 안 된다 - wrist_flex의 EXCESSIVE_STEP_CLAMPED 동작은
+    test_would_clamp_on_excessive_step()과 동일하게 유지되어야 한다."""
+    raw_action = _current_state(0.0)
+    raw_action["wrist_flex"] = 8.0  # test_would_clamp_on_excessive_step()과 동일한 값
+    raw_action["gripper"] = -0.025  # 같은 step에 tiny-negative gripper가 섞여 있어도
+
+    adapted = adapt_vla_action(raw_action)
+    assert adapted.command_deg["gripper"] == 0.0
+    assert adapted.command_deg["wrist_flex"] == 8.0  # arm 관절은 adapter에서 전혀 변경되지 않음
+
+    decision = _gate().evaluate(adapted_action=adapted, current_state_deg=_current_state(0.0), observation_valid=True)
+    assert decision.decision == "WOULD_CLAMP"
+    assert decision.safe_action["wrist_flex"] == MAX_STEP
+    assert any("EXCESSIVE_STEP_CLAMPED" in r for r in decision.reasons)
+    # gripper 자체는 정규화된 0.0이 range/step 양쪽 다 문제없어 clamp 사유가 없어야 한다.
+    assert decision.per_joint["gripper"].clamped is False
+    assert decision.per_joint["gripper"].safe_value == 0.0
 
 
 def test_repo_default_gross_step_threshold_does_not_flag_typical_demo_sized_step() -> None:
