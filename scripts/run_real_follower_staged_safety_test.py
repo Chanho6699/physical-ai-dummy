@@ -297,7 +297,7 @@ def main(argv: list[str] | None = None) -> int:
         require_interactive_confirmation()  # 이 try 블록 안이어야 잘못된 문구 입력도 깔끔하게 처리된다
 
         # 여기서부터만 하드웨어/lerobot 관련 모듈을 import한다 (dry-run 경로는 여기 절대 안 옴).
-        from lerobot.robots.so_follower import SOFollower, SOFollowerConfig
+        from lerobot.robots.so_follower import SO101FollowerConfig, SOFollower
 
         # CameraSourceError/FollowerStateSourceError는 이미 파일 최상단에서 import했다 -
         # 여기서 다시 import하면 (설령 같은 이름이라도) 이 함수 전체에서 그 이름이 지역
@@ -353,7 +353,7 @@ def main(argv: list[str] | None = None) -> int:
                 "실제 캘리브레이션 파일이 있는지 다시 확인하는 것을 강력히 권장합니다."
             )
 
-        follower_config = SOFollowerConfig(
+        follower_config = SO101FollowerConfig(
             port=args.follower_port, id=args.follower_id, cameras={}, disable_torque_on_disconnect=True,
         )
         follower = SOFollower(follower_config)
