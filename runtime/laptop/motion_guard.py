@@ -278,3 +278,169 @@ def _clamp(value: float, limit: float) -> float:
     if value < -limit:
         return -limit
     return value
+
+
+@dataclass(frozen=True)
+class CoordinatedGuardState:
+    """State shared by the six-axis trajectory-level motion guard."""
+
+    positions: dict[str, float]
+    velocities: dict[str, float]
+    accelerations: dict[str, float]
+    phase_scale: float = 1.0
+
+
+DEFAULT_TRACKING_LEAD_LIMITS: dict[str, float] = {
+    # Conservative first deployment envelope.  Elbow/lift use the largest
+    # characterized isolated step; these are command leads, not raw-target limits.
+    "shoulder_pan": 2.0,
+    "shoulder_lift": 2.0,
+    "elbow_flex": 2.0,
+    "wrist_flex": 2.0,
+    "wrist_roll": 2.0,
+    "gripper": 3.0,
+}
+DEFAULT_LAG_SOFT_FRACTION = 0.70
+DEFAULT_PHASE_RECOVERY_PER_S = 2.0
+
+
+def apply_coordinated_motion_guard(
+    *,
+    limits_by_joint: dict[str, JointMotionLimits],
+    current_state: dict[str, float],
+    target_now: dict[str, float],
+    target_lookahead: dict[str, float],
+    prev_state: CoordinatedGuardState | None,
+    dt_s: float,
+    correction_time_constant_s: float = DEFAULT_CORRECTION_TIME_CONSTANT_S,
+    tracking_lead_limits: dict[str, float] | None = None,
+    lag_soft_fraction: float = DEFAULT_LAG_SOFT_FRACTION,
+    phase_recovery_per_s: float = DEFAULT_PHASE_RECOVERY_PER_S,
+) -> tuple[dict[str, float], CoordinatedGuardState]:
+    """Advance one virtual 6-D command with one common trajectory time scale.
+
+    The virtual position is initialized from measured encoders, then integrated
+    independently of them. Encoder state is used only to bound tracking lead and
+    reduce the common phase rate. Velocity, acceleration and jerk constraints
+    are intersected as scalar intervals, so normal trajectory progress never
+    independently clips vector components.
+    """
+    import math
+
+    joints = tuple(limits_by_joint)
+    leads = tracking_lead_limits or DEFAULT_TRACKING_LEAD_LIMITS
+    if dt_s <= 0 or not math.isfinite(dt_s):
+        raise MotionGuardError(f"dt_s must be finite and positive: {dt_s}")
+    if correction_time_constant_s <= 0 or not math.isfinite(correction_time_constant_s):
+        raise MotionGuardError("correction_time_constant_s must be finite and positive")
+    if not 0 < lag_soft_fraction < 1 or phase_recovery_per_s <= 0:
+        raise MotionGuardError("invalid lag slowdown configuration")
+    for joint in joints:
+        values = (current_state[joint], target_now[joint], target_lookahead[joint], leads[joint])
+        if not all(math.isfinite(x) for x in values) or leads[joint] <= 0:
+            raise MotionGuardError(f"invalid coordinated guard input for {joint}: {values}")
+
+    if prev_state is None:
+        virtual = {j: float(current_state[j]) for j in joints}
+        previous_velocity = {j: 0.0 for j in joints}
+        previous_acceleration = {j: 0.0 for j in joints}
+        previous_phase_scale = 1.0
+    else:
+        virtual = dict(prev_state.positions)
+        previous_velocity = dict(prev_state.velocities)
+        previous_acceleration = dict(prev_state.accelerations)
+        previous_phase_scale = prev_state.phase_scale
+
+    desired_velocity = {
+        j: (target_lookahead[j] - target_now[j]) / dt_s
+        + (target_now[j] - virtual[j]) / correction_time_constant_s
+        for j in joints
+    }
+
+    lag_scale = 1.0
+    for joint in joints:
+        lag = virtual[joint] - current_state[joint]
+        desired = desired_velocity[joint]
+        # Only trajectory progress that increases existing lag is slowed.
+        if lag * desired <= 0:
+            continue
+        hard = leads[joint]
+        soft = hard * lag_soft_fraction
+        magnitude = abs(lag)
+        if magnitude >= hard:
+            lag_scale = 0.0
+        elif magnitude > soft:
+            lag_scale = min(lag_scale, (hard - magnitude) / (hard - soft))
+
+    if lag_scale < previous_phase_scale:
+        phase_scale = lag_scale
+    else:
+        phase_scale = min(lag_scale, previous_phase_scale + phase_recovery_per_s * dt_s)
+
+    scaled_desired = {j: desired_velocity[j] * phase_scale for j in joints}
+    scalar_lo, scalar_hi = 0.0, 1.0
+
+    def intersect_velocity_interval(desired: float, low: float, high: float) -> None:
+        nonlocal scalar_lo, scalar_hi
+        if abs(desired) < 1e-12:
+            if not low <= 0.0 <= high:
+                scalar_lo, scalar_hi = 1.0, 0.0
+            return
+        a, b = low / desired, high / desired
+        scalar_lo = max(scalar_lo, min(a, b))
+        scalar_hi = min(scalar_hi, max(a, b))
+
+    for joint in joints:
+        motion = limits_by_joint[joint]
+        prev_v = previous_velocity[joint]
+        prev_a = previous_acceleration[joint]
+        low = max(
+            -motion.velocity_limit,
+            prev_v - motion.acceleration_limit * dt_s,
+            prev_v + (prev_a - motion.jerk_limit * dt_s) * dt_s,
+        )
+        high = min(
+            motion.velocity_limit,
+            prev_v + motion.acceleration_limit * dt_s,
+            prev_v + (prev_a + motion.jerk_limit * dt_s) * dt_s,
+        )
+        lag = virtual[joint] - current_state[joint]
+        hard = leads[joint]
+        low = max(low, (-hard - lag) / dt_s)
+        high = min(high, (hard - lag) / dt_s)
+        intersect_velocity_interval(scaled_desired[joint], low, high)
+
+    if scalar_hi >= max(0.0, scalar_lo):
+        common_scale = min(1.0, scalar_hi)
+        next_velocity = {j: scaled_desired[j] * common_scale for j in joints}
+    else:
+        # A sharp direction change can make exact vector scaling temporarily
+        # infeasible. Hold trajectory phase and perform a bounded coordinated
+        # brake; raw-path progress resumes only after the dynamic state permits it.
+        phase_scale = 0.0
+        next_velocity = {}
+        for joint in joints:
+            motion = limits_by_joint[joint]
+            prev_v = previous_velocity[joint]
+            prev_a = previous_acceleration[joint]
+            desired_a = _clamp(-prev_v / dt_s, motion.acceleration_limit)
+            delta_a = _clamp(desired_a - prev_a, motion.jerk_limit * dt_s)
+            next_a = _clamp(prev_a + delta_a, motion.acceleration_limit)
+            velocity = prev_v + next_a * dt_s
+            next_velocity[joint] = _clamp(velocity, motion.velocity_limit)
+
+    next_acceleration = {
+        j: (next_velocity[j] - previous_velocity[j]) / dt_s for j in joints
+    }
+    next_positions = {j: virtual[j] + next_velocity[j] * dt_s for j in joints}
+    for joint in joints:
+        if abs(next_positions[joint] - current_state[joint]) > leads[joint] + 1e-7:
+            raise MotionGuardError(f"tracking lead bound exceeded for {joint}")
+
+    state = CoordinatedGuardState(
+        positions=next_positions,
+        velocities=next_velocity,
+        accelerations=next_acceleration,
+        phase_scale=phase_scale,
+    )
+    return dict(next_positions), state

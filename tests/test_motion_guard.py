@@ -260,3 +260,54 @@ def test_guarded_position_always_bounded_by_velocity_limit_times_dt_from_current
     )
     max_delta = limits.velocity_limit * DT
     assert abs(guarded - current_state) <= max_delta + 1e-9
+
+
+def test_coordinated_guard_preserves_ratio_and_dynamic_limits() -> None:
+    from runtime.laptop.motion_guard import apply_coordinated_motion_guard
+
+    joints = ("shoulder_lift", "elbow_flex")
+    limits = {j: JointMotionLimits(60.0, 600.0, 30000.0) for j in joints}
+    current = {j: 0.0 for j in joints}
+    target = {"shoulder_lift": 20.0, "elbow_flex": -18.0}
+    state = None
+    previous_velocity = {j: 0.0 for j in joints}
+    previous_acceleration = {j: 0.0 for j in joints}
+    for _ in range(300):
+        guarded, state = apply_coordinated_motion_guard(
+            limits_by_joint=limits, current_state=current, target_now=target,
+            target_lookahead=target, prev_state=state, dt_s=DT,
+            tracking_lead_limits={j: 2.0 for j in joints},
+        )
+        for joint in joints:
+            velocity = state.velocities[joint]
+            acceleration = state.accelerations[joint]
+            jerk = (acceleration - previous_acceleration[joint]) / DT
+            assert abs(velocity) <= limits[joint].velocity_limit + 1e-7
+            assert abs(acceleration) <= limits[joint].acceleration_limit + 1e-7
+            assert abs(jerk) <= limits[joint].jerk_limit + 1e-6
+            previous_velocity[joint] = velocity
+            previous_acceleration[joint] = acceleration
+        current = guarded
+    assert guarded["shoulder_lift"] / abs(guarded["elbow_flex"]) == pytest.approx(20 / 18, rel=1e-5)
+
+
+def test_stuck_elbow_cannot_allow_shoulder_only_runaway() -> None:
+    from runtime.laptop.motion_guard import apply_coordinated_motion_guard
+
+    joints = ("shoulder_lift", "elbow_flex")
+    limits = {j: JointMotionLimits(60.0, 600.0, 30000.0) for j in joints}
+    current = {j: 0.0 for j in joints}
+    target = {"shoulder_lift": 20.0, "elbow_flex": -18.0}
+    state = None
+    last_guarded = dict(current)
+    with pytest.raises(MotionGuardError, match="tracking lead bound"):
+        for _ in range(300):
+            last_guarded, state = apply_coordinated_motion_guard(
+                limits_by_joint=limits, current_state=current, target_now=target,
+                target_lookahead=target, prev_state=state, dt_s=DT,
+                tracking_lead_limits={j: 2.0 for j in joints},
+            )
+            current["shoulder_lift"] = last_guarded["shoulder_lift"]
+            # Endpoint elbow intentionally does not respond.
+    assert abs(last_guarded["elbow_flex"]) <= 2.0 + 1e-7
+    assert last_guarded["shoulder_lift"] < 3.0

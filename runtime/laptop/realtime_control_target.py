@@ -57,6 +57,9 @@ from runtime.laptop.motion_guard import (
     JointMotionLimits,
     MotionGuardError,
     apply_joint_motion_guard,
+    apply_coordinated_motion_guard,
+    CoordinatedGuardState,
+    DEFAULT_TRACKING_LEAD_LIMITS,
 )
 from runtime.laptop.safety_gate import SafetyGate
 from runtime.laptop.temporal_ensemble import TemporalEnsembler
@@ -147,6 +150,7 @@ class RealTimeControlTargetGenerator:
         control_hz: float = 60.0,
         lookahead_s: float = 0.0,
         correction_time_constant_s: float = DEFAULT_CORRECTION_TIME_CONSTANT_S,
+        tracking_lead_limits: dict[str, float] | None = None,
     ) -> None:
         if control_hz <= 0:
             raise ValueError(f"control_hz는 양수여야 합니다: {control_hz}")
@@ -162,6 +166,8 @@ class RealTimeControlTargetGenerator:
         self._lookahead_s = lookahead_s
         self._correction_time_constant_s = correction_time_constant_s
         self._guard_states: dict[str, GuardState] = {}
+        self._coordinated_guard_state: CoordinatedGuardState | None = None
+        self._tracking_lead_limits = tracking_lead_limits or DEFAULT_TRACKING_LEAD_LIMITS
         self._last_tick_time_monotonic: float | None = None
 
     @property
@@ -178,6 +184,7 @@ class RealTimeControlTargetGenerator:
         ``_last_tick_time_monotonic``도 함께 지워서 다음 tick의 dt가 nominal
         ``period_s``로 계산되게 한다(변칙적인 큰 dt가 계산되지 않도록)."""
         self._guard_states = {}
+        self._coordinated_guard_state = None
         self._last_tick_time_monotonic = None
         self._intent_validator.reset_history()
 
@@ -192,12 +199,12 @@ class RealTimeControlTargetGenerator:
 
         # -- 1. Stale trajectory fail-safe - 절대 추측/extrapolate 안 함 -------------------
         if not chunks:
-            self._intent_validator.reset_history()
+            self.reset_guard_state()
             return _early_result(target_time=target_time, stop_reason=STOP_REASON_NO_TARGET)
 
         ensembled = self._ensembler.compute_target(chunks, target_time)
         if ensembled is None:
-            self._intent_validator.reset_history()
+            self.reset_guard_state()
             return _early_result(target_time=target_time, stop_reason=STOP_REASON_STALE_TRAJECTORY)
 
         raw_target = ensembled.action
@@ -207,6 +214,9 @@ class RealTimeControlTargetGenerator:
             raw_target_deg=raw_target, current_state_deg=current_follower_state_deg,
         )
         if not intent.valid:
+            self._coordinated_guard_state = None
+            self._guard_states = {}
+            self._last_tick_time_monotonic = None
             return _early_result(
                 target_time=target_time, stop_reason=f"{STOP_REASON_INTENT_PREFIX}{intent.decision}",
                 raw_target=raw_target, contributing_sequences=ensembled.contributing_sequences,
@@ -231,31 +241,34 @@ class RealTimeControlTargetGenerator:
         new_guard_states: dict[str, GuardState] = {}
         try:
             if dt_s <= 0 or not math.isfinite(dt_s):
-                raise MotionGuardError(f"dt_s가 유효하지 않습니다: {dt_s}")
-            for joint in JOINT_ORDER:
-                prev_state = self._guard_states.get(joint, INITIAL_GUARD_STATE)
-                guarded_value, new_state = apply_joint_motion_guard(
-                    limits=self._motion_limits[joint],
-                    current_state=current_follower_state_deg[joint],
-                    target_now=raw_target[joint],
-                    target_lookahead=target_lookahead[joint],
-                    prev_guard_state=prev_state,
-                    dt_s=dt_s,
-                    correction_time_constant_s=self._correction_time_constant_s,
+                raise MotionGuardError(f"dt_s is invalid: {dt_s}")
+            guarded, coordinated_state = apply_coordinated_motion_guard(
+                limits_by_joint=self._motion_limits,
+                current_state=current_follower_state_deg,
+                target_now=raw_target,
+                target_lookahead=target_lookahead,
+                prev_state=self._coordinated_guard_state,
+                dt_s=dt_s,
+                correction_time_constant_s=self._correction_time_constant_s,
+                tracking_lead_limits=self._tracking_lead_limits,
+            )
+            new_guard_states = {
+                joint: GuardState(
+                    velocity=coordinated_state.velocities[joint],
+                    acceleration=coordinated_state.accelerations[joint],
                 )
-                guarded[joint] = guarded_value
-                new_guard_states[joint] = new_state
+                for joint in JOINT_ORDER
+            }
         except (MotionGuardError, KeyError) as exc:
-            # guard 실패 시 이전 guard state/last_tick_time을 그대로 둔다(=이번 tick은
-            # 버리고 다음 tick에서 다시 시도할 수 있게) - 잘못된 이력으로 오염시키지 않음.
             return _early_result(
                 target_time=target_time, stop_reason=f"{STOP_REASON_GUARD_INVALID}: {exc}",
                 raw_target=raw_target, contributing_sequences=ensembled.contributing_sequences,
                 intent_decision=intent.decision, intent_reasons=intent.reasons,
             )
 
-        # guard가 성공한 tick만 이력을 갱신한다.
+        # Commit state only after the coordinated calculation succeeds.
         self._guard_states = new_guard_states
+        self._coordinated_guard_state = coordinated_state
         self._last_tick_time_monotonic = now_monotonic
 
         # -- 6. Final SafetyGate (guarded target에, 반드시 motion guard 다음) --------------
