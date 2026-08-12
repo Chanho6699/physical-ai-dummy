@@ -166,6 +166,10 @@ class ControlTickRecord:
     deadline_overrun_ms: float  # max(0, ...) - overrun 없으면 0.0
     intent_decision: str | None
     safety_decision: str | None
+    raw_target: dict[str, float] | None
+    guarded_target: dict[str, float] | None
+    final_target: dict[str, float] | None
+    clamp_reasons: tuple[str, ...]
     target_valid: bool
     stop_reason: str | None
     contributing_sequences: tuple[int, ...]
@@ -414,6 +418,12 @@ class RealTimeFollowerControlLoop:
             with self._diag_lock:
                 quarantined_snapshot = frozenset(self._quarantined_sequences)
             raw_chunks = self._trajectory_buffer.valid_chunks(actual_start, max_chunk_age_ms=self._config.trajectory_max_age_ms)
+            # Quarantine는 live buffer 항목에만 의미가 있다. 퇴출/stale sequence를 계속
+            # 보존하면 set이 세션 내내 단조 증가한다.
+            live_sequences = {c.sequence for c in raw_chunks}
+            with self._diag_lock:
+                self._quarantined_sequences.intersection_update(live_sequences)
+                quarantined_snapshot = frozenset(self._quarantined_sequences)
             chunks = tuple(c for c in raw_chunks if c.sequence not in quarantined_snapshot)
             excluded_sequences = tuple(c.sequence for c in raw_chunks if c.sequence in quarantined_snapshot)
 
@@ -426,7 +436,9 @@ class RealTimeFollowerControlLoop:
             target_compute_ms = (self._monotonic() - t0) * 1000.0
 
         # -- Intent quarantine 갱신 (섹션 8) -----------------------------------------
-        if result is not None and result.intent_decision is not None and result.intent_decision != "ACCEPT":
+        # WOULD_CLAMP는 해당 tick에서 fail-closed지만 영구 quarantine하지 않는다.
+        # schema/mechanical/gross-step REJECT만 해당 live chunk를 격리한다.
+        if result is not None and result.intent_decision == "REJECT":
             with self._diag_lock:
                 self._quarantined_sequences.update(result.contributing_sequences)
 
@@ -440,8 +452,8 @@ class RealTimeFollowerControlLoop:
         write_ms = None
         action_to_write: dict[str, float] | None = None
 
-        if not fault and result is not None and result.target_valid and result.guarded_target is not None:
-            action_to_write = result.guarded_target
+        if not fault and result is not None and result.target_valid and result.final_target is not None:
+            action_to_write = result.final_target
             write_path = "primary"
         elif not fault and current_state is not None and state in _HOLD_ELIGIBLE_STATES and self._config.hold_policy != HoldPolicy.NO_WRITE:
             candidate, path = self._compute_hold_candidate(current_state=current_state, now=actual_start)
@@ -498,6 +510,10 @@ class RealTimeFollowerControlLoop:
             deadline_overrun_ms=overrun_ms,
             intent_decision=(result.intent_decision if result is not None else None),
             safety_decision=(result.safety_decision if result is not None else None),
+            raw_target=(result.raw_ensemble_target if result is not None else None),
+            guarded_target=(result.guarded_target if result is not None else None),
+            final_target=(result.final_target if result is not None else None),
+            clamp_reasons=(result.clamp_reasons if result is not None else ()),
             target_valid=bool(result.target_valid) if result is not None else False,
             stop_reason=(writer_fault_reason or (result.stop_reason if result is not None else ("FAULT" if fault else None))),
             contributing_sequences=contributing,

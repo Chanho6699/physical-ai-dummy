@@ -36,7 +36,7 @@ def test_check_intent_delegates_to_same_safety_gate_instance() -> None:
     result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
     direct = gate.evaluate(
         adapted_action=__import__("runtime.laptop.action_adapter", fromlist=["adapt_vla_action"]).adapt_vla_action(raw),
-        current_state_deg=current, observation_valid=True,
+        current_state_deg=current, observation_valid=True, check_mechanical_range=False,
     )
     assert result.decision == direct.decision
     assert result.reasons == direct.reasons
@@ -92,8 +92,8 @@ def test_normal_lift_delta_within_threshold_is_valid() -> None:
 
 
 # ---------------------------------------------------------------------------
-# 위험한 wrist outlier (실물 사례 재현: wrist_flex 53.67 -> 40.49, delta=13.18deg) - 반드시
-# WOULD_CLAMP(=valid False), threshold(4.01)의 gross 5x(20.05deg) 안이므로 REJECT는 아님.
+# 위험한 wrist outlier (실물 사례 재현: wrist_flex 53.67 -> 33.67, delta=20deg) - 반드시
+# WOULD_CLAMP(=valid False), threshold(13.50)의 gross 5x(67.50deg) 안이므로 REJECT는 아님.
 # ---------------------------------------------------------------------------
 
 
@@ -102,7 +102,7 @@ def test_dangerous_wrist_delta_is_invalid_would_clamp() -> None:
     current = _neutral(0.0)
     current["wrist_flex"] = 53.6703
     raw = dict(current)
-    raw["wrist_flex"] = 40.4879
+    raw["wrist_flex"] = 33.6703
     result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
     assert result.valid is False
     assert result.decision == "WOULD_CLAMP"
@@ -116,7 +116,7 @@ def test_grossly_dangerous_wrist_delta_is_invalid_reject() -> None:
     current = _neutral(0.0)
     current["wrist_flex"] = 53.6703
     raw = dict(current)
-    raw["wrist_flex"] = 53.6703 - 25.0  # delta=25.0 > 20.05
+    raw["wrist_flex"] = 53.6703 - 70.0  # delta=70.0 > 5*13.50
     result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
     assert result.valid is False
     assert result.decision == "REJECT"
@@ -136,4 +136,24 @@ def test_gripper_tiny_negative_is_normalized_before_intent_check() -> None:
     raw["gripper"] = -0.02  # GRIPPER_TINY_NEGATIVE_EPSILON(0.05) 안 - 0.0으로 정규화돼야 함
     result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
     assert result.valid is True
+    assert result.decision == "ACCEPT"
+
+
+def test_demo_wrist_target_above_fallback_range_is_raw_intent_not_execution_clamp() -> None:
+    validator = _real_validator()
+    current = _neutral(0.0)
+    current["wrist_flex"] = 84.0
+    raw = dict(current)
+    raw["wrist_flex"] = 97.14  # demo max; delta 13.14 < raw intent threshold 13.50
+    result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
+    assert result.decision == "ACCEPT"
+
+
+def test_historical_13_1824_wrist_sample_is_not_split_by_sub_encoder_margin() -> None:
+    validator = _real_validator()
+    current = _neutral(0.0)
+    current["wrist_flex"] = 53.6703
+    raw = dict(current)
+    raw["wrist_flex"] = 40.4879
+    result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
     assert result.decision == "ACCEPT"

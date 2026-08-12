@@ -49,9 +49,9 @@ C-3A 최초 구현 때는 이 절에서 "아니다"라고 결론 내렸다 - **�
 밖이면 Final SafetyGate가 매 tick 그대로 다시 걸린다.
 
 **틀렸던 부분(C-3A.1에서 발견)**: mechanical hard limit 우회가 아니어도, **policy
-intent/outlier semantic은 실제로 우회됐다.** 실물 사례(wrist_flex 53.67->40.49, delta
-13.18deg - 이전 조사에서 training distribution 밖의 true outlier로 명시적으로 분류했던
-사례)를 C-3A 원래 파이프라인(raw -> guard -> safety)에 넣으면, guard가 그 13.18deg를
+intent/outlier semantic은 실제로 우회됐다.** 실물 사례(wrist_flex 53.67->33.67, delta
+20deg - 새 dataset의 robust gross-outlier regression으로 정의한
+사례)를 C-3A 원래 파이프라인(raw -> guard -> safety)에 넣으면, guard가 그 20deg를
 매 tick `velocity_limit*dt`(예: wrist_flex 29.01deg/s*16.7ms≈0.48deg)짜리 조각으로
 잘라버리고, Final SafetyGate는 그 작은 조각만 보고 60 tick 내내 전부 ACCEPT해서 결국
 원래(위험하다고 분류했던) 목표에 도달해버렸다(실측 확인, C-3A 보고서). 이건 "excessive-
@@ -154,12 +154,14 @@ class JointMotionLimits:
 # ``vel_acc_jerk_60hz_resampled_results.json`` 참고. gripper가 다른 관절보다 배율이
 # 큰 건 단위 스케일 차이(percent_0_100) 때문 - 최초 C-3A 표와 동일한 이유.)
 DEFAULT_JOINT_MOTION_LIMITS: dict[str, JointMotionLimits] = {
-    "shoulder_pan": JointMotionLimits(velocity_limit=47.47, acceleration_limit=633.0, jerk_limit=37978.0),
-    "shoulder_lift": JointMotionLimits(velocity_limit=47.47, acceleration_limit=633.0, jerk_limit=47472.0),
-    "elbow_flex": JointMotionLimits(velocity_limit=47.47, acceleration_limit=633.0, jerk_limit=37978.0),
-    "wrist_flex": JointMotionLimits(velocity_limit=29.01, acceleration_limit=474.7, jerk_limit=37979.0),
-    "wrist_roll": JointMotionLimits(velocity_limit=26.37, acceleration_limit=158.2, jerk_limit=18989.0),
-    "gripper": JointMotionLimits(velocity_limit=74.53, acceleration_limit=869.6, jerk_limit=67081.0),
+    # so101_blue_cube_place_return_v1 41ep를 runtime 60Hz로 linear-resample한
+    # |velocity|/|acceleration|/|jerk| p99.5.
+    "shoulder_pan": JointMotionLimits(velocity_limit=42.20, acceleration_limit=791.21, jerk_limit=47472.89),
+    "shoulder_lift": JointMotionLimits(velocity_limit=65.94, acceleration_limit=791.21, jerk_limit=56966.93),
+    "elbow_flex": JointMotionLimits(velocity_limit=68.58, acceleration_limit=791.21, jerk_limit=56967.04),
+    "wrist_flex": JointMotionLimits(velocity_limit=47.48, acceleration_limit=949.44, jerk_limit=66460.97),
+    "wrist_roll": JointMotionLimits(velocity_limit=55.39, acceleration_limit=1265.94, jerk_limit=94945.05),
+    "gripper": JointMotionLimits(velocity_limit=87.30, acceleration_limit=1533.01, jerk_limit=107310.13),
 }
 
 

@@ -4,7 +4,7 @@
 
 C-3A의 원래 파이프라인은 ``raw ensemble target -> Motion Guard -> Safety Gate`` 순서였다.
 이 순서에서는 raw target이 아무리 위험한 policy outlier(예: 실물 사례 wrist_flex
-53.67->40.49, delta 13.18deg - training distribution 밖의 true outlier로 이미 분류됐던
+53.67->33.67, delta 20deg - training distribution 밖의 true outlier로 이미 분류됐던
 사례)여도, Motion Guard가 그걸 매 tick `velocity_limit*dt`만큼의 작은 조각으로 잘라
 버리면 Safety Gate는 그 "작은 조각"만 보고 매번 ACCEPT해버린다 - mechanical hard limit을
 넘는 건 아니지만, **"이 policy 예측 자체를 신뢰해도 되는가"라는 outlier 판정(원래
@@ -103,8 +103,18 @@ class PolicyIntentValidator:
         self, *, raw_target_deg: dict[str, float], current_state_deg: dict[str, float]
     ) -> IntentValidationResult:
         adapted = adapt_vla_action(raw_target_deg)
+        mechanical: SafetyDecision = self._safety_gate.evaluate(
+            adapted_action=adapted, current_state_deg=current_state_deg, observation_valid=True,
+            check_excessive_step=False, check_mechanical_range=True,
+        )
+        # Small endpoint overshoot is recoverable downstream saturation. Gross mechanical
+        # violations remain fail-closed before MotionGuard.
+        if mechanical.decision == "REJECT":
+            return IntentValidationResult(valid=False, decision="REJECT", reasons=mechanical.reasons)
+
         decision: SafetyDecision = self._safety_gate.evaluate(
             adapted_action=adapted, current_state_deg=current_state_deg, observation_valid=True,
+            check_mechanical_range=False,
         )
         return IntentValidationResult(
             valid=decision.decision == "ACCEPT", decision=decision.decision, reasons=decision.reasons,

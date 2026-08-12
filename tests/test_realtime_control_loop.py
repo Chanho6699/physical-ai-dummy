@@ -155,7 +155,7 @@ def test_intent_blocked_state_no_write() -> None:
     current["wrist_flex"] = 53.6703
     state_src.set_state(current)
     target = dict(current)
-    target["wrist_flex"] = 40.4879  # delta=13.18, 위험한 실물 사례
+    target["wrist_flex"] = 33.6703  # delta=20.0, 위험한 실물 사례
     buf.publish(_chunk(sequence=0, obs_time=clock.now(), action=target))
     record = loop._do_tick(scheduled_time=None)
     assert record.state == ControlLoopState.INTENT_BLOCKED
@@ -280,7 +280,7 @@ def test_malformed_nan_chunk_fails_closed() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_intent_blocked_chunk_is_quarantined_and_excluded_next_tick() -> None:
+def test_soft_intent_block_is_not_permanently_quarantined() -> None:
     clock = FakeClock()
     gate = SafetyGate(SafetyGateConfig.from_repo_defaults())
     loop, buf, state_src, writer, _ = _make_loop(clock=clock, safety_gate=gate, motion_limits=DEFAULT_JOINT_MOTION_LIMITS)
@@ -288,24 +288,22 @@ def test_intent_blocked_chunk_is_quarantined_and_excluded_next_tick() -> None:
     current["wrist_flex"] = 53.6703
     state_src.set_state(current)
     dangerous = dict(current)
-    dangerous["wrist_flex"] = 40.4879
+    dangerous["wrist_flex"] = 33.6703
     buf.publish(_chunk(sequence=0, obs_time=clock.now(), action=dangerous))
 
     r0 = loop._do_tick(scheduled_time=None)
     assert r0.state == ControlLoopState.INTENT_BLOCKED
-    assert 0 in loop.quarantined_sequences
+    assert 0 not in loop.quarantined_sequences
 
     clock.advance(DT_60HZ)
     r1 = loop._do_tick(scheduled_time=None)
-    # 같은 sequence=0 chunk가 quarantine되어 buffer.valid_chunks()에서 필터링됨 ->
-    # 사실상 "쓸 chunk가 없음" -> NO_TRAJECTORY(반복 BLOCK 로그가 아니라 명확한
-    # "폐기됨" 상태로 바뀐다).
-    assert r1.state == ControlLoopState.NO_TRAJECTORY
-    assert 0 in r1.quarantined_sequences_excluded
+    # Soft violation은 매 tick fail-closed지만 buffer를 영구 고갈시키지 않는다.
+    assert r1.state == ControlLoopState.INTENT_BLOCKED
+    assert r1.quarantined_sequences_excluded == ()
     assert writer.write_count == 0
 
 
-def test_newer_valid_chunk_recovers_after_quarantine() -> None:
+def test_newer_valid_chunk_recovers_after_soft_violation() -> None:
     clock = FakeClock()
     gate = SafetyGate(SafetyGateConfig.from_repo_defaults())
     loop, buf, state_src, writer, _ = _make_loop(clock=clock, safety_gate=gate, motion_limits=DEFAULT_JOINT_MOTION_LIMITS)
@@ -313,10 +311,10 @@ def test_newer_valid_chunk_recovers_after_quarantine() -> None:
     current["wrist_flex"] = 53.6703
     state_src.set_state(current)
     dangerous = dict(current)
-    dangerous["wrist_flex"] = 40.4879
+    dangerous["wrist_flex"] = 33.6703
     buf.publish(_chunk(sequence=0, obs_time=clock.now(), action=dangerous))
     loop._do_tick(scheduled_time=None)
-    assert 0 in loop.quarantined_sequences
+    assert 0 not in loop.quarantined_sequences
 
     # 더 최신 observation 기반의 정상 chunk 도착(sequence=1, 더 큰 번호).
     clock.advance(0.05)
@@ -424,7 +422,7 @@ def test_writer_invariant_write_only_when_target_valid_and_accept() -> None:
     current["wrist_flex"] = 53.6703
     state_src.set_state(current)
     dangerous = dict(current)
-    dangerous["wrist_flex"] = 40.4879
+    dangerous["wrist_flex"] = 33.6703
     clock.advance(DT_60HZ)
     buf.publish(_chunk(sequence=0, obs_time=clock.now(), action=dangerous))
     r = loop._do_tick(scheduled_time=None)
@@ -455,7 +453,7 @@ def test_writer_invariant_holds_across_many_random_like_ticks() -> None:
         clock.advance(DT_60HZ)
         if i % 3 == 0:
             action = dict(current)
-            action["wrist_flex"] = current.get("wrist_flex", 0.0) + 13.18  # 위험
+            action["wrist_flex"] = current.get("wrist_flex", 0.0) + 20.0  # 위험
         else:
             action = dict(current)
             action["elbow_flex"] = current.get("elbow_flex", 0.0) + 7.08  # 정상
@@ -704,14 +702,14 @@ def test_dangerous_wrist_full_stack_real_thread_blocks_then_recovers() -> None:
         config=RealTimeFollowerControlLoopConfig(control_hz=60.0),
     )
     dangerous = dict(current)
-    dangerous["wrist_flex"] = 40.4879
+    dangerous["wrist_flex"] = 33.6703
     _publish_constant_chunk(buf, sequence=0, action=dangerous)
 
     loop.start()
     time.sleep(0.5)
     assert writer.write_count == 0  # 위험한 target은 0.5초 내내 단 한 번도 write되지 않음
     assert loop.state in (ControlLoopState.INTENT_BLOCKED, ControlLoopState.NO_TRAJECTORY)
-    assert 0 in loop.quarantined_sequences
+    assert 0 not in loop.quarantined_sequences
 
     # 더 최신 정상 chunk 도착 - recovery.
     safe = dict(current)
@@ -783,3 +781,32 @@ def test_normal_trajectory_continuity_over_several_seconds() -> None:
 
 if __name__ == "__main__":  # pragma: no cover
     pass
+
+
+def test_reject_quarantine_is_bounded_to_live_buffer_and_new_chunk_recovers() -> None:
+    clock = FakeClock()
+    gate = SafetyGate(SafetyGateConfig.from_repo_defaults())
+    one_slot = TrajectoryBuffer(max_chunks=1)
+    loop, buf, state_src, writer, _ = _make_loop(
+        clock=clock, safety_gate=gate, motion_limits=DEFAULT_JOINT_MOTION_LIMITS,
+        trajectory_buffer=one_slot,
+    )
+    current = _neutral(0.0)
+    current["wrist_flex"] = 53.6703
+    state_src.set_state(current)
+    gross = dict(current)
+    gross["wrist_flex"] -= 70.0
+    buf.publish(_chunk(sequence=0, obs_time=clock.now(), action=gross))
+    first = loop._do_tick(scheduled_time=None)
+    assert first.intent_decision == "REJECT"
+    assert loop.quarantined_sequences == frozenset({0})
+
+    # Evict rejected seq from a one-slot live buffer; stale quarantine must be pruned.
+    clock.advance(0.05)
+    safe = dict(current)
+    buf.publish(_chunk(sequence=1, obs_time=clock.now(), action=safe))
+    recovered = loop._do_tick(scheduled_time=None)
+    assert recovered.state == ControlLoopState.RUNNING
+    assert recovered.write_executed is True
+    assert loop.quarantined_sequences == frozenset()
+    assert writer.write_count == 1

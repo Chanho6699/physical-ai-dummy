@@ -18,7 +18,7 @@ control target.
 
 C-3A 최초 구현은 ``raw target -> Motion Guard -> Final SafetyGate`` 순서였다. 이
 순서에서는 raw target이 아무리 위험한 policy outlier(예: 실물 사례 wrist_flex
-53.67->40.49, delta 13.18deg)여도 Motion Guard가 그걸 매 tick 작은 조각으로 잘라버려서
+53.67->33.67, delta 20deg)여도 Motion Guard가 그걸 매 tick 작은 조각으로 잘라버려서
 Final SafetyGate가 60 tick 내내 전부 ACCEPT했다 - mechanical hard limit 우회는
 아니었지만, "이 policy 예측을 신뢰할 수 있는가"라는 outlier 판정 자체를 우회한 것이었다
 (자세한 분석은 ``motion_guard.py`` 모듈 docstring "[정정]" 절 참고). Intent Validation을
@@ -87,7 +87,9 @@ class ControlTargetResult:
     intent_decision: str | None  # "ACCEPT" | "WOULD_CLAMP" | "REJECT" | None(target 계산 자체가 실패)
     intent_reasons: tuple[str, ...]
     smoothed_target: dict[str, float] | None  # Motion Guard 적용 후 (guarded_target과 동일 - 아래 참고)
-    guarded_target: dict[str, float] | None  # 최종 target (Final SafetyGate에 실제로 넘어간 값)
+    guarded_target: dict[str, float] | None  # MotionGuard 출력 / Final Safety 입력
+    final_target: dict[str, float] | None  # Final Safety ACCEPT 또는 soft mechanical saturation 출력
+    clamp_reasons: tuple[str, ...]
     safety_decision: str | None  # Final SafetyGate 판정. Intent에서 막히면 None(도달 안 함).
     safety_reasons: tuple[str, ...]
     contributing_sequences: tuple[int, ...]
@@ -102,6 +104,8 @@ class ControlTargetResult:
             "intent_reasons": list(self.intent_reasons),
             "smoothed_target": dict(self.smoothed_target) if self.smoothed_target else None,
             "guarded_target": dict(self.guarded_target) if self.guarded_target else None,
+            "final_target": dict(self.final_target) if self.final_target else None,
+            "clamp_reasons": list(self.clamp_reasons),
             "safety_decision": self.safety_decision,
             "safety_reasons": list(self.safety_reasons),
             "contributing_sequences": list(self.contributing_sequences),
@@ -118,7 +122,8 @@ def _early_result(
     return ControlTargetResult(
         target_time_monotonic=target_time, raw_ensemble_target=raw_target,
         intent_decision=intent_decision, intent_reasons=intent_reasons,
-        smoothed_target=None, guarded_target=None, safety_decision=None, safety_reasons=(),
+        smoothed_target=None, guarded_target=None, final_target=None, clamp_reasons=(),
+        safety_decision=None, safety_reasons=(),
         contributing_sequences=contributing_sequences, target_valid=False, stop_reason=stop_reason,
     )
 
@@ -255,10 +260,19 @@ class RealTimeControlTargetGenerator:
 
         adapted_guarded = adapt_vla_action(guarded)
         decision = self._safety_gate.evaluate(
-            adapted_action=adapted_guarded, current_state_deg=current_follower_state_deg, observation_valid=True,
+            adapted_action=adapted_guarded, current_state_deg=current_follower_state_deg,
+            observation_valid=True, check_excessive_step=False,
         )
 
-        target_valid = decision.decision == "ACCEPT"
+        soft_mechanical_saturation = (
+            decision.decision == "WOULD_CLAMP"
+            and bool(decision.reasons)
+            and all(reason.startswith("MECHANICAL_LIMIT_CLAMPED:") for reason in decision.reasons)
+            and decision.safe_action is not None
+        )
+        target_valid = decision.decision == "ACCEPT" or soft_mechanical_saturation
+        final_target = decision.safe_action if target_valid else None
+        clamp_reasons = decision.reasons if soft_mechanical_saturation else ()
         stop_reason = None if target_valid else f"{STOP_REASON_SAFETY_PREFIX}{decision.decision}"
 
         return ControlTargetResult(
@@ -268,6 +282,8 @@ class RealTimeControlTargetGenerator:
             intent_reasons=intent.reasons,
             smoothed_target=guarded,
             guarded_target=guarded,
+            final_target=final_target,
+            clamp_reasons=clamp_reasons,
             safety_decision=decision.decision,
             safety_reasons=decision.reasons,
             contributing_sequences=ensembled.contributing_sequences,

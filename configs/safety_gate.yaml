@@ -23,8 +23,8 @@
 #       reports/mujoco_full_rollout_candidate_comparison_v1의 raw prediction log.
 #   (3) 실제 실물 Stage 1/3 사례 4건 (아래 표) - 이 중 elbow_flex/shoulder_pan/
 #       shoulder_lift 3건은 학습 분포 안에서 정상적으로 관측되는 크기(학습 max 이내)였는데도
-#       구 threshold에 막혔고, wrist_flex 1건(13.18deg)은 학습 데이터 전체에서 한 번도
-#       관측된 적 없는 진짜 outlier였다 - 이 4건이 "정상은 통과, 진짜 outlier는 차단"이라는
+#       구 threshold에 막혔고, 과거 wrist_flex 13.18deg 표본은 새 dataset max와 sub-encoder 차이라
+#       단독 위험 근거로 사용하지 않는다 - 이 4건이 "정상은 통과, 진짜 outlier는 차단"이라는
 #       재캘리브레이션 목표의 acceptance test 역할을 한다.
 #
 # | joint | 구 threshold(deg) | 구 threshold의 demo percentile | 신 threshold(deg) | 신 threshold의 demo percentile | 근거 |
@@ -32,7 +32,7 @@
 # | shoulder_pan  | 4.58 | 96.1%ile | **6.00** | 99.5%ile 부근 | 실물 사례 B(5.45deg)가 구 threshold에 막힘 - demo p99=5.71, N=30 stochastic noise만으로도 최대 5.13deg 관측(순수 noise가 구 threshold를 이미 넘나듦) |
 # | shoulder_lift | 5.16 | 90.0%ile | **9.00** | 99.5%ile 초과 (demo p99.5=8.79) | 실물 사례 C(5.63deg)가 구 threshold에 막힘 - demo p99=8.26, N=30 stochastic noise 단독 최대 8.73deg 관측 |
 # | elbow_flex    | 5.73 | 83.8%ile | **8.50** | 99.5%ile 초과 (demo p99.5=7.78) | 실물 사례 A(7.08deg)가 구 threshold에 막힘 - demo p99=7.52, N=30 stochastic noise 단독 최대 8.66deg 관측. demo max(9.19)보다는 여전히 낮게 유지해 최극단 tail은 계속 clamp 대상으로 남김 |
-# | wrist_flex    | 4.01 | 99.0%ile | **4.01 (변경 없음)** | 99.0%ile | 구 threshold가 이미 demo p99(4.00)와 거의 정확히 일치 - N=30 stochastic noise도 이 관절에서는 threshold를 넘은 적 없음(0/60). 실물 사례 D(13.18deg, 학습 데이터 전체 max 12.53 초과하는 진짜 outlier)가 계속 WOULD_CLAMP돼야 한다는 요구사항과 직접 충돌하므로 완화하지 않음 |
+# | wrist_flex    | 4.01 | 99.0%ile | **4.01 (변경 없음)** | 99.0%ile | 구 threshold가 이미 demo p99(4.00)와 거의 정확히 일치 - N=30 stochastic noise도 이 관절에서는 threshold를 넘은 적 없음(0/60). 과거 13.18deg 단일 표본은 새 demo max와 robust하게 분리할 수 없어 양자화 margin을 둔 13.50으로 교체 |
 # | wrist_roll    | 1.15 | 97.7%ile | **1.15 (변경 없음)** | 97.7%ile | N=30 stochastic noise/실물 staged 사례 어디에서도 이 관절이 nuisance clamp 원인으로 관측된 적 없음(0/60) - 완화를 뒷받침하는 근거가 없어 보수적으로 유지 |
 # | gripper(step) | 9.17 | 98.6%ile | **9.17 (변경 없음)** | 98.6%ile | 위와 동일 - nuisance clamp 원인으로 관측된 적 없음. gripper의 별도 tiny-negative epsilon(runtime/laptop/action_adapter.py의 GRIPPER_TINY_NEGATIVE_EPSILON)은 이 값과 무관하게 이미 별도로 처리됨 |
 #
@@ -40,8 +40,7 @@
 # tests/test_safety_gate.py 회귀 테스트로 고정):
 #   - demo(V3/V4/combined69) 22,617 frame 전체 재생 시 pan/lift/elbow의 WOULD_CLAMP 유발
 #     비율이 각각 3.85%/9.99%/16.17% -> 0.54%/0.28%/0.08%로 감소 (99%+ 정상 동작 통과).
-#   - 실물 staged 사례 A/B/C는 새 threshold에서 ACCEPT, D(wrist_flex 13.18deg)는 여전히
-#     WOULD_CLAMP.
+#   - 실물 staged 사례 A/B/C는 새 threshold에서 ACCEPT, 명백한 wrist_flex 20deg raw jump는 WOULD_CLAMP.
 #   - GROSS_STEP_MULTIPLIER(5x, safety_gate.py)는 그대로이므로 REJECT 경계(예:
 #     elbow_flex 42.5deg)는 전혀 흔들리지 않았다 - gross outlier가 새로 ACCEPT되는 경로는
 #     없다.
@@ -75,10 +74,14 @@ excessive_step_deg:
   # [2026-08 재캘리브레이션] 위 표 참고 - Candidate B 학습 dataset(V3/V4/combined69)의
   # leader-teleop demonstration delta 분포 + Candidate B 실제 first-action stochastic
   # variance(N=30 반복 offline 추론) + 실물 Stage 1/3 사례 4건을 결합해 산출.
-  shoulder_pan: 6.00
-  shoulder_lift: 9.00
-  elbow_flex: 8.50
-  # 아래 3개는 이번 재캘리브레이션에서 변경 근거가 없어 그대로 유지 (표 참고).
-  wrist_flex: 4.01
-  wrist_roll: 1.15
-  gripper: 9.17
+  # Blue-cube place-and-return 41ep의 |action-state| max envelope 바로 위. 이 값은
+  # MotionGuard 이전 raw intent outlier 판정 전용이다. Final Safety는 guarded target에
+  # 대해 이 step 검사를 반복하지 않는다.
+  shoulder_pan: 7.10
+  shoulder_lift: 13.20
+  elbow_flex: 10.80
+  # demo max=13.14286deg; use about four encoder ticks of quantization margin.
+  # The 0.04deg gap to the historical 13.1824deg sample is not a robust boundary.
+  wrist_flex: 13.50
+  wrist_roll: 8.50
+  gripper: 13.30

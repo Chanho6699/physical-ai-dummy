@@ -153,13 +153,14 @@ class SafetyGateConfig:
         *,
         follower_safe_mapper_config_path: str | Path | None = None,
         safety_gate_config_path: str | Path | None = None,
+        calibration_file_path: str | Path | None = None,
     ) -> "SafetyGateConfig":
         try:
             mapper_config = load_follower_safe_mapper_config_yaml(
                 follower_safe_mapper_config_path or DEFAULT_FOLLOWER_SAFE_MAPPER_CONFIG_PATH
             )
             calibrations = load_follower_calibration(
-                calibration_file_path=mapper_config.calibration_file_path,
+                calibration_file_path=calibration_file_path or mapper_config.calibration_file_path,
                 fallback_raw_range=mapper_config.fallback_raw_range,
                 motor_resolution=mapper_config.motor_resolution,
             )
@@ -191,8 +192,8 @@ class SafetyGateConfig:
             max_step_deg=max_step_deg,
             joint_range_source=joint_range_source,
             calibration_file_path=(
-                str(Path(mapper_config.calibration_file_path).expanduser())
-                if mapper_config.calibration_file_path
+                str(Path(calibration_file_path or mapper_config.calibration_file_path).expanduser())
+                if calibration_file_path or mapper_config.calibration_file_path
                 else None
             ),
             uses_calibration_fallback=uses_calibration_fallback,
@@ -256,6 +257,8 @@ class SafetyGate:
         observation_reasons: tuple[str, ...] = (),
         state_stale: bool = False,
         state_stale_reason: str | None = None,
+        check_excessive_step: bool = True,
+        check_mechanical_range: bool = True,
     ) -> SafetyDecision:
         # -- 0. 입력 자체가 무효/stale이면 관절별 판정 없이 즉시 REJECT ------------------
         global_reasons: list[str] = []
@@ -291,17 +294,19 @@ class SafetyGate:
             safe_value = raw_value
 
             # -- 1. mechanical/calibration range ------------------------------------
-            if raw_value < lo - span * GROSS_RANGE_MULTIPLIER or raw_value > hi + span * GROSS_RANGE_MULTIPLIER:
+            if check_mechanical_range and (
+                raw_value < lo - span * GROSS_RANGE_MULTIPLIER or raw_value > hi + span * GROSS_RANGE_MULTIPLIER
+            ):
                 rejected = True
                 reasons.append(
                     f"MECHANICAL_LIMIT_GROSS_VIOLATION: {raw_value:.2f} (범위 [{lo:.2f}, {hi:.2f}]를 크게 벗어남)"
                 )
-            elif raw_value < lo or raw_value > hi:
+            elif check_mechanical_range and (raw_value < lo or raw_value > hi):
                 safe_value = min(max(raw_value, lo), hi)
                 reasons.append(f"MECHANICAL_LIMIT_CLAMPED: {raw_value:.2f} -> {safe_value:.2f} (범위 [{lo:.2f}, {hi:.2f}])")
 
             # -- 2. excessive single-step delta (현재 실물 state 대비) -----------------
-            if not rejected and current_value is not None and math.isfinite(current_value):
+            if check_excessive_step and not rejected and current_value is not None and math.isfinite(current_value):
                 delta = safe_value - current_value
                 if abs(delta) > max_step * GROSS_STEP_MULTIPLIER:
                     rejected = True

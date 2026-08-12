@@ -304,9 +304,11 @@ def test_mechanical_range_violation_blocks_target_eligibility() -> None:
     result = gen.tick(chunks=[chunk], now_monotonic=0.0, current_follower_state_deg=current)
 
     assert result.target_valid is False
-    assert result.stop_reason.startswith(STOP_REASON_INTENT_PREFIX)  # 이 설정에서는 Intent가 먼저 막음
-    assert result.intent_decision in ("WOULD_CLAMP", "REJECT")
-    assert result.guarded_target is None  # Motion Guard까지 도달하지 않았음
+    assert result.stop_reason == "INTENT_REJECT"
+    assert result.intent_decision == "REJECT"
+    assert result.safety_decision is None
+    assert result.guarded_target is None
+    assert any("MECHANICAL_LIMIT_GROSS_VIOLATION" in reason for reason in result.intent_reasons)
 
 
 def test_safety_reject_blocks_target_eligibility_at_intent_stage() -> None:
@@ -342,8 +344,8 @@ def test_final_safety_still_evaluates_guarded_target_when_intent_passes() -> Non
 
 # ---------------------------------------------------------------------------
 # Dangerous wrist regression (C-3A.1 correction 섹션 2/9/10) - 실제 recalibrated
-# Safety + 실제 demo 기반 motion limits로, 이전 실물 사례(wrist_flex 53.67 -> 40.49,
-# delta≈13.18deg, training distribution 밖 true outlier로 분류됨)를 재현한다.
+# Safety + 실제 demo 기반 motion limits로, 이전 실물 사례(wrist_flex 53.67 -> 33.67,
+# delta=20deg, training distribution 밖 true outlier로 분류됨)를 재현한다.
 #
 # [정정] 이전 C-3A 보고서는 "Motion Guard가 이 값을 잘게 쪼개 매 tick ACCEPT시키지만
 # mechanical hard limit은 우회하지 않는다"고 결론지었다 - 이 결론은 사용자가 지적한
@@ -354,15 +356,15 @@ def test_final_safety_still_evaluates_guarded_target_when_intent_passes() -> Non
 
 
 def test_dangerous_wrist_raw_target_blocked_before_motion_guard() -> None:
-    """실제 Safety threshold(wrist_flex=4.01)와 실제 demo 기반 motion limits로,
-    위험한 wrist_flex raw target(delta=13.18deg > threshold, < gross 5x=20.05deg이므로
+    """실제 Safety threshold(wrist_flex=13.50)와 실제 demo 기반 motion limits로,
+    위험한 wrist_flex raw target(delta=20deg > threshold, < gross 5x=67.50deg이므로
     REJECT가 아니라 WOULD_CLAMP)이 Intent Validation에서 즉시 막히고, target_valid=False,
     guarded_target=None(=Motion Guard가 이 tick에 대해 전혀 호출되지 않았음)임을 확인한다."""
     gen = _real_generator()
     current = _neutral(0.0)
     current["wrist_flex"] = 53.6703  # 실제 실물 사례의 before 값
     target = dict(current)
-    target["wrist_flex"] = 40.4879  # 실제 실물 사례의 raw predict 값 (delta ≈ -13.18)
+    target["wrist_flex"] = 33.6703  # 실제 실물 사례의 raw predict 값 (delta = -20.0)
     chunk = _chunk(sequence=0, obs_time=0.0, target_action=target)
 
     result = gen.tick(chunks=[chunk], now_monotonic=0.0, current_follower_state_deg=current)
@@ -375,7 +377,7 @@ def test_dangerous_wrist_raw_target_blocked_before_motion_guard() -> None:
     assert result.smoothed_target is None
     assert result.safety_decision is None
     # raw target 자체는 진단용으로 보존된다(무엇이 왜 막혔는지 로그로 남기기 위함).
-    assert result.raw_ensemble_target["wrist_flex"] == pytest.approx(40.4879)
+    assert result.raw_ensemble_target["wrist_flex"] == pytest.approx(33.6703)
 
 
 def test_dangerous_wrist_cannot_be_chopped_into_pieces_to_bypass_intent() -> None:
@@ -390,7 +392,7 @@ def test_dangerous_wrist_cannot_be_chopped_into_pieces_to_bypass_intent() -> Non
     current = _neutral(0.0)
     current["wrist_flex"] = 53.6703
     target = dict(_neutral(0.0))
-    target["wrist_flex"] = 40.4879
+    target["wrist_flex"] = 33.6703
 
     now = 0.0
     for i in range(60):  # 1초 분량 - 이전 버그 재현 테스트와 동일한 tick 수
@@ -534,3 +536,52 @@ def test_result_preserves_contributing_sequences_and_raw_target() -> None:
     assert result.raw_ensemble_target is not None
     assert result.smoothed_target == result.guarded_target
     assert result.intent_decision == "ACCEPT"
+
+
+def test_wrist_endpoint_soft_overshoot_saturates_to_actual_calibration_boundary() -> None:
+    gate = SafetyGate(SafetyGateConfig.from_repo_defaults())
+    limits = dict(DEFAULT_JOINT_MOTION_LIMITS)
+    limits["wrist_flex"] = JointMotionLimits(
+        velocity_limit=1000.0, acceleration_limit=1e9, jerk_limit=1e12,
+    )
+    gen = _make_generator(safety_gate=gate, motion_limits=limits)
+    current = _neutral(0.0)
+    current["wrist_flex"] = 84.5
+    target = dict(current)
+    target["wrist_flex"] = 90.0
+
+    result = gen.tick(
+        chunks=[_chunk(sequence=0, obs_time=0.0, target_action=target)],
+        now_monotonic=0.0,
+        current_follower_state_deg=current,
+    )
+
+    expected_hi = gate.config.joint_range_deg["wrist_flex"][1]
+    assert result.intent_decision == "ACCEPT"
+    assert result.guarded_target["wrist_flex"] > expected_hi
+    assert result.safety_decision == "WOULD_CLAMP"
+    assert result.target_valid is True
+    assert result.final_target["wrist_flex"] == pytest.approx(expected_hi)
+    assert result.clamp_reasons
+    assert all(reason.startswith("MECHANICAL_LIMIT_CLAMPED:") for reason in result.clamp_reasons)
+
+
+def test_wrist_82_to_90_first_tick_stays_bounded_and_writer_eligible() -> None:
+    gate = SafetyGate(SafetyGateConfig.from_repo_defaults())
+    gen = _make_generator(safety_gate=gate)
+    current = _neutral(0.0)
+    current["wrist_flex"] = 82.0
+    target = dict(current)
+    target["wrist_flex"] = 90.0
+
+    result = gen.tick(
+        chunks=[_chunk(sequence=0, obs_time=0.0, target_action=target)],
+        now_monotonic=0.0,
+        current_follower_state_deg=current,
+    )
+
+    assert result.intent_decision == "ACCEPT"
+    assert result.guarded_target["wrist_flex"] == pytest.approx(82.39447731755423)
+    assert result.safety_decision == "ACCEPT"
+    assert result.final_target == result.guarded_target
+    assert result.target_valid is True

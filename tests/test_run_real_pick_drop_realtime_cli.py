@@ -165,7 +165,7 @@ def test_sanity_window_fatal_when_dangerous_target_blocks_every_tick() -> None:
     state_source = FakeFollowerStateSource(initial_state_deg=current)
     writer = FakeFollowerWriter()
     dangerous = dict(current)
-    dangerous["wrist_flex"] = 40.4879
+    dangerous["wrist_flex"] = 33.6703
     vla_client = ScriptedVLAClient(action_by_default=dangerous, delay_s=0.005)
 
     gate = SafetyGate(SafetyGateConfig.from_repo_defaults())  # 재캘리브레이션된 실제 threshold
@@ -297,3 +297,65 @@ def test_shutdown_stops_both_threads() -> None:
     orchestrator.run()
     assert orchestrator._worker.is_running() is False
     assert orchestrator._loop.is_running() is False
+
+
+# ---------------------------------------------------------------------------
+# Real-mode calibration preflight (pure filesystem tests; no hardware import)
+# ---------------------------------------------------------------------------
+
+def _write_fake_follower_calibration(path) -> None:
+    import json
+    raw_ranges = {
+        "shoulder_pan": (1070, 3135), "shoulder_lift": (793, 3238),
+        "elbow_flex": (873, 3084), "wrist_flex": (1052, 2977),
+        "wrist_roll": (0, 4095), "gripper": (2047, 3496),
+    }
+    payload = {
+        joint: {"id": index, "drive_mode": 0, "homing_offset": 0,
+                "range_min": bounds[0], "range_max": bounds[1]}
+        for index, (joint, bounds) in enumerate(raw_ranges.items(), start=1)
+    }
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+def test_real_mode_actual_calibration_loads_and_resolves_ranges(tmp_path) -> None:
+    calibration = tmp_path / "chanho_follower.json"
+    _write_fake_follower_calibration(calibration)
+    config = cli.resolve_real_safety_config(
+        follower_id="chanho_follower", calibration_path=str(calibration),
+    )
+    assert config.uses_calibration_fallback is False
+    assert config.calibration_file_path == str(calibration)
+    assert config.joint_range_source["wrist_flex"] == "calibration_file"
+    lo, hi = config.joint_range_deg["wrist_flex"]
+    expected_hi = (2977 - 1052) / 2 * 360 / 4095
+    assert (lo, hi) == pytest.approx((-expected_hi, expected_hi))
+
+
+def test_real_mode_missing_calibration_fails_before_writer_exists(tmp_path) -> None:
+    with pytest.raises(cli.RealtimeRunError, match="actual follower calibration not found"):
+        cli.resolve_real_safety_config(
+            follower_id="chanho_follower",
+            calibration_path=str(tmp_path / "missing.json"),
+        )
+
+
+def test_desktop_default_config_still_allows_fallback(tmp_path) -> None:
+    mapper = tmp_path / "mapper.yaml"
+    mapper.write_text(
+        "calibration_file_path: /definitely/missing.json\n"
+        "motor_resolution: 4096\n"
+        "fallback_raw_range:\n"
+        "  shoulder_pan: {min: 1070, max: 3135}\n"
+        "  shoulder_lift: {min: 793, max: 3238}\n"
+        "  elbow_flex: {min: 873, max: 3084}\n"
+        "  wrist_flex: {min: 1052, max: 2977}\n"
+        "  wrist_roll: {min: 0, max: 4095}\n"
+        "  gripper: {min: 2047, max: 3496}\n"
+        "rate_limit_deg_per_sec:\n"
+        "  shoulder_pan: 20\n  shoulder_lift: 15\n  elbow_flex: 20\n"
+        "  wrist_flex: 15\n  wrist_roll: 25\n  gripper: 30\n",
+        encoding="utf-8",
+    )
+    config = SafetyGateConfig.from_repo_defaults(follower_safe_mapper_config_path=mapper)
+    assert config.uses_calibration_fallback is True

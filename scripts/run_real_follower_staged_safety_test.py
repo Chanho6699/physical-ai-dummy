@@ -91,7 +91,12 @@ DEFAULT_CANDIDATE_B_CHECKPOINT = (
     PROJECT_ROOT / "outputs" / "pick_drop_v3_v4_combined69" / "smolvla_pick_drop_v3_v4_combined69_uniform_fresh"
     / "checkpoints" / "010000" / "pretrained_model"
 )
-DEFAULT_TASK = "Pick up the cube and drop it into the bin."
+DEFAULT_BLUE_CUBE_PLACE_RETURN_CHECKPOINT = (
+    PROJECT_ROOT / "outputs" / "blue_cube_place_return_v1" / "smolvla_blue_cube_place_return_v1_fresh"
+    / "checkpoints" / "010000" / "pretrained_model"
+)
+DEFAULT_CHECKPOINT = DEFAULT_BLUE_CUBE_PLACE_RETURN_CHECKPOINT
+DEFAULT_TASK = 'Pick up the blue cube, place it inside the blue rectangle labeled "BLUE", then return to the starting pose.'
 DEFAULT_RECEIPT_DIR = PROJECT_ROOT / "reports" / "real_follower_staged_safety_test_v1" / "receipts"
 DEFAULT_REPORT_DIR = PROJECT_ROOT / "reports" / "real_follower_staged_safety_test_v1" / "reports"
 
@@ -195,7 +200,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--follower-port", required=True)
     p.add_argument("--follower-id", required=True)
     p.add_argument("--follower-calibration-path", default=None)
-    p.add_argument("--checkpoint", type=Path, default=DEFAULT_CANDIDATE_B_CHECKPOINT,
+    p.add_argument("--checkpoint", type=Path, default=DEFAULT_CHECKPOINT,
                     help="inprocess 모드: 실제로 로딩할 checkpoint. http 모드: Desktop이 로딩했어야 할 checkpoint (검증용, 로딩하지 않음)")
     p.add_argument("--task", default=DEFAULT_TASK)
     p.add_argument("--vla-mode", required=True, choices=["inprocess", "http"],

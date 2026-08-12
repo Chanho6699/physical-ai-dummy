@@ -99,6 +99,8 @@ if str(PROJECT_ROOT) not in sys.path:
 # 예외 클래스/순수 검증 함수만 미리 import - 하드웨어를 건드리지 않으므로 dry-run에서도 안전.
 from runtime.laptop.camera_source import CameraSourceError  # noqa: E402
 from runtime.laptop.follower_state_source import FollowerStateSourceError  # noqa: E402
+from hardware.safety.calibration_resolution import resolve_calibration_path  # noqa: E402
+from runtime.laptop.safety_gate import SafetyGateConfig, SafetyGateConfigError  # noqa: E402
 from scripts.run_real_follower_staged_safety_test import (  # noqa: E402
     CONFIRMATION_PHRASE,
     StagedSafetyTestError,
@@ -112,7 +114,12 @@ DEFAULT_CANDIDATE_B_CHECKPOINT = (
     PROJECT_ROOT / "outputs" / "pick_drop_v3_v4_combined69" / "smolvla_pick_drop_v3_v4_combined69_uniform_fresh"
     / "checkpoints" / "010000" / "pretrained_model"
 )
-DEFAULT_TASK = "Pick up the cube and drop it into the bin."
+DEFAULT_BLUE_CUBE_PLACE_RETURN_CHECKPOINT = (
+    PROJECT_ROOT / "outputs" / "blue_cube_place_return_v1" / "smolvla_blue_cube_place_return_v1_fresh"
+    / "checkpoints" / "010000" / "pretrained_model"
+)
+DEFAULT_CHECKPOINT = DEFAULT_BLUE_CUBE_PLACE_RETURN_CHECKPOINT
+DEFAULT_TASK = 'Pick up the blue cube, place it inside the blue rectangle labeled "BLUE", then return to the starting pose.'
 DEFAULT_VLA_SERVER_URL = "http://100.75.147.72:9200"
 DEFAULT_FOLLOWER_ID = "chanho_follower"
 DEFAULT_CONTROL_HZ = 60.0
@@ -136,6 +143,32 @@ CONTROL_LOOP_POLL_INTERVAL_S = 0.1  # 이 polling은 진단/모니터링용 - 60
 
 class RealtimeRunError(RuntimeError):
     pass
+
+
+def resolve_real_safety_config(*, follower_id: str, calibration_path: str | None) -> SafetyGateConfig:
+    """Require an actual follower calibration in real hardware mode."""
+    resolved_path, _ = resolve_calibration_path(
+        cli_calibration_path=calibration_path, cli_calibration_id=follower_id,
+        project_root=PROJECT_ROOT, allow_default_fallback=False,
+    )
+    if not resolved_path.is_file():
+        raise RealtimeRunError(f"actual follower calibration not found: {resolved_path}")
+    config = SafetyGateConfig.from_repo_defaults(calibration_file_path=resolved_path)
+    if config.uses_calibration_fallback or any(
+        source == "fallback_config" for joint, source in config.joint_range_source.items() if joint != "gripper"
+    ):
+        raise RealtimeRunError(f"actual follower calibration failed to load: {resolved_path}")
+    return config
+
+
+def print_calibration_preflight(*, follower_id: str, config: SafetyGateConfig) -> None:
+    print("[calibration preflight]")
+    print("  source=calibration_file")
+    print(f"  path={config.calibration_file_path}")
+    print(f"  follower_id={follower_id}")
+    print(f"  actual_calibration={not config.uses_calibration_fallback}")
+    print(f"  fallback={config.uses_calibration_fallback}")
+    print(f"  mechanical_joint_ranges={config.joint_range_deg}")
 
 
 class StopReason(str, Enum):
@@ -540,7 +573,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--hardware-config", type=Path, required=True)
     p.add_argument("--control-hz", type=float, default=DEFAULT_CONTROL_HZ)
     p.add_argument("--task", default=DEFAULT_TASK)
-    p.add_argument("--checkpoint", type=Path, default=DEFAULT_CANDIDATE_B_CHECKPOINT, help="Desktop이 로딩했어야 할 checkpoint(검증용, 로딩하지 않음)")
+    p.add_argument("--checkpoint", type=Path, default=DEFAULT_CHECKPOINT, help="Desktop이 로딩했어야 할 checkpoint(검증용, 로딩하지 않음)")
     p.add_argument("--vla-timeout-s", type=float, default=15.0)
     p.add_argument("--vla-api-token", default=None)
     p.add_argument("--force-checkpoint-mismatch", action="store_true")
@@ -561,7 +594,7 @@ def print_banner(args: argparse.Namespace) -> None:
     print(f"TASK={args.task!r}")
     print(f"FOLLOWER_PORT={args.follower_port}  FOLLOWER_ID={args.follower_id}")
     print(f"CONTROL_HZ={args.control_hz}  MAX_RUNTIME_S={args.max_runtime_s}  SANITY_WINDOW_S={args.sanity_window_s}")
-    print("SAFETY_GATE=UNCHANGED · HOLD_POLICY=NO_WRITE · WRITE_PATH=SO101FollowerActionWriter 단 하나")
+    print("SAFETY_GATE=BLUE_CUBE_41EP_RECALIBRATED · HOLD_POLICY=NO_WRITE · WRITE_PATH=SO101FollowerActionWriter 단 하나")
     print(f"DRY_RUN={args.dry_run}")
     print("=" * 70)
 
@@ -602,8 +635,14 @@ def main(argv: list[str] | None = None) -> int:
         from runtime.laptop.camera_source import RealCameraObservationSource
         from runtime.laptop.follower_action_writer import SO101FollowerActionWriter
         from runtime.laptop.follower_state_source import ReadOnlyRealFollowerStateSource
-        from runtime.laptop.safety_gate import SafetyGate, SafetyGateConfig
+        from runtime.laptop.safety_gate import SafetyGate
         from runtime.laptop.vla_client import VLAClientConfig, VLAHttpClient
+
+        # Fail closed before constructing or connecting the motor writer.
+        safety_config = resolve_real_safety_config(
+            follower_id=args.follower_id, calibration_path=args.follower_calibration_path,
+        )
+        print_calibration_preflight(follower_id=args.follower_id, config=safety_config)
 
         print(f"[준비] Desktop VLA 서버 health 확인 중: {args.vla_server_url}")
         vla_client = VLAHttpClient(VLAClientConfig(server_url=args.vla_server_url, timeout_s=args.vla_timeout_s, api_token=args.vla_api_token))
@@ -618,17 +657,14 @@ def main(argv: list[str] | None = None) -> int:
         print("[준비] 카메라 오픈 완료 (workspace/wrist)")
 
         raw_state_source = ReadOnlyRealFollowerStateSource.from_port(
-            port=args.follower_port, follower_id=args.follower_id, calibration_path=args.follower_calibration_path,
+            port=args.follower_port, follower_id=args.follower_id, calibration_path=safety_config.calibration_file_path,
         )
         raw_state_source.connect()
         state_source = LockedFollowerStateSource(raw_state_source)
         initial_state = state_source.read()
         print(f"[준비] follower state 읽기 확인: {initial_state.positions_deg}")
 
-        safety_gate = SafetyGate(SafetyGateConfig.from_repo_defaults())
-        source_summary = safety_gate.config.source_summary()
-        if source_summary.get("uses_calibration_fallback"):
-            print("[경고] Safety Gate가 fallback 범위를 쓰고 있습니다 - 실제 캘리브레이션 파일 존재 여부를 다시 확인하세요.")
+        safety_gate = SafetyGate(safety_config)
 
         follower_config = SO101FollowerConfig(port=args.follower_port, id=args.follower_id, cameras={}, disable_torque_on_disconnect=True)
         follower = SOFollower(follower_config)
@@ -652,7 +688,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\n리포트 저장: {report_path}")
         return 0
 
-    except (CameraSourceError, FollowerStateSourceError, StagedSafetyTestError, RealtimeRunError) as exc:
+    except (CameraSourceError, FollowerStateSourceError, SafetyGateConfigError, StagedSafetyTestError, RealtimeRunError) as exc:
         print(f"[오류] {exc}")
         return 2
     finally:
