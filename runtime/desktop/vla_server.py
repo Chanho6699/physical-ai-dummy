@@ -32,6 +32,7 @@ Full Pick & Drop용 향후 async executor는 "action 1개"가 아니라 "timesta
 from __future__ import annotations
 
 import base64
+import hashlib
 import io
 import json
 import logging
@@ -419,6 +420,7 @@ class PredictRequestModel(BaseModel):
     sequence: int
     timestamp: float
     observation: ObservationModel
+    request_id: str | None = None
 
 
 class PredictResponseModel(BaseModel):
@@ -447,6 +449,7 @@ class PredictChunkResponseModel(BaseModel):
     inference_latency_ms: float
     server_received_at: float
     server_responded_at: float
+    input_diagnostic: dict[str, object] | None = None
 
 
 class ActionAckRequestModel(BaseModel):
@@ -467,7 +470,10 @@ API_DESCRIPTION = (
 )
 
 
-def create_app(*, policy_runner: PolicyRunner, api_token: str | None = None) -> FastAPI:
+def create_app(
+    *, policy_runner: PolicyRunner, api_token: str | None = None,
+    input_diagnostic_dir: str | Path | None = None,
+) -> FastAPI:
     app = FastAPI(title="Desktop SmolVLA VLA Server", description=API_DESCRIPTION, version="0.1.0")
 
     def require_token(authorization: str | None = Header(default=None)) -> None:
@@ -477,6 +483,41 @@ def create_app(*, policy_runner: PolicyRunner, api_token: str | None = None) -> 
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="인증 토큰이 없거나 올바르지 않습니다.")
 
     last_acks: list[dict] = []
+    diagnostic_lock = threading.Lock()
+    diagnostic_path = (
+        Path(input_diagnostic_dir) / "server_input_diagnostics.jsonl"
+        if input_diagnostic_dir is not None else None
+    )
+    if diagnostic_path is not None:
+        diagnostic_path.parent.mkdir(parents=True, exist_ok=True)
+
+    def build_input_diagnostic(req: PredictRequestModel, images: dict[str, object]) -> dict[str, object]:
+        import numpy as np
+
+        cameras: dict[str, object] = {}
+        for key in CAMERA_KEYS:
+            jpeg_bytes = base64.b64decode(req.observation.images[key], validate=True)
+            arr = np.asarray(images[key])
+            cameras[key] = {
+                "jpeg_sha256": hashlib.sha256(jpeg_bytes).hexdigest(),
+                "decoded_rgb_shape": list(arr.shape),
+                "decoded_rgb_sha256": hashlib.sha256(arr.tobytes()).hexdigest(),
+                "decoded_rgb_sum": int(arr.astype(np.uint64).sum()),
+            }
+        return {
+            "request_id": req.request_id,
+            "session_id": req.session_id,
+            "sequence": req.sequence,
+            "server_received_at": time.time(),
+            "cameras": cameras,
+        }
+
+    def persist_input_diagnostic(record: dict[str, object]) -> None:
+        if diagnostic_path is None:
+            return
+        with diagnostic_lock:
+            with diagnostic_path.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(record, ensure_ascii=False) + "\n")
 
     @app.get(HEALTH_PATH, response_model=HealthResponseModel, tags=["vla"])
     def get_health(_: None = Depends(require_token)) -> HealthResponseModel:
@@ -565,6 +606,10 @@ def create_app(*, policy_runner: PolicyRunner, api_token: str | None = None) -> 
         except ImageDecodeError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
 
+        input_diagnostic = (
+            build_input_diagnostic(req, images) if req.request_id is not None else None
+        )
+
         t0 = time.perf_counter()
         try:
             chunk = policy_runner.predict_chunk(task=req.task, state=state, images=images)
@@ -586,6 +631,10 @@ def create_app(*, policy_runner: PolicyRunner, api_token: str | None = None) -> 
                 detail="[inference_error] policy_runner.chunk_index_spacing_s를 알 수 없습니다 (fail-closed).",
             )
 
+        if input_diagnostic is not None:
+            input_diagnostic["raw_action_chunk"] = validated_chunk
+            persist_input_diagnostic(input_diagnostic)
+
         return PredictChunkResponseModel(
             session_id=req.session_id,
             sequence=req.sequence,
@@ -597,6 +646,7 @@ def create_app(*, policy_runner: PolicyRunner, api_token: str | None = None) -> 
             inference_latency_ms=inference_latency_ms,
             server_received_at=received_at,
             server_responded_at=time.time(),
+            input_diagnostic=input_diagnostic,
         )
 
     @app.post(ACTION_ACK_PATH, response_model=ActionAckResponseModel, tags=["vla"])

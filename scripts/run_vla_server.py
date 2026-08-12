@@ -36,6 +36,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--host", default=DEFAULT_HOST)
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
     parser.add_argument("--api-token", default=None)
+    parser.add_argument(
+        "--input-diagnostic-dir",
+        default=None,
+        help="선택: /predict_chunk 수신 JPEG hash/checksum/raw chunk JSONL 저장 디렉터리",
+    )
     args = parser.parse_args(argv)
 
     if not args.fake and not args.checkpoint:
@@ -62,7 +67,10 @@ def main(argv: list[str] | None = None) -> int:
             print(f"[경고] 체크포인트 로딩에 실패했습니다 - /health가 degraded로 응답합니다: {policy_runner._load_error}")
 
     api_token = args.api_token or os.environ.get(API_TOKEN_ENV_VAR)
-    app = create_app(policy_runner=policy_runner, api_token=api_token)
+    app = create_app(
+        policy_runner=policy_runner, api_token=api_token,
+        input_diagnostic_dir=args.input_diagnostic_dir,
+    )
 
     import uvicorn
 
