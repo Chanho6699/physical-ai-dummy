@@ -234,18 +234,13 @@ class RealObservationSnapshotProvider:
 
 # ---------------------------------------------------------------------------
 # Recording proxy (진단 전용, C-4와 동일 기법 - shipped generator 재구현 안 함)
+#
+# 이전에는 이 자리에 결과만 ``.results``에 append하는 ``RecordingGeneratorProxy``가 있었다.
+# C-5 두 번째 real session 조사(원인 규명에 tick-level raw 데이터가 없어 결론을 못 냄) 이후
+# ``runtime/laptop/diagnostic_jsonl_logger.DiagnosticCapturingGeneratorProxy``로 대체했다 -
+# ``recorder=None``일 때 정확히 같은 동작(``.results`` append만)이라 하위 호환이고, recorder를
+# 주면 tick마다 JSONL 진단 라인도 추가로 남긴다(``RealtimeSessionOrchestrator.__init__`` 참고).
 # ---------------------------------------------------------------------------
-
-
-class RecordingGeneratorProxy:
-    def __init__(self, inner) -> None:
-        self._inner = inner
-        self.results: list = []
-
-    def tick(self, **kwargs):
-        result = self._inner.tick(**kwargs)
-        self.results.append(result)
-        return result
 
 
 # ---------------------------------------------------------------------------
@@ -312,8 +307,10 @@ class RealtimeSessionOrchestrator:
         monotonic_fn: Callable[[], float] = time.monotonic,
         sleep_fn: Callable[[float], None] = time.sleep,
         print_fn: Callable[[str], None] = print,
+        diagnostic_jsonl_path: Path | str | None = None,
     ) -> None:
         from runtime.laptop.async_chunk_inference_worker import AsyncVLAChunkInferenceWorker
+        from runtime.laptop.diagnostic_jsonl_logger import DiagnosticCapturingGeneratorProxy, TickDiagnosticRecorder
         from runtime.laptop.motion_guard import DEFAULT_JOINT_MOTION_LIMITS
         from runtime.laptop.realtime_control_loop import (
             HoldPolicy,
@@ -342,7 +339,16 @@ class RealtimeSessionOrchestrator:
             ensembler=TemporalEnsembler(half_life_s=0.338, max_contributors=3), safety_gate=safety_gate,
             motion_limits=motion_limits or DEFAULT_JOINT_MOTION_LIMITS, control_hz=control_hz,
         )
-        self._gen_proxy = RecordingGeneratorProxy(real_generator)
+        # 진단 전용(analysis/instrumentation only), additive - diagnostic_jsonl_path가
+        # None이면 recorder=None이라 DiagnosticCapturingGeneratorProxy는 기존
+        # RecordingGeneratorProxy와 동작이 100% 동일하다(.results append만). realtime
+        # 판정 로직(Intent/Motion Guard/Final SafetyGate/quarantine)은 전혀 건드리지
+        # 않는다 - runtime/laptop/diagnostic_jsonl_logger.py 모듈 docstring 참고.
+        self._diag_recorder: TickDiagnosticRecorder | None = (
+            TickDiagnosticRecorder(diagnostic_jsonl_path, safety_gate=safety_gate)
+            if diagnostic_jsonl_path is not None else None
+        )
+        self._gen_proxy = DiagnosticCapturingGeneratorProxy(real_generator, recorder=self._diag_recorder)
         # session_write_cap: "무제한"이 아니라 이번 세션 길이에 맞춘 명시적 상한(3배 여유) -
         # follower_action_writer.py의 circuit-breaker 철학을 이 세션 규모에 맞게 재적용.
         self._session_write_cap = max(1000, int(max_runtime_s * control_hz * 3))
@@ -410,6 +416,11 @@ class RealtimeSessionOrchestrator:
                     last_status_print = now
 
                 records = self._loop.tick_history()
+                if self._diag_recorder is not None:
+                    # 진단 전용 - 기존 폴링 지점에 편승(같은 100ms 간격), 파일 I/O는 이
+                    # monitor thread에서만(60Hz motor thread는 절대 안 건드림). 아래
+                    # diagnostic_jsonl_logger.py 모듈 docstring "두 단계 캡처" 참고.
+                    self._diag_recorder.drain_and_write(records)
                 recent = records[-1] if records else None
                 if recent is not None:
                     if recent.state.value == "FAULT":
@@ -500,6 +511,19 @@ class RealtimeSessionOrchestrator:
         except Exception as exc:  # noqa: BLE001
             self._print(f"[경고] inference worker stop 중 예외: {exc}")
 
+        if self._diag_recorder is not None:
+            # 진단 전용 - loop가 완전히 멈춘 뒤 마지막 tail(마지막 폴링 이후 생긴 tick들)까지
+            # 전부 drain하고, quarantine 재구성 결과를 진짜 값과 대조한 뒤 파일을 닫는다.
+            try:
+                self._diag_recorder.drain_and_write(self._loop.tick_history())
+                for warning in self._diag_recorder.cross_check_final_quarantine(self._loop.quarantined_sequences):
+                    self._print(warning)
+                self._print(f"[진단] tick-level JSONL {self._diag_recorder.lines_written}줄 기록: {self._diag_recorder.path}")
+            except Exception as exc:  # noqa: BLE001 - 진단 마무리 실패가 report 생성을 막으면 안 됨
+                self._print(f"[경고] 진단 JSONL 마무리 중 예외(리포트 생성에는 영향 없음): {exc}")
+            finally:
+                self._diag_recorder.close()
+
         return self._build_report(stop_reason, duration_s)
 
     def _build_report(self, stop_reason: StopReason, duration_s: float) -> SessionReport:
@@ -581,6 +605,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--max-runtime-s", type=float, default=DEFAULT_MAX_RUNTIME_S)
     p.add_argument("--trajectory-wait-timeout-s", type=float, default=DEFAULT_TRAJECTORY_WAIT_TIMEOUT_S)
     p.add_argument("--report-dir", type=Path, default=DEFAULT_REPORT_DIR)
+    p.add_argument(
+        "--diagnostic-jsonl-path", type=Path, default=None,
+        help="tick-level 진단 JSONL 저장 경로(기본값: report-dir/tick_diagnostics_<ts>.jsonl). "
+             "분석/계측 전용 - safety/motion/quarantine 판정에 전혀 영향을 주지 않는다.",
+    )
+    p.add_argument(
+        "--disable-diagnostic-jsonl", action="store_true",
+        help="tick-level 진단 JSONL 기록을 끈다(기본은 켜짐 - additive-only라 안전하지만 옵션으로 제공).",
+    )
     p.add_argument("--dry-run", action="store_true", help="하드웨어/네트워크에 전혀 접근하지 않고 계획만 출력")
     p.add_argument("--confirm-physically-present", action="store_true")
     return p.parse_args(argv)
@@ -674,15 +707,25 @@ def main(argv: list[str] | None = None) -> int:
 
         observation_provider = RealObservationSnapshotProvider(camera_source=camera_source, state_source=state_source, task=args.task)
 
+        # session_ts를 run() 시작 전에 한 번만 정해서 report/JSONL 파일명을 맞춘다(둘 다
+        # 같은 세션을 가리킨다는 걸 파일명만으로 알 수 있게) - 진단 전용, 기존
+        # report_path 계산 방식(저장 시점 timestamp)은 안 바꾼다.
+        args.report_dir.mkdir(parents=True, exist_ok=True)
+        session_ts = int(time.time())
+        diagnostic_jsonl_path = (
+            None if args.disable_diagnostic_jsonl
+            else (args.diagnostic_jsonl_path or args.report_dir / f"tick_diagnostics_{session_ts}.jsonl")
+        )
+
         orchestrator = RealtimeSessionOrchestrator(
             observation_provider=observation_provider, state_source=state_source, writer=writer, vla_client=vla_client,
             safety_gate=safety_gate, motion_limits=None, session_id="c5-real-pick-drop", task=args.task,
             control_hz=args.control_hz, sanity_window_s=args.sanity_window_s, max_runtime_s=args.max_runtime_s,
             trajectory_wait_timeout_s=args.trajectory_wait_timeout_s,
+            diagnostic_jsonl_path=diagnostic_jsonl_path,
         )
         report = orchestrator.run()
 
-        args.report_dir.mkdir(parents=True, exist_ok=True)
         report_path = args.report_dir / f"session_{int(time.time())}.json"
         report_path.write_text(json.dumps(report.to_dict(), indent=2, default=str), encoding="utf-8")
         print(f"\n리포트 저장: {report_path}")
