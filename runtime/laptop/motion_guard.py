@@ -288,20 +288,34 @@ class CoordinatedGuardState:
     velocities: dict[str, float]
     accelerations: dict[str, float]
     phase_scale: float = 1.0
+    previous_actual_positions: dict[str, float] | None = None
+    no_response_duration_s: float = 0.0
+    opposite_response_duration_s: float = 0.0
 
 
 DEFAULT_TRACKING_LEAD_LIMITS: dict[str, float] = {
-    # Conservative first deployment envelope.  Elbow/lift use the largest
-    # characterized isolated step; these are command leads, not raw-target limits.
-    "shoulder_pan": 2.0,
-    "shoulder_lift": 2.0,
-    "elbow_flex": 2.0,
-    "wrist_flex": 2.0,
-    "wrist_roll": 2.0,
-    "gripper": 3.0,
+    # Teleop observed max plus dataset-limit stopping distance (v^2/2a).
+    # This is a phase-hold trigger, not a lag-only fatal threshold.
+    "shoulder_pan": 6.9275880272960695,
+    "shoulder_lift": 11.53895186826798,
+    "elbow_flex": 9.126013088035567,
+    "wrist_flex": 8.308079154583202,
+    "wrist_roll": 5.607372765353356,
+    "gripper": 11.04335337406125,
 }
-DEFAULT_LAG_SOFT_FRACTION = 0.70
+DEFAULT_LAG_SOFT_FRACTIONS: dict[str, float] = {
+    "shoulder_pan": 5.165714285714285 / DEFAULT_TRACKING_LEAD_LIMITS["shoulder_pan"],
+    "shoulder_lift": 8.066813186813185 / DEFAULT_TRACKING_LEAD_LIMITS["shoulder_lift"],
+    "elbow_flex": 6.065934065934059 / DEFAULT_TRACKING_LEAD_LIMITS["elbow_flex"],
+    "wrist_flex": 7.120879120879124 / DEFAULT_TRACKING_LEAD_LIMITS["wrist_flex"],
+    "wrist_roll": 3.604395604395605 / DEFAULT_TRACKING_LEAD_LIMITS["wrist_roll"],
+    "gripper": 8.488612836438925 / DEFAULT_TRACKING_LEAD_LIMITS["gripper"],
+}
+DEFAULT_LAG_SOFT_FRACTION = min(DEFAULT_LAG_SOFT_FRACTIONS.values())
 DEFAULT_PHASE_RECOVERY_PER_S = 2.0
+DEFAULT_NO_RESPONSE_TIMEOUT_S = 10.0
+DEFAULT_ENCODER_RESPONSE_THRESHOLD_DEG = 0.0879120879120876
+DEFAULT_OPPOSITE_RESPONSE_TIMEOUT_S = 10.0
 
 
 def apply_coordinated_motion_guard(
@@ -314,7 +328,10 @@ def apply_coordinated_motion_guard(
     dt_s: float,
     correction_time_constant_s: float = DEFAULT_CORRECTION_TIME_CONSTANT_S,
     tracking_lead_limits: dict[str, float] | None = None,
-    lag_soft_fraction: float = DEFAULT_LAG_SOFT_FRACTION,
+    lag_soft_fraction: float | None = None,
+    no_response_timeout_s: float = DEFAULT_NO_RESPONSE_TIMEOUT_S,
+    response_threshold_deg: float = DEFAULT_ENCODER_RESPONSE_THRESHOLD_DEG,
+    opposite_response_timeout_s: float = DEFAULT_OPPOSITE_RESPONSE_TIMEOUT_S,
     phase_recovery_per_s: float = DEFAULT_PHASE_RECOVERY_PER_S,
 ) -> tuple[dict[str, float], CoordinatedGuardState]:
     """Advance one virtual 6-D command with one common trajectory time scale.
@@ -333,8 +350,12 @@ def apply_coordinated_motion_guard(
         raise MotionGuardError(f"dt_s must be finite and positive: {dt_s}")
     if correction_time_constant_s <= 0 or not math.isfinite(correction_time_constant_s):
         raise MotionGuardError("correction_time_constant_s must be finite and positive")
-    if not 0 < lag_soft_fraction < 1 or phase_recovery_per_s <= 0:
+    if lag_soft_fraction is not None and not 0 < lag_soft_fraction < 1:
         raise MotionGuardError("invalid lag slowdown configuration")
+    if phase_recovery_per_s <= 0 or no_response_timeout_s <= 0 or response_threshold_deg <= 0:
+        raise MotionGuardError("invalid lag response configuration")
+    if opposite_response_timeout_s <= 0:
+        raise MotionGuardError("invalid opposite-response configuration")
     for joint in joints:
         values = (current_state[joint], target_now[joint], target_lookahead[joint], leads[joint])
         if not all(math.isfinite(x) for x in values) or leads[joint] <= 0:
@@ -345,11 +366,17 @@ def apply_coordinated_motion_guard(
         previous_velocity = {j: 0.0 for j in joints}
         previous_acceleration = {j: 0.0 for j in joints}
         previous_phase_scale = 1.0
+        previous_actual = dict(current_state)
+        no_response_duration = 0.0
+        opposite_response_duration = 0.0
     else:
         virtual = dict(prev_state.positions)
         previous_velocity = dict(prev_state.velocities)
         previous_acceleration = dict(prev_state.accelerations)
         previous_phase_scale = prev_state.phase_scale
+        previous_actual = dict(prev_state.previous_actual_positions or current_state)
+        no_response_duration = prev_state.no_response_duration_s
+        opposite_response_duration = prev_state.opposite_response_duration_s
 
     desired_velocity = {
         j: (target_lookahead[j] - target_now[j]) / dt_s
@@ -365,7 +392,11 @@ def apply_coordinated_motion_guard(
         if lag * desired <= 0:
             continue
         hard = leads[joint]
-        soft = hard * lag_soft_fraction
+        soft_fraction = (
+            lag_soft_fraction if lag_soft_fraction is not None
+            else DEFAULT_LAG_SOFT_FRACTIONS.get(joint, DEFAULT_LAG_SOFT_FRACTION)
+        )
+        soft = hard * soft_fraction
         magnitude = abs(lag)
         if magnitude >= hard:
             lag_scale = 0.0
@@ -433,13 +464,54 @@ def apply_coordinated_motion_guard(
         j: (next_velocity[j] - previous_velocity[j]) / dt_s for j in joints
     }
     next_positions = {j: virtual[j] + next_velocity[j] * dt_s for j in joints}
-    for joint in joints:
-        if abs(next_positions[joint] - current_state[joint]) > leads[joint] + 1e-7:
-            raise MotionGuardError(f"tracking lead bound exceeded for {joint}")
+    # During a coordinated hold, encoder motion away from the command can make
+    # lag grow even though virtual velocity is braking. Keep the emergency hold
+    # envelope bounded without resuming any trajectory component.
+    if phase_scale == 0.0:
+        next_positions = {
+            joint: max(current_state[joint] - leads[joint], min(current_state[joint] + leads[joint], position))
+            for joint, position in next_positions.items()
+        }
+
+    blocking_joints = [
+        joint for joint in joints
+        if abs(virtual[joint] - current_state[joint]) >= leads[joint] - response_threshold_deg
+        and (virtual[joint] - current_state[joint]) * desired_velocity[joint] > 0
+    ]
+    response_anchor = previous_actual
+    if blocking_joints:
+        same_direction_response = max(
+            (current_state[joint] - response_anchor[joint])
+            * (1.0 if desired_velocity[joint] > 0 else -1.0)
+            for joint in blocking_joints
+        )
+        if same_direction_response >= response_threshold_deg:
+            no_response_duration = 0.0
+            opposite_response_duration = 0.0
+            response_anchor = dict(current_state)
+        else:
+            no_response_duration += dt_s
+            if same_direction_response < 0.0:
+                opposite_response_duration += dt_s
+            else:
+                opposite_response_duration = 0.0
+    else:
+        no_response_duration = 0.0
+        opposite_response_duration = 0.0
+
+    if opposite_response_duration >= opposite_response_timeout_s:
+        raise MotionGuardError(f"sustained opposite encoder response: joints={blocking_joints}")
+    if no_response_duration >= no_response_timeout_s:
+        raise MotionGuardError(
+            f"sustained no-response at bounded tracking lead: joints={blocking_joints}"
+        )
 
     state = CoordinatedGuardState(
         positions=next_positions,
         velocities=next_velocity,
+        previous_actual_positions=response_anchor,
+        no_response_duration_s=no_response_duration,
+        opposite_response_duration_s=opposite_response_duration,
         accelerations=next_acceleration,
         phase_scale=phase_scale,
     )

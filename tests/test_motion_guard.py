@@ -272,7 +272,7 @@ def test_coordinated_guard_preserves_ratio_and_dynamic_limits() -> None:
     state = None
     previous_velocity = {j: 0.0 for j in joints}
     previous_acceleration = {j: 0.0 for j in joints}
-    for _ in range(300):
+    for _ in range(360):
         guarded, state = apply_coordinated_motion_guard(
             limits_by_joint=limits, current_state=current, target_now=target,
             target_lookahead=target, prev_state=state, dt_s=DT,
@@ -300,8 +300,8 @@ def test_stuck_elbow_cannot_allow_shoulder_only_runaway() -> None:
     target = {"shoulder_lift": 20.0, "elbow_flex": -18.0}
     state = None
     last_guarded = dict(current)
-    with pytest.raises(MotionGuardError, match="tracking lead bound"):
-        for _ in range(300):
+    with pytest.raises(MotionGuardError, match="sustained no-response"):
+        for _ in range(660):
             last_guarded, state = apply_coordinated_motion_guard(
                 limits_by_joint=limits, current_state=current, target_now=target,
                 target_lookahead=target, prev_state=state, dt_s=DT,
@@ -309,5 +309,117 @@ def test_stuck_elbow_cannot_allow_shoulder_only_runaway() -> None:
             )
             current["shoulder_lift"] = last_guarded["shoulder_lift"]
             # Endpoint elbow intentionally does not respond.
-    assert abs(last_guarded["elbow_flex"]) <= 2.0 + 1e-7
-    assert last_guarded["shoulder_lift"] < 3.0
+    assert abs(last_guarded["elbow_flex"]) <= 5.0 + 1e-7
+    assert last_guarded["shoulder_lift"] < 4.0
+
+def test_normal_teleop_p95_elbow_lead_is_diagnostic_only() -> None:
+    from runtime.laptop.motion_guard import (
+        CoordinatedGuardState,
+        DEFAULT_TRACKING_LEAD_LIMITS,
+        apply_coordinated_motion_guard,
+    )
+
+    joints = ("shoulder_lift", "elbow_flex")
+    limits = {j: JointMotionLimits(60.0, 600.0, 30000.0) for j in joints}
+    current = {j: 0.0 for j in joints}
+    previous = CoordinatedGuardState(
+        positions={"shoulder_lift": 0.0, "elbow_flex": -5.714285714285715},
+        velocities={j: 0.0 for j in joints},
+        accelerations={j: 0.0 for j in joints},
+        phase_scale=1.0,
+        previous_actual_positions=dict(current),
+    )
+    _, state = apply_coordinated_motion_guard(
+        limits_by_joint=limits,
+        current_state=current,
+        target_now={"shoulder_lift": 10.0, "elbow_flex": -20.0},
+        target_lookahead={"shoulder_lift": 10.0, "elbow_flex": -20.0},
+        prev_state=previous,
+        dt_s=DT,
+    )
+    assert DEFAULT_TRACKING_LEAD_LIMITS["elbow_flex"] > 5.714285714285715
+    assert state.phase_scale == pytest.approx(1.0)
+
+
+def test_sustained_no_response_at_data_driven_hold_fails_closed() -> None:
+    from runtime.laptop.motion_guard import (
+        CoordinatedGuardState,
+        DEFAULT_TRACKING_LEAD_LIMITS,
+        apply_coordinated_motion_guard,
+    )
+
+    joints = ("shoulder_lift", "elbow_flex")
+    limits = {j: JointMotionLimits(HUGE, HUGE, HUGE) for j in joints}
+    current = {j: 0.0 for j in joints}
+    hold = DEFAULT_TRACKING_LEAD_LIMITS["elbow_flex"]
+    state = CoordinatedGuardState(
+        positions={"shoulder_lift": 0.0, "elbow_flex": -hold},
+        velocities={j: 0.0 for j in joints},
+        accelerations={j: 0.0 for j in joints},
+        phase_scale=0.0,
+        previous_actual_positions=dict(current),
+    )
+    with pytest.raises(MotionGuardError, match="sustained no-response"):
+        for _ in range(660):
+            _, state = apply_coordinated_motion_guard(
+                limits_by_joint=limits,
+                current_state=current,
+                target_now={"shoulder_lift": 10.0, "elbow_flex": -20.0},
+                target_lookahead={"shoulder_lift": 10.0, "elbow_flex": -20.0},
+                prev_state=state,
+                dt_s=DT,
+            )
+
+
+def test_temporary_lag_recovers_without_hard_block() -> None:
+    from runtime.laptop.motion_guard import apply_coordinated_motion_guard
+
+    joints = ("shoulder_lift", "elbow_flex")
+    limits = {j: JointMotionLimits(60.0, 600.0, 30000.0) for j in joints}
+    current = {j: 0.0 for j in joints}
+    target = {"shoulder_lift": 20.0, "elbow_flex": -18.0}
+    state = None
+    scales = []
+    for tick in range(180):
+        guarded, state = apply_coordinated_motion_guard(
+            limits_by_joint=limits, current_state=current, target_now=target,
+            target_lookahead=target, prev_state=state, dt_s=DT,
+        )
+        # 0.5 s temporary elbow delay, then a responsive coordinated follower.
+        if tick >= 30:
+            current["elbow_flex"] += 0.5 * (guarded["elbow_flex"] - current["elbow_flex"])
+        current["shoulder_lift"] += 0.5 * (guarded["shoulder_lift"] - current["shoulder_lift"])
+        scales.append(state.phase_scale)
+    assert min(scales) < 1.0
+    assert scales[-1] > min(scales)
+    assert abs(current["shoulder_lift"]) / abs(current["elbow_flex"]) < 2.0
+
+def test_sustained_opposite_encoder_response_fails_closed() -> None:
+    from runtime.laptop.motion_guard import (
+        CoordinatedGuardState,
+        DEFAULT_TRACKING_LEAD_LIMITS,
+        apply_coordinated_motion_guard,
+    )
+
+    joints = ("shoulder_lift", "elbow_flex")
+    limits = {j: JointMotionLimits(HUGE, HUGE, HUGE) for j in joints}
+    current = {j: 0.0 for j in joints}
+    hold = DEFAULT_TRACKING_LEAD_LIMITS["elbow_flex"]
+    state = CoordinatedGuardState(
+        positions={"shoulder_lift": 0.0, "elbow_flex": -hold},
+        velocities={j: 0.0 for j in joints},
+        accelerations={j: 0.0 for j in joints},
+        phase_scale=0.0,
+        previous_actual_positions=dict(current),
+    )
+    with pytest.raises(MotionGuardError, match="sustained opposite"):
+        for _ in range(660):
+            current["elbow_flex"] += 0.1
+            _, state = apply_coordinated_motion_guard(
+                limits_by_joint=limits,
+                current_state=current,
+                target_now={"shoulder_lift": 10.0, "elbow_flex": -20.0},
+                target_lookahead={"shoulder_lift": 10.0, "elbow_flex": -20.0},
+                prev_state=state,
+                dt_s=DT,
+            )

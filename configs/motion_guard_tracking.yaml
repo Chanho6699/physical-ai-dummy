@@ -1,0 +1,43 @@
+version: 1
+role: motion_guard_tracking_lag_calibration
+generated_from:
+  teleop:
+    path: reports/instrumented_teleop/instrumented_wrist_roll_20260812_112406_servo_lead.csv
+    samples_per_joint: 625
+    meaning: Normal leader-to-follower Goal_Position minus Present_Position.
+  characterization:
+    paths:
+      - reports/joint_tracking_characterization/20260812_185236/report.json
+      - reports/joint_tracking_characterization/20260812_190232/report.json
+      - reports/joint_tracking_characterization/20260812_190801/report.json
+      - reports/joint_tracking_characterization/20260812_191503/report.json
+    meaning: Encoder resolution, response latency, and sustained stage observation window.
+semantics:
+  normal: Diagnostic only below teleop p99.
+  soft_slowdown: Common phase scaling from teleop p99 toward the braking-aware hold envelope.
+  hold: Bounded common phase hold at teleop max plus dataset-limit stopping distance; lag magnitude alone is not fatal.
+  fail_closed: Sustained no-response for the characterization observation window, or sustained opposite response for the slowest measured response latency.
+joints:
+  shoulder_pan: {soft_lead: 5.165714285714285, hold_lead: 6.9275880272960695}
+  shoulder_lift:
+    soft_lead: 8.066813186813185
+    hold_lead: 11.53895186826798
+    endpoint_p99: 3.6958241758241788
+    endpoint_max: 4.131868131868131
+  elbow_flex:
+    soft_lead: 6.065934065934059
+    hold_lead: 9.126013088035567
+    endpoint_p99: 5.003956043956055
+    endpoint_max: 5.186813186813197
+  wrist_flex: {soft_lead: 7.120879120879124, hold_lead: 8.308079154583202}
+  wrist_roll: {soft_lead: 3.604395604395605, hold_lead: 5.607372765353356}
+  gripper: {soft_lead: 8.488612836438925, hold_lead: 11.04335337406125}
+response:
+  encoder_threshold_deg: 0.0879120879120876
+  slowest_measured_first_response_s: 0.22143878799761296
+  sustained_opposite_response_s: 10.0
+  sustained_no_response_s: 10.0
+notes:
+  - Endpoint-specific lead is retained as diagnostic provenance, not a tighter cap.
+  - Final Safety owns calibrated mechanical range and outward endpoint saturation.
+  - Velocity, acceleration, and jerk remain dataset 60 Hz resampled p99.5 limits in motion_guard.py.
