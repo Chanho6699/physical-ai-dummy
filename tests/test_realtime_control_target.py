@@ -34,6 +34,12 @@ def _neutral(value: float = 0.0) -> dict[str, float]:
     return {j: value for j in JOINT_ORDER}
 
 
+def _single_target(joint: str, value: float) -> dict[str, float]:
+    target = _neutral()
+    target[joint] = value
+    return target
+
+
 def _chunk(*, sequence: int, obs_time: float, target_action: dict[str, float], chunk_size: int = CHUNK_SIZE, spacing: float = SPACING) -> TimestampedActionChunk:
     """모든 index k에 동일한 target_action을 채운 constant chunk - 이 테스트 스위트는
     "T에 따라 chunk 안에서 어떤 값이 나오는지"가 아니라 Intent Validation/Motion Guard/
@@ -184,43 +190,40 @@ def test_velocity_spike_clamped_through_full_tick() -> None:
     limits = {j: JointMotionLimits(velocity_limit=10.0, acceleration_limit=1e6, jerk_limit=1e9) for j in JOINT_ORDER}
     gen = _make_generator(motion_limits=limits)
     current = _neutral(0.0)
-    chunk = _chunk(sequence=0, obs_time=0.0, target_action=_neutral(1000.0))
+    chunk = _chunk(sequence=0, obs_time=0.0, target_action=_single_target("shoulder_pan", 1000.0))
 
     result = gen.tick(chunks=[chunk], now_monotonic=0.0, current_follower_state_deg=current)
 
     assert result.target_valid is True
     expected = 10.0 * gen.period_s  # 첫 tick, dt=period_s(이력 없음), target_lookahead==target_now(단일 chunk 상수)
-    for j in JOINT_ORDER:
-        assert result.guarded_target[j] == pytest.approx(expected, rel=1e-6)
-        assert result.raw_ensemble_target[j] == pytest.approx(1000.0)  # raw는 그대로 보존
+    assert result.guarded_target["shoulder_pan"] == pytest.approx(expected, rel=1e-6)
+    assert result.raw_ensemble_target["shoulder_pan"] == pytest.approx(1000.0)
 
 
 def test_acceleration_spike_clamped_through_full_tick() -> None:
     limits = {j: JointMotionLimits(velocity_limit=1e6, acceleration_limit=100.0, jerk_limit=1e9) for j in JOINT_ORDER}
     gen = _make_generator(motion_limits=limits)
     current = _neutral(0.0)
-    chunk = _chunk(sequence=0, obs_time=0.0, target_action=_neutral(1000.0))
+    chunk = _chunk(sequence=0, obs_time=0.0, target_action=_single_target("shoulder_pan", 1000.0))
 
     result = gen.tick(chunks=[chunk], now_monotonic=0.0, current_follower_state_deg=current)
 
     dt = gen.period_s
     expected = 100.0 * dt * dt
-    for j in JOINT_ORDER:
-        assert result.guarded_target[j] == pytest.approx(expected, rel=1e-6)
+    assert result.guarded_target["shoulder_pan"] == pytest.approx(expected, rel=1e-6)
 
 
 def test_jerk_spike_clamped_through_full_tick() -> None:
     limits = {j: JointMotionLimits(velocity_limit=1e6, acceleration_limit=1e6, jerk_limit=1000.0) for j in JOINT_ORDER}
     gen = _make_generator(motion_limits=limits)
     current = _neutral(0.0)
-    chunk = _chunk(sequence=0, obs_time=0.0, target_action=_neutral(1000.0))
+    chunk = _chunk(sequence=0, obs_time=0.0, target_action=_single_target("shoulder_pan", 1000.0))
 
     result = gen.tick(chunks=[chunk], now_monotonic=0.0, current_follower_state_deg=current)
 
     dt = gen.period_s
     expected = 1000.0 * dt ** 3
-    for j in JOINT_ORDER:
-        assert result.guarded_target[j] == pytest.approx(expected, rel=1e-6)
+    assert result.guarded_target["shoulder_pan"] == pytest.approx(expected, rel=1e-6)
 
 
 # ---------------------------------------------------------------------------
@@ -355,60 +358,46 @@ def test_final_safety_still_evaluates_guarded_target_when_intent_passes() -> Non
 # ---------------------------------------------------------------------------
 
 
-def test_dangerous_wrist_raw_target_blocked_before_motion_guard() -> None:
-    """실제 Safety threshold(wrist_flex=13.50)와 실제 demo 기반 motion limits로,
-    위험한 wrist_flex raw target(delta=20deg > threshold, < gross 5x=67.50deg이므로
-    REJECT가 아니라 WOULD_CLAMP)이 Intent Validation에서 즉시 막히고, target_valid=False,
-    guarded_target=None(=Motion Guard가 이 tick에 대해 전혀 호출되지 않았음)임을 확인한다."""
-    gen = _real_generator()
-    current = _neutral(0.0)
-    current["wrist_flex"] = 53.6703  # 실제 실물 사례의 before 값
-    target = dict(current)
-    target["wrist_flex"] = 33.6703  # 실제 실물 사례의 raw predict 값 (delta = -20.0)
-    chunk = _chunk(sequence=0, obs_time=0.0, target_action=target)
-
-    result = gen.tick(chunks=[chunk], now_monotonic=0.0, current_follower_state_deg=current)
-
-    assert result.intent_decision == "WOULD_CLAMP"
-    assert result.target_valid is False
-    assert result.stop_reason == f"{STOP_REASON_INTENT_PREFIX}WOULD_CLAMP"
-    # Motion Guard가 전혀 호출되지 않았음 - guarded/smoothed/safety_decision이 전부 비어있다.
-    assert result.guarded_target is None
-    assert result.smoothed_target is None
-    assert result.safety_decision is None
-    # raw target 자체는 진단용으로 보존된다(무엇이 왜 막혔는지 로그로 남기기 위함).
-    assert result.raw_ensemble_target["wrist_flex"] == pytest.approx(33.6703)
-
-
-def test_dangerous_wrist_cannot_be_chopped_into_pieces_to_bypass_intent() -> None:
-    """섹션 10 명시 요구: "Motion Guard가 위험한 raw target을 잘게 쪼개 Safety를
-    우회할 수 없음"을 직접 증명한다. current_follower_state_deg를 매 tick 고정한 채
-    (=guarded_target이 없으므로 피드백할 값 자체가 없음 - Intent가 막으면 애초에 다음
-    tick으로 이어질 "진행된 위치"가 생기지 않는다) 여러 tick을 반복해도, 매번 동일하게
-    INTENT_WOULD_CLAMP로 막히고 단 한 번도 Motion Guard 이하 단계에 도달하지 않는다 -
-    즉 "60 tick에 걸쳐 결국 원래 목표에 도달"하던 이전 C-3A 버그가 더 이상 존재하지
-    않는다."""
+def test_normal_far_wrist_raw_target_reaches_motion_guard() -> None:
     gen = _real_generator()
     current = _neutral(0.0)
     current["wrist_flex"] = 53.6703
-    target = dict(_neutral(0.0))
+    target = dict(current)
     target["wrist_flex"] = 33.6703
+    result = gen.tick(
+        chunks=[_chunk(sequence=0, obs_time=0.0, target_action=target)],
+        now_monotonic=0.0,
+        current_follower_state_deg=current,
+    )
+    assert result.intent_decision == "ACCEPT"
+    assert result.target_valid is True
+    assert result.guarded_target is not None
+    assert result.safety_decision == "ACCEPT"
 
-    now = 0.0
-    for i in range(60):  # 1초 분량 - 이전 버그 재현 테스트와 동일한 tick 수
-        now += DT_60HZ
-        chunk = _chunk(sequence=i, obs_time=now, target_action=target)
-        result = gen.tick(chunks=[chunk], now_monotonic=now, current_follower_state_deg=current)
-        assert result.target_valid is False, f"tick {i}에서 예상과 다르게 target_valid=True"
-        assert result.stop_reason == f"{STOP_REASON_INTENT_PREFIX}WOULD_CLAMP"
+
+def test_severe_wrist_temporal_discontinuity_is_blocked_before_motion_guard() -> None:
+    gen = _real_generator()
+    current = _neutral(0.0)
+    baseline = _chunk(sequence=0, obs_time=0.0, target_action=current)
+    accepted = gen.tick(
+        chunks=[baseline], now_monotonic=0.0, current_follower_state_deg=current,
+    )
+    assert accepted.target_valid is True
+
+    spike = dict(current)
+    spike["wrist_flex"] = 20.0
+    for i in range(1, 5):
+        now = i * DT_60HZ
+        result = gen.tick(
+            chunks=[_chunk(sequence=i, obs_time=now, target_action=spike)],
+            now_monotonic=now,
+            current_follower_state_deg=current,
+        )
+        assert result.target_valid is False
+        assert result.intent_decision == "REJECT"
+        assert result.stop_reason == f"{STOP_REASON_INTENT_PREFIX}REJECT"
         assert result.guarded_target is None
-        # current를 갱신하지 않는다 - 실제로도 write가 일어나지 않으므로(target_valid=False)
-        # follower는 물리적으로 전혀 움직이지 않았을 것이기 때문에 이게 올바른 오프라인 시뮬레이션이다.
-
-    # 1초 동안 단 한 번도 이 위험한 target 방향으로 "진행"하지 못했다 - current는 시작
-    # 위치 그대로다(우리가 애초에 갱신하지 않았으므로 자명하지만, 이게 바로 핵심 안전 속성:
-    # write eligibility가 전혀 생기지 않으므로 실제 follower도 절대 움직이지 않는다).
-    assert current["wrist_flex"] == pytest.approx(53.6703)
+        assert result.safety_decision is None
 
 
 # ---------------------------------------------------------------------------
@@ -481,7 +470,7 @@ def test_reset_guard_state_restarts_like_fresh_first_tick() -> None:
     now = 0.0
     for i in range(5):
         now += DT_60HZ
-        chunk = _chunk(sequence=i, obs_time=now, target_action=_neutral(1000.0))
+        chunk = _chunk(sequence=i, obs_time=now, target_action=_single_target("shoulder_pan", 1000.0))
         result = gen.tick(chunks=[chunk], now_monotonic=now, current_follower_state_deg=current)
         current = result.guarded_target
     assert current["shoulder_pan"] > 0  # 이미 어느 정도 움직인 상태
@@ -489,12 +478,45 @@ def test_reset_guard_state_restarts_like_fresh_first_tick() -> None:
     gen.reset_guard_state()
     fresh_current = _neutral(0.0)  # 실제로도 리셋된 것처럼(테스트 목적상 위치도 초기화)
     now += DT_60HZ
-    chunk = _chunk(sequence=99, obs_time=now, target_action=_neutral(1000.0))
+    chunk = _chunk(sequence=99, obs_time=now, target_action=_single_target("shoulder_pan", 1000.0))
     result = gen.tick(chunks=[chunk], now_monotonic=now, current_follower_state_deg=fresh_current)
 
     # reset 직후 첫 tick은 dt=period_s로 계산된, "첫 tick과 동일한" 결과가 나와야 한다.
     expected_first_tick = 10.0 * gen.period_s  # velocity_limit_binding과 동일한 계산(accel/jerk 관대함)
     assert result.guarded_target["shoulder_pan"] == pytest.approx(expected_first_tick, rel=1e-6)
+
+
+@pytest.mark.parametrize("reset_mode", ["no_target", "stale", "recovery"])
+def test_intent_history_resets_on_trajectory_gap_or_recovery(reset_mode: str) -> None:
+    gen = _real_generator()
+    current = _neutral(0.0)
+    baseline = _chunk(sequence=0, obs_time=0.0, target_action=current)
+    assert gen.tick(
+        chunks=[baseline], now_monotonic=0.0, current_follower_state_deg=current,
+    ).target_valid
+
+    if reset_mode == "no_target":
+        gap = gen.tick(
+            chunks=[], now_monotonic=DT_60HZ, current_follower_state_deg=current,
+        )
+        assert gap.stop_reason == STOP_REASON_NO_TARGET
+    elif reset_mode == "stale":
+        stale = _chunk(sequence=1, obs_time=-100.0, target_action=current)
+        gap = gen.tick(
+            chunks=[stale], now_monotonic=DT_60HZ, current_follower_state_deg=current,
+        )
+        assert gap.stop_reason == STOP_REASON_STALE_TRAJECTORY
+    else:
+        gen.reset_guard_state()
+
+    far = dict(current)
+    far["wrist_flex"] = 20.0
+    recovered = gen.tick(
+        chunks=[_chunk(sequence=2, obs_time=2 * DT_60HZ, target_action=far)],
+        now_monotonic=2 * DT_60HZ,
+        current_follower_state_deg=current,
+    )
+    assert recovered.intent_decision == "ACCEPT"
 
 
 # ---------------------------------------------------------------------------
@@ -507,13 +529,13 @@ def test_variable_dt_uses_actual_elapsed_time_not_nominal_period() -> None:
     gen = _make_generator(motion_limits=limits)
     current = _neutral(0.0)
 
-    chunk0 = _chunk(sequence=0, obs_time=0.0, target_action=_neutral(1000.0))
+    chunk0 = _chunk(sequence=0, obs_time=0.0, target_action=_single_target("shoulder_pan", 1000.0))
     r0 = gen.tick(chunks=[chunk0], now_monotonic=0.0, current_follower_state_deg=current)
     current = r0.guarded_target
 
     # 두 번째 tick을 nominal period(1/60≈16.67ms)가 아니라 50ms 뒤에 호출 - 실제 다른 dt.
     big_dt = 0.05
-    chunk1 = _chunk(sequence=1, obs_time=big_dt, target_action=_neutral(1000.0))
+    chunk1 = _chunk(sequence=1, obs_time=big_dt, target_action=_single_target("shoulder_pan", 1000.0))
     r1 = gen.tick(chunks=[chunk1], now_monotonic=big_dt, current_follower_state_deg=current)
 
     # velocity가 이미 velocity_limit(10)에 도달해 있으므로, 이번 tick 이동량은

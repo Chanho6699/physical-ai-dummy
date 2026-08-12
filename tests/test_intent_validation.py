@@ -8,7 +8,11 @@ correction). 이 모듈은 SafetyGate.evaluate()를 재구현하지 않고 위�
 from __future__ import annotations
 
 from runtime.common.vla_contract import JOINT_ORDER
-from runtime.laptop.intent_validation import IntentValidationResult, PolicyIntentValidator
+from runtime.laptop.intent_validation import (
+    IntentGrossOutlierConfig,
+    IntentValidationResult,
+    PolicyIntentValidator,
+)
 from runtime.laptop.safety_gate import SafetyGate, SafetyGateConfig
 
 
@@ -24,6 +28,15 @@ def _real_validator() -> PolicyIntentValidator:
 # 위임 정확성 - PolicyIntentValidator는 SafetyGate.evaluate()의 decision/reasons를
 # 그대로(재해석만 해서) 전달해야 한다.
 # ---------------------------------------------------------------------------
+
+
+def test_gross_outlier_envelope_has_dataset_and_real_log_provenance() -> None:
+    config = IntentGrossOutlierConfig.from_yaml()
+    assert config.simultaneous_joint_count == 3
+    assert config.provenance["dataset"] == "data/so101_blue_cube_place_return_v1"
+    assert config.provenance["approved_baseline_jsonl"].endswith(
+        "tick_diagnostics_1786520614.jsonl"
+    )
 
 
 def test_check_intent_delegates_to_same_safety_gate_instance() -> None:
@@ -97,26 +110,77 @@ def test_normal_lift_delta_within_threshold_is_valid() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_dangerous_wrist_delta_is_invalid_would_clamp() -> None:
+def test_normal_far_wrist_target_is_accepted_for_motion_guard() -> None:
     validator = _real_validator()
     current = _neutral(0.0)
     current["wrist_flex"] = 53.6703
     raw = dict(current)
     raw["wrist_flex"] = 33.6703
     result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
-    assert result.valid is False
-    assert result.decision == "WOULD_CLAMP"
-    assert len(result.reasons) > 0
+    assert result.valid is True
+    assert result.decision == "ACCEPT"
+    assert result.reasons == ()
 
 
-def test_grossly_dangerous_wrist_delta_is_invalid_reject() -> None:
-    """gross multiplier(5x=20.05deg)를 넘는 훨씬 더 큰 delta는 REJECT여야 한다 - 이
-    경계도 Intent 단계에서 valid=False로 정확히 분류되는지 확인."""
+def test_gross_mechanical_target_is_rejected() -> None:
     validator = _real_validator()
     current = _neutral(0.0)
-    current["wrist_flex"] = 53.6703
     raw = dict(current)
-    raw["wrist_flex"] = 53.6703 - 70.0  # delta=70.0 > 5*13.50
+    raw["wrist_flex"] = 999.0
+    result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
+    assert result.valid is False
+    assert result.decision == "REJECT"
+
+
+def test_severe_wrist_temporal_discontinuity_is_rejected_without_poisoning_history() -> None:
+    validator = _real_validator()
+    current = _neutral(0.0)
+    assert validator.check_intent(raw_target_deg=current, current_state_deg=current).valid
+    spike = dict(current)
+    spike["wrist_flex"] = 20.0
+    rejected = validator.check_intent(raw_target_deg=spike, current_state_deg=current)
+    assert rejected.valid is False
+    assert rejected.decision == "REJECT"
+    recovered = dict(current)
+    recovered["wrist_flex"] = 1.0
+    assert validator.check_intent(raw_target_deg=recovered, current_state_deg=current).valid
+
+
+def test_three_joint_initial_spike_is_rejected() -> None:
+    validator = _real_validator()
+    current = _neutral(0.0)
+    raw = dict(current)
+    raw.update(shoulder_pan=20.0, shoulder_lift=20.0, elbow_flex=20.0)
+    result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
+    assert result.valid is False
+    assert result.decision == "REJECT"
+
+
+def test_reset_history_allows_fresh_far_single_joint_target() -> None:
+    validator = _real_validator()
+    current = _neutral(0.0)
+    assert validator.check_intent(raw_target_deg=current, current_state_deg=current).valid
+    validator.reset_history()
+    far = dict(current)
+    far["wrist_flex"] = 20.0
+    assert validator.check_intent(raw_target_deg=far, current_state_deg=current).valid
+
+
+def test_schema_error_is_rejected() -> None:
+    validator = _real_validator()
+    current = _neutral(0.0)
+    raw = dict(current)
+    del raw["gripper"]
+    result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
+    assert result.valid is False
+    assert result.decision == "REJECT"
+
+
+def test_nan_raw_target_is_rejected() -> None:
+    validator = _real_validator()
+    current = _neutral(0.0)
+    raw = dict(current)
+    raw["wrist_flex"] = float("nan")
     result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
     assert result.valid is False
     assert result.decision == "REJECT"
@@ -149,11 +213,12 @@ def test_demo_wrist_target_above_fallback_range_is_raw_intent_not_execution_clam
     assert result.decision == "ACCEPT"
 
 
-def test_historical_13_1824_wrist_sample_is_not_split_by_sub_encoder_margin() -> None:
+def test_far_lift_elbow_target_is_not_compared_to_current_step_threshold() -> None:
     validator = _real_validator()
     current = _neutral(0.0)
-    current["wrist_flex"] = 53.6703
     raw = dict(current)
-    raw["wrist_flex"] = 40.4879
+    raw["shoulder_lift"] = 30.0
+    raw["elbow_flex"] = -30.0
     result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
+    assert result.valid is True
     assert result.decision == "ACCEPT"

@@ -161,11 +161,10 @@ def test_trajectory_never_usable_raises_before_loop_starts() -> None:
 
 def test_sanity_window_fatal_when_dangerous_target_blocks_every_tick() -> None:
     current = _neutral(0.0)
-    current["wrist_flex"] = 53.6703
     state_source = FakeFollowerStateSource(initial_state_deg=current)
     writer = FakeFollowerWriter()
     dangerous = dict(current)
-    dangerous["wrist_flex"] = 33.6703
+    dangerous.update(shoulder_pan=20.0, shoulder_lift=20.0, elbow_flex=20.0)
     vla_client = ScriptedVLAClient(action_by_default=dangerous, delay_s=0.005)
 
     gate = SafetyGate(SafetyGateConfig.from_repo_defaults())  # 재캘리브레이션된 실제 threshold
@@ -177,7 +176,7 @@ def test_sanity_window_fatal_when_dangerous_target_blocks_every_tick() -> None:
 
     assert report.stop_reason == cli.StopReason.SANITY_WINDOW_FATAL.value
     assert writer.write_count == 0
-    assert report.intent["would_clamp"] > 0
+    assert report.intent["reject"] > 0
 
 
 def test_nonproductive_fatal_when_stale_forever(monkeypatch) -> None:

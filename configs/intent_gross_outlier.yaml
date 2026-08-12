@@ -1,0 +1,30 @@
+# Intent gross-outlier envelopes for the blue-cube 41-episode policy family.
+provenance:
+  dataset: data/so101_blue_cube_place_return_v1
+  dataset_episodes: 41
+  dataset_frames: 21925
+  dataset_fps: 30
+  approved_baseline_jsonl: reports/real_pick_drop_realtime_v1/tick_diagnostics_1786520614.jsonl
+  derivation: 1.10x observed dataset and approved-baseline envelopes
+simultaneous_joint_count: 3
+initial_multi_joint:
+  shoulder_pan: 7.736
+  shoulder_lift: 14.409
+  elbow_flex: 11.749
+  wrist_flex: 14.457
+  wrist_roll: 9.284
+  gripper: 14.481
+temporal_single_hard:
+  shoulder_pan: 2.514
+  shoulder_lift: 21.216
+  elbow_flex: 23.038
+  wrist_flex: 3.051
+  wrist_roll: 3.385
+  gripper: 4.528
+temporal_multi_joint:
+  shoulder_pan: 1.451
+  shoulder_lift: 19.718
+  elbow_flex: 19.471
+  wrist_flex: 2.881
+  wrist_roll: 1.837
+  gripper: 2.967

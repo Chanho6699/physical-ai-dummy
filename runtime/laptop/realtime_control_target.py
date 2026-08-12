@@ -179,6 +179,7 @@ class RealTimeControlTargetGenerator:
         ``period_s``로 계산되게 한다(변칙적인 큰 dt가 계산되지 않도록)."""
         self._guard_states = {}
         self._last_tick_time_monotonic = None
+        self._intent_validator.reset_history()
 
     def tick(
         self,
@@ -191,10 +192,12 @@ class RealTimeControlTargetGenerator:
 
         # -- 1. Stale trajectory fail-safe - 절대 추측/extrapolate 안 함 -------------------
         if not chunks:
+            self._intent_validator.reset_history()
             return _early_result(target_time=target_time, stop_reason=STOP_REASON_NO_TARGET)
 
         ensembled = self._ensembler.compute_target(chunks, target_time)
         if ensembled is None:
+            self._intent_validator.reset_history()
             return _early_result(target_time=target_time, stop_reason=STOP_REASON_STALE_TRAJECTORY)
 
         raw_target = ensembled.action
