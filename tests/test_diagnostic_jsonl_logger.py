@@ -47,14 +47,17 @@ def _tick_record(
     *, tick_index: int, state: ControlLoopState, intent_decision: str | None, safety_decision: str | None,
     contributing_sequences: tuple[int, ...] = (), stop_reason: str | None = None, target_valid: bool = False,
     write_attempted: bool = False, write_executed: bool = False, write_path: str | None = None,
-    actual_start: float = 0.0,
+    actual_start: float = 0.0, raw_target: dict | None = None, guarded_target: dict | None = None,
+    final_target: dict | None = None, clamp_reasons: tuple[str, ...] = (),
+    quarantined_sequences_excluded: tuple[int, ...] = (),
 ) -> ControlTickRecord:
     return ControlTickRecord(
         tick_index=tick_index, scheduled_time_monotonic=actual_start, actual_start_time_monotonic=actual_start,
         dt_s=1 / 60.0, tick_compute_ms=1.0, state_read_ms=0.1, target_compute_ms=0.2, write_ms=None,
         deadline_overrun_ms=0.0, intent_decision=intent_decision, safety_decision=safety_decision,
+        raw_target=raw_target, guarded_target=guarded_target, final_target=final_target, clamp_reasons=clamp_reasons,
         target_valid=target_valid, stop_reason=stop_reason, contributing_sequences=contributing_sequences,
-        quarantined_sequences_excluded=(), trajectory_age_s=None, write_attempted=write_attempted,
+        quarantined_sequences_excluded=quarantined_sequences_excluded, trajectory_age_s=None, write_attempted=write_attempted,
         write_executed=write_executed, write_path=write_path, state=state, errors=(),
     )
 
@@ -62,11 +65,13 @@ def _tick_record(
 def _result(
     *, raw_target: dict | None, intent_decision: str | None, guarded_target: dict | None = None,
     safety_decision: str | None = None, contributing_sequences: tuple[int, ...] = (),
-    stop_reason: str | None = None, target_valid: bool = False,
+    stop_reason: str | None = None, target_valid: bool = False, final_target: dict | None = None,
+    clamp_reasons: tuple[str, ...] = (),
 ) -> ControlTargetResult:
     return ControlTargetResult(
         target_time_monotonic=0.0, raw_ensemble_target=raw_target, intent_decision=intent_decision,
         intent_reasons=(), smoothed_target=guarded_target, guarded_target=guarded_target,
+        final_target=final_target, clamp_reasons=clamp_reasons,
         safety_decision=safety_decision, safety_reasons=(), contributing_sequences=contributing_sequences,
         target_valid=target_valid, stop_reason=stop_reason,
     )
@@ -90,19 +95,19 @@ def test_stage_diagnostics_matches_accept():
         assert diag["per_joint"][j]["rejected"] is False
 
 
-def test_stage_diagnostics_identifies_the_exact_clamping_joint():
+def test_stage_diagnostics_identifies_a_dangerous_raw_outlier_joint():
     gate = _gate(max_step=5.0)
     current = _neutral(0.0)
     target = _neutral(1.0)
-    target["wrist_flex"] = 13.18  # delta=13.18 > 5.0 -> 이 joint만 clamp돼야 함 (C-5 wrist regression과 동일 패턴)
+    target["shoulder_pan"] = 20.0  # delta=13.18 > 5.0 -> 이 joint만 clamp돼야 함 (C-5 wrist regression과 동일 패턴)
     diag = _evaluate_stage_diagnostics(safety_gate=gate, target_deg=target, current_state_deg=current)
     assert diag["decision"] == "WOULD_CLAMP"
-    assert diag["per_joint"]["wrist_flex"]["clamped"] is True
-    assert diag["per_joint"]["wrist_flex"]["delta_vs_current"] == pytest.approx(13.18)
-    assert any("EXCESSIVE_STEP_CLAMPED" in r for r in diag["per_joint"]["wrist_flex"]["reasons"])
+    assert diag["per_joint"]["shoulder_pan"]["clamped"] is True
+    assert diag["per_joint"]["shoulder_pan"]["delta_vs_current"] == pytest.approx(20.0)
+    assert any("EXCESSIVE_STEP_CLAMPED" in r for r in diag["per_joint"]["shoulder_pan"]["reasons"])
     # 다른 5개 관절은 전부 정상(clamp 아님) - "어떤 joint가 원인인지" 구분이 핵심 요구사항.
     for j in JOINT_ORDER:
-        if j == "wrist_flex":
+        if j == "shoulder_pan":
             continue
         assert diag["per_joint"][j]["clamped"] is False
 
@@ -209,14 +214,14 @@ def test_full_tick_accept_and_write_round_trip(tmp_path):
     raw = _neutral(1.0)
     guarded = _neutral(0.5)  # motion guard가 raw를 0.5만큼만 허용했다고 가정
     result = _result(
-        raw_target=raw, intent_decision="ACCEPT", guarded_target=guarded, safety_decision="ACCEPT",
-        contributing_sequences=(3, 4), target_valid=True,
+        raw_target=raw, intent_decision="ACCEPT", guarded_target=guarded, final_target=guarded,
+        safety_decision="ACCEPT", contributing_sequences=(3, 4), target_valid=True,
     )
     recorder.capture_generator_tick(now_monotonic=10.0, current_follower_state_deg=current, result=result)
     tick = _tick_record(
         tick_index=0, state=ControlLoopState.RUNNING, intent_decision="ACCEPT", safety_decision="ACCEPT",
         contributing_sequences=(3, 4), target_valid=True, write_attempted=True, write_executed=True,
-        write_path="primary", actual_start=10.0,
+        write_path="primary", actual_start=10.0, raw_target=raw, guarded_target=guarded, final_target=guarded,
     )
     n = recorder.drain_and_write([tick])
     assert n == 1
@@ -229,13 +234,17 @@ def test_full_tick_accept_and_write_round_trip(tmp_path):
     assert event["control_state"] == "RUNNING"
     assert event["current_follower_state_deg"] == current
     assert event["raw_ensemble_target"] == raw
+    assert event["raw_target"] == raw
     assert event["guarded_target"] == guarded
+    assert event["final_target"] == guarded
+    assert event["clamp_reasons"] == []
     assert event["contributing_sequences"] == [3, 4]
     assert event["intent_per_joint"]["shoulder_pan"]["delta_vs_current"] == pytest.approx(1.0)
     assert event["final_safety_per_joint"]["shoulder_pan"]["delta_vs_current"] == pytest.approx(0.5)
     # motion guard가 raw->guarded로 얼마나 깎았는지 joint별로 직접 보임 (요구사항 4번:
     # "Motion Guard가 Intent-ACCEPT target을 Final Safety에서 막히는 target으로 만드는지").
     assert event["motion_guard_delta_deg"]["shoulder_pan"] == pytest.approx(0.5)
+    assert event["write"]["attempted"] is True
     assert event["write"]["executed"] is True
     assert event["write"]["written_target_deg"] == guarded
     assert event["write"]["no_write_reason"] is None
@@ -243,7 +252,7 @@ def test_full_tick_accept_and_write_round_trip(tmp_path):
     assert event["quarantine"]["newly_quarantined_this_tick"] == []
 
 
-def test_intent_would_clamp_tick_has_no_guarded_target_and_quarantines_contributing_sequences(tmp_path):
+def test_intent_would_clamp_is_tick_local_fail_closed_without_quarantine(tmp_path):
     """intent_validation.py/realtime_control_target.py의 실제 동작 그대로: Intent가 막으면
     Motion Guard는 호출되지 않는다 - guarded_target=None이어야 하고, 그 tick의
     contributing_sequences가 quarantine에 새로 들어가야 한다(요구사항 1, 6)."""
@@ -252,7 +261,7 @@ def test_intent_would_clamp_tick_has_no_guarded_target_and_quarantines_contribut
 
     current = _neutral(0.0)
     raw = _neutral(0.0)
-    raw["elbow_flex"] = 13.18  # threshold(5.0)를 넘는 outlier -> Intent WOULD_CLAMP
+    raw["elbow_flex"] = 20.0  # threshold(5.0)를 넘는 outlier -> Intent WOULD_CLAMP
     result = _result(
         raw_target=raw, intent_decision="WOULD_CLAMP", guarded_target=None, safety_decision=None,
         contributing_sequences=(7,), stop_reason="INTENT_WOULD_CLAMP", target_valid=False,
@@ -271,11 +280,44 @@ def test_intent_would_clamp_tick_has_no_guarded_target_and_quarantines_contribut
     assert event["final_safety_decision"] is None
     # 원인 joint를 바로 지목할 수 있어야 한다 (요구사항 1).
     assert event["intent_per_joint"]["elbow_flex"]["clamped"] is True
-    assert event["intent_per_joint"]["elbow_flex"]["delta_vs_current"] == pytest.approx(13.18)
+    assert event["intent_per_joint"]["elbow_flex"]["delta_vs_current"] == pytest.approx(20.0)
     assert event["write"]["executed"] is False
     assert event["write"]["no_write_reason"] == "INTENT_WOULD_CLAMP"
-    assert event["quarantine"]["newly_quarantined_this_tick"] == [7]
-    assert event["quarantine"]["after_tick"] == [7]
+    assert event["quarantine"]["newly_quarantined_this_tick"] == []
+    assert event["quarantine"]["after_tick"] == []
+
+
+def test_soft_mechanical_endpoint_saturation_writes_final_target(tmp_path):
+    gate = _gate(range_deg=(-10.0, 10.0), max_step=100.0)
+    recorder = TickDiagnosticRecorder(tmp_path / "diag.jsonl", safety_gate=gate)
+    current = _neutral(0.0)
+    raw = _neutral(1.0)
+    guarded = _neutral(1.0)
+    guarded["shoulder_pan"] = 12.0
+    final = dict(guarded)
+    final["shoulder_pan"] = 10.0
+    reasons = ("MECHANICAL_LIMIT_CLAMPED: shoulder_pan 12.0 -> 10.0",)
+    result = _result(
+        raw_target=raw, intent_decision="ACCEPT", guarded_target=guarded, final_target=final,
+        clamp_reasons=reasons, safety_decision="WOULD_CLAMP", target_valid=True,
+    )
+    recorder.capture_generator_tick(now_monotonic=25.0, current_follower_state_deg=current, result=result)
+    tick = _tick_record(
+        tick_index=0, state=ControlLoopState.RUNNING, intent_decision="ACCEPT",
+        safety_decision="WOULD_CLAMP", raw_target=raw, guarded_target=guarded, final_target=final,
+        clamp_reasons=reasons, target_valid=True, write_attempted=True, write_executed=True,
+        write_path="primary", actual_start=25.0,
+    )
+    recorder.drain_and_write([tick])
+    recorder.close()
+    event = json.loads((tmp_path / "diag.jsonl").read_text(encoding="utf-8").strip())
+    assert event["guarded_target"] == guarded
+    assert event["final_target"] == final
+    assert event["clamp_reasons"] == list(reasons)
+    assert event["final_safety_decision"] == "WOULD_CLAMP"
+    assert event["write"]["attempted"] is True
+    assert event["write"]["executed"] is True
+    assert event["write"]["written_target_deg"] == final
 
 
 def test_final_safety_reject_tick_is_distinguishable_from_would_clamp(tmp_path):
@@ -345,16 +387,16 @@ def test_drain_is_idempotent_no_duplicate_lines(tmp_path):
     assert len(lines) == 1
 
 
-def test_quarantine_accumulates_monotonically_across_ticks_and_ignores_duplicates(tmp_path):
+def test_reject_quarantine_accumulates_across_ticks_and_ignores_duplicates(tmp_path):
     gate = _gate()
     recorder = TickDiagnosticRecorder(tmp_path / "diag.jsonl", safety_gate=gate)
 
     def _blocked(tick_index, seqs, ts):
-        result = _result(raw_target=_neutral(99.0), intent_decision="WOULD_CLAMP", contributing_sequences=seqs)
+        result = _result(raw_target=_neutral(99.0), intent_decision="REJECT", contributing_sequences=seqs)
         recorder.capture_generator_tick(now_monotonic=ts, current_follower_state_deg=_neutral(0.0), result=result)
         return _tick_record(tick_index=tick_index, state=ControlLoopState.INTENT_BLOCKED,
-                             intent_decision="WOULD_CLAMP", safety_decision=None,
-                             contributing_sequences=seqs, stop_reason="INTENT_WOULD_CLAMP", actual_start=ts)
+                             intent_decision="REJECT", safety_decision=None,
+                             contributing_sequences=seqs, stop_reason="INTENT_REJECT", actual_start=ts)
 
     ticks = [
         _blocked(0, (1, 2), 0.0),
@@ -377,7 +419,7 @@ def test_quarantine_accumulates_monotonically_across_ticks_and_ignores_duplicate
     assert recorder.cross_check_final_quarantine(frozenset({1, 2})) != []  # drift가 있으면 경고를 낸다
 
 
-def test_reject_tick_does_not_quarantine_and_accept_does_not_either(tmp_path):
+def test_intent_reject_quarantines_contributing_sequence(tmp_path):
     """quarantine 재구성 규칙(``intent_decision not in (None, "ACCEPT")``)이 REJECT에도
     적용되는지 - Intent REJECT는 이번 세션들에서 관측되지 않았지만(reject=0), 재구성 로직이
     ACCEPT만 제외하는 실제 조건과 일치하는지는 별도로 검증해둔다."""

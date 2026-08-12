@@ -147,6 +147,8 @@ class _PendingGeneratorRecord:
     intent_reasons: tuple[str, ...]
     intent_diagnostics: dict | None  # _evaluate_stage_diagnostics(raw_ensemble_target)
     guarded_target: dict[str, float] | None
+    final_target: dict[str, float] | None
+    clamp_reasons: tuple[str, ...]
     safety_decision: str | None
     safety_reasons: tuple[str, ...]
     safety_diagnostics: dict | None  # _evaluate_stage_diagnostics(guarded_target)
@@ -199,6 +201,8 @@ class TickDiagnosticRecorder:
                 intent_reasons=tuple(result.intent_reasons),
                 intent_diagnostics=intent_diag,
                 guarded_target=(dict(result.guarded_target) if result.guarded_target else None),
+                final_target=(dict(result.final_target) if result.final_target else None),
+                clamp_reasons=tuple(result.clamp_reasons),
                 safety_decision=result.safety_decision,
                 safety_reasons=tuple(result.safety_reasons),
                 safety_diagnostics=safety_diag,
@@ -210,7 +214,7 @@ class TickDiagnosticRecorder:
                 current_follower_state_deg=(dict(current_follower_state_deg) if current_follower_state_deg else None),
                 contributing_sequences=(), raw_ensemble_target=None, intent_decision=None, intent_reasons=(),
                 intent_diagnostics={"capture_error": f"{type(exc).__name__}: {exc}"}, guarded_target=None,
-                safety_decision=None, safety_reasons=(), safety_diagnostics=None, stop_reason=None,
+                final_target=None, clamp_reasons=(), safety_decision=None, safety_reasons=(), safety_diagnostics=None, stop_reason=None,
             )
         with self._lock:
             self._pending[now_monotonic] = pending
@@ -251,7 +255,7 @@ class TickDiagnosticRecorder:
         # -- quarantine 재구성 (읽기 전용, 모듈 docstring "quarantine 재구성" 참고) -----
         quarantined_before_tick = sorted(self._quarantine_accumulator)
         newly_quarantined: list[int] = []
-        if record.intent_decision is not None and record.intent_decision != "ACCEPT":
+        if record.intent_decision == "REJECT":
             new_seqs = [s for s in record.contributing_sequences if s not in self._quarantine_accumulator]
             if new_seqs:
                 newly_quarantined = sorted(new_seqs)
@@ -278,10 +282,13 @@ class TickDiagnosticRecorder:
             },
             "current_follower_state_deg": None,
             "raw_ensemble_target": None,
+            "raw_target": record.raw_target,
             "intent_decision": record.intent_decision,
             "intent_reasons": [],
             "intent_per_joint": None,
             "guarded_target": None,
+            "final_target": record.final_target,
+            "clamp_reasons": list(record.clamp_reasons),
             "final_safety_decision": record.safety_decision,
             "final_safety_reasons": [],
             "final_safety_per_joint": None,
@@ -301,10 +308,12 @@ class TickDiagnosticRecorder:
             event["intent_reasons"] = list(pending.intent_reasons)
             event["intent_per_joint"] = self._per_joint_of(pending.intent_diagnostics)
             event["guarded_target"] = pending.guarded_target
+            event["final_target"] = pending.final_target
+            event["clamp_reasons"] = list(pending.clamp_reasons)
             event["final_safety_reasons"] = list(pending.safety_reasons)
             event["final_safety_per_joint"] = self._per_joint_of(pending.safety_diagnostics)
 
-            if pending.raw_ensemble_target is not None and pending.guarded_target is not None:
+            if pending.raw_ensemble_target is not None and pending.final_target is not None:
                 event["motion_guard_delta_deg"] = {
                     j: pending.raw_ensemble_target[j] - pending.guarded_target[j]
                     for j in JOINT_ORDER
@@ -314,7 +323,7 @@ class TickDiagnosticRecorder:
             # write invariant(realtime_control_loop.py 섹션 16): primary path의 write는
             # 항상 guarded_target 그대로다 - 그 값을 그대로 다시 보여준다(재계산 아님).
             if record.write_executed and record.write_path == "primary" and pending.guarded_target is not None:
-                event["write"]["written_target_deg"] = dict(pending.guarded_target)
+                event["write"]["written_target_deg"] = dict(pending.final_target)
             elif record.write_executed and record.write_path != "primary":
                 # hold 경로(HOLD_LAST_COMMANDED/HOLD_MEASURED) - 이 값은
                 # realtime_control_loop.py 내부(_compute_hold_candidate)에서만 계산되고
