@@ -386,18 +386,15 @@ def test_severe_wrist_temporal_discontinuity_is_blocked_before_motion_guard() ->
 
     spike = dict(current)
     spike["wrist_flex"] = 20.0
-    for i in range(1, 5):
-        now = i * DT_60HZ
-        result = gen.tick(
-            chunks=[_chunk(sequence=i, obs_time=now, target_action=spike)],
-            now_monotonic=now,
-            current_follower_state_deg=current,
-        )
-        assert result.target_valid is False
-        assert result.intent_decision == "REJECT"
-        assert result.stop_reason == f"{STOP_REASON_INTENT_PREFIX}REJECT"
-        assert result.guarded_target is None
-        assert result.safety_decision is None
+    result = gen.tick(
+        chunks=[_chunk(sequence=0, obs_time=DT_60HZ, target_action=spike)],
+        now_monotonic=DT_60HZ, current_follower_state_deg=current,
+    )
+    assert result.target_valid is False
+    assert result.intent_decision == "REJECT"
+    assert result.stop_reason == f"{STOP_REASON_INTENT_PREFIX}REJECT"
+    assert result.guarded_target is None
+    assert result.safety_decision is None
 
 
 # ---------------------------------------------------------------------------

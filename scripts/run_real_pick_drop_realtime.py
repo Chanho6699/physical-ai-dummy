@@ -557,7 +557,8 @@ class RealtimeSessionOrchestrator:
             stop_reason=stop_reason.value,
             runtime_duration_s=duration_s,
             control={
-                "n_ticks": stats.n_ticks, "actual_hz": stats.actual_hz, "median_period_ms": stats.median_period_ms,
+                "n_ticks": n_results, "stats_window_n_ticks": stats.n_ticks,
+                "actual_hz": stats.actual_hz, "median_period_ms": stats.median_period_ms,
                 "p95_period_ms": stats.p95_period_ms, "jitter_ms": stats.jitter_ms,
                 "deadline_miss_count": stats.deadline_miss_count, "deadline_miss_rate": stats.deadline_miss_rate,
                 "max_overrun_ms": stats.max_overrun_ms, "resync_count": stats.resync_count,

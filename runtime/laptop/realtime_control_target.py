@@ -212,6 +212,7 @@ class RealTimeControlTargetGenerator:
         # -- 2. Intent Validation (C-3A.1 신규) - Motion Guard보다 먼저, raw target에 --------
         intent: IntentValidationResult = self._intent_validator.check_intent(
             raw_target_deg=raw_target, current_state_deg=current_follower_state_deg,
+            temporal_context=ensembled.contributing_sequences,
         )
         if not intent.valid:
             self._coordinated_guard_state = None

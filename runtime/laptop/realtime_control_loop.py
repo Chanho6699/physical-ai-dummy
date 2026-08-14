@@ -180,6 +180,8 @@ class ControlTickRecord:
     write_path: str | None  # "primary" | "hold_last_commanded" | "hold_measured" | None
     state: ControlLoopState
     errors: tuple[str, ...]
+    quarantine_before_tick: tuple[int, ...] = ()
+    quarantine_after_tick: tuple[int, ...] = ()
 
     def to_dict(self) -> dict:
         d = dict(self.__dict__)
@@ -411,6 +413,7 @@ class RealTimeFollowerControlLoop:
             errors.append(f"state_read 실패: {type(exc).__name__}: {exc}")
         state_read_ms = (self._monotonic() - t0) * 1000.0
 
+        quarantined_snapshot = frozenset()
         result: ControlTargetResult | None = None
         target_compute_ms = None
         excluded_sequences: tuple[int, ...] = ()
@@ -440,7 +443,14 @@ class RealTimeFollowerControlLoop:
         # schema/mechanical/gross-step REJECT만 해당 live chunk를 격리한다.
         if result is not None and result.intent_decision == "REJECT":
             with self._diag_lock:
-                self._quarantined_sequences.update(result.contributing_sequences)
+                # At an ensemble handoff the newest contributor is the only new
+                # evidence. Older contributors were already accepted, so quarantining
+                # all of them creates an artificial empty-buffer outage.
+                if result.contributing_sequences:
+                    self._quarantined_sequences.add(max(result.contributing_sequences))
+
+        with self._diag_lock:
+            quarantine_after_tick = tuple(sorted(self._quarantined_sequences))
 
         # -- 상태 계산 (섹션 6) -------------------------------------------------------
         state = self._compute_state(fault=fault, result=result)
@@ -522,6 +532,8 @@ class RealTimeFollowerControlLoop:
             write_attempted=write_attempted,
             write_executed=write_executed,
             write_path=write_path,
+            quarantine_before_tick=tuple(sorted(quarantined_snapshot)),
+            quarantine_after_tick=quarantine_after_tick,
             state=state,
             errors=tuple(errors),
         )

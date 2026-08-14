@@ -253,13 +253,10 @@ class TickDiagnosticRecorder:
 
     def _write_one(self, record: ControlTickRecord) -> None:
         # -- quarantine 재구성 (읽기 전용, 모듈 docstring "quarantine 재구성" 참고) -----
-        quarantined_before_tick = sorted(self._quarantine_accumulator)
-        newly_quarantined: list[int] = []
-        if record.intent_decision == "REJECT":
-            new_seqs = [s for s in record.contributing_sequences if s not in self._quarantine_accumulator]
-            if new_seqs:
-                newly_quarantined = sorted(new_seqs)
-                self._quarantine_accumulator.update(new_seqs)
+        quarantined_before_tick = list(record.quarantine_before_tick)
+        quarantined_after_tick = list(record.quarantine_after_tick)
+        newly_quarantined = sorted(set(quarantined_after_tick) - set(quarantined_before_tick))
+        self._quarantine_accumulator = set(quarantined_after_tick)
 
         with self._lock:
             pending = self._pending.pop(record.actual_start_time_monotonic, None)
@@ -278,7 +275,7 @@ class TickDiagnosticRecorder:
             "quarantine": {
                 "before_tick": quarantined_before_tick,
                 "newly_quarantined_this_tick": newly_quarantined,
-                "after_tick": sorted(self._quarantine_accumulator),
+                "after_tick": quarantined_after_tick,
             },
             "current_follower_state_deg": None,
             "raw_ensemble_target": None,

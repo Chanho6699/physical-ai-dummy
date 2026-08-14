@@ -50,6 +50,7 @@ def _tick_record(
     actual_start: float = 0.0, raw_target: dict | None = None, guarded_target: dict | None = None,
     final_target: dict | None = None, clamp_reasons: tuple[str, ...] = (),
     quarantined_sequences_excluded: tuple[int, ...] = (),
+    quarantine_before_tick: tuple[int, ...] = (), quarantine_after_tick: tuple[int, ...] = (),
 ) -> ControlTickRecord:
     return ControlTickRecord(
         tick_index=tick_index, scheduled_time_monotonic=actual_start, actual_start_time_monotonic=actual_start,
@@ -59,6 +60,7 @@ def _tick_record(
         target_valid=target_valid, stop_reason=stop_reason, contributing_sequences=contributing_sequences,
         quarantined_sequences_excluded=quarantined_sequences_excluded, trajectory_age_s=None, write_attempted=write_attempted,
         write_executed=write_executed, write_path=write_path, state=state, errors=(),
+        quarantine_before_tick=quarantine_before_tick, quarantine_after_tick=quarantine_after_tick,
     )
 
 
@@ -391,32 +393,33 @@ def test_reject_quarantine_accumulates_across_ticks_and_ignores_duplicates(tmp_p
     gate = _gate()
     recorder = TickDiagnosticRecorder(tmp_path / "diag.jsonl", safety_gate=gate)
 
-    def _blocked(tick_index, seqs, ts):
+    def _blocked(tick_index, seqs, ts, before, after):
         result = _result(raw_target=_neutral(99.0), intent_decision="REJECT", contributing_sequences=seqs)
         recorder.capture_generator_tick(now_monotonic=ts, current_follower_state_deg=_neutral(0.0), result=result)
         return _tick_record(tick_index=tick_index, state=ControlLoopState.INTENT_BLOCKED,
                              intent_decision="REJECT", safety_decision=None,
-                             contributing_sequences=seqs, stop_reason="INTENT_REJECT", actual_start=ts)
+                             contributing_sequences=seqs, stop_reason="INTENT_REJECT", actual_start=ts,
+                             quarantine_before_tick=before, quarantine_after_tick=after)
 
     ticks = [
-        _blocked(0, (1, 2), 0.0),
-        _blocked(1, (2, 3), 1.0),  # seq 2는 이미 quarantine됨 - newly_quarantined에는 3만
-        _blocked(2, (3,), 2.0),    # 전부 이미 quarantine됨 - newly_quarantined 없음
+        _blocked(0, (1, 2), 0.0, (), (2,)),
+        _blocked(1, (2, 3), 1.0, (2,), (2, 3)),
+        _blocked(2, (3,), 2.0, (3,), (3,)),
     ]
     recorder.drain_and_write(ticks)
     recorder.close()
 
     events = [json.loads(l) for l in (tmp_path / "diag.jsonl").read_text(encoding="utf-8").strip().splitlines()]
-    assert events[0]["quarantine"]["newly_quarantined_this_tick"] == [1, 2]
-    assert events[0]["quarantine"]["after_tick"] == [1, 2]
-    assert events[1]["quarantine"]["before_tick"] == [1, 2]
+    assert events[0]["quarantine"]["newly_quarantined_this_tick"] == [2]
+    assert events[0]["quarantine"]["after_tick"] == [2]
+    assert events[1]["quarantine"]["before_tick"] == [2]
     assert events[1]["quarantine"]["newly_quarantined_this_tick"] == [3]
-    assert events[1]["quarantine"]["after_tick"] == [1, 2, 3]
+    assert events[1]["quarantine"]["after_tick"] == [2, 3]
     assert events[2]["quarantine"]["newly_quarantined_this_tick"] == []
-    assert events[2]["quarantine"]["after_tick"] == [1, 2, 3]
+    assert events[2]["quarantine"]["after_tick"] == [3]
 
-    assert recorder.cross_check_final_quarantine(frozenset({1, 2, 3})) == []
-    assert recorder.cross_check_final_quarantine(frozenset({1, 2})) != []  # drift가 있으면 경고를 낸다
+    assert recorder.cross_check_final_quarantine(frozenset({3})) == []
+    assert recorder.cross_check_final_quarantine(frozenset({2, 3})) != []  # drift가 있으면 경고를 낸다
 
 
 def test_intent_reject_quarantines_contributing_sequence(tmp_path):
@@ -429,7 +432,7 @@ def test_intent_reject_quarantines_contributing_sequence(tmp_path):
     recorder.capture_generator_tick(now_monotonic=0.0, current_follower_state_deg=_neutral(0.0), result=result)
     tick = _tick_record(tick_index=0, state=ControlLoopState.INTENT_BLOCKED, intent_decision="REJECT",
                          safety_decision=None, contributing_sequences=(5,), stop_reason="INTENT_REJECT",
-                         actual_start=0.0)
+                         actual_start=0.0, quarantine_before_tick=(), quarantine_after_tick=(5,))
     recorder.drain_and_write([tick])
     recorder.close()
     event = json.loads((tmp_path / "diag.jsonl").read_text(encoding="utf-8").strip())

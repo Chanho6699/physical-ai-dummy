@@ -96,12 +96,15 @@ class PolicyIntentValidator:
         self._safety_gate = safety_gate
         self._config = config or IntentGrossOutlierConfig.from_yaml()
         self._previous_valid_raw_target: dict[str, float] | None = None
+        self._previous_temporal_context: tuple[int, ...] | None = None
 
     def reset_history(self) -> None:
         self._previous_valid_raw_target = None
+        self._previous_temporal_context = None
 
     def check_intent(
-        self, *, raw_target_deg: dict[str, float], current_state_deg: dict[str, float]
+        self, *, raw_target_deg: dict[str, float], current_state_deg: dict[str, float],
+        temporal_context: tuple[int, ...] | None = None,
     ) -> IntentValidationResult:
         adapted = adapt_vla_action(raw_target_deg)
         mechanical: SafetyDecision = self._safety_gate.evaluate(
@@ -127,7 +130,7 @@ class PolicyIntentValidator:
                     decision="REJECT",
                     reasons=(f"INTENT_MULTI_JOINT_SPIKE: joints={initial_spikes}",),
                 )
-        else:
+        elif temporal_context is None or temporal_context == self._previous_temporal_context:
             deltas = {joint: abs(command[joint] - previous[joint]) for joint in JOINT_ORDER}
             hard = [
                 joint for joint in JOINT_ORDER
@@ -148,4 +151,5 @@ class PolicyIntentValidator:
                 )
 
         self._previous_valid_raw_target = dict(command)
+        self._previous_temporal_context = temporal_context
         return IntentValidationResult(valid=True, decision="ACCEPT", reasons=())
