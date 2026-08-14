@@ -8,6 +8,7 @@ subprocess를 실행하지 않음), 순수 함수(``build_record_command`` 등)�
 
 from __future__ import annotations
 
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -50,7 +51,7 @@ def _request(**overrides) -> RecordingRequest:
         data_dir=Path("/tmp/does-not-matter"),
         task="Pick up the cube and place it in the target area.",
         num_episodes=1,
-        episode_time_s=10.0,
+        max_episode_duration_s=10.0,
         reset_time_s=5.0,
     )
     base.update(overrides)
@@ -77,7 +78,7 @@ def test_sync_warmup_zero_allowed():
 
 def test_existing_validations_untouched():
     with pytest.raises(RecordingError):
-        _request(episode_time_s=0).validate()
+        _request(max_episode_duration_s=0).validate()
     with pytest.raises(RecordingError):
         _request(num_episodes=0).validate()
     with pytest.raises(RecordingError):
@@ -91,7 +92,7 @@ def test_existing_validations_untouched():
 
 def test_lerobot_record_args_have_no_sync_warmup_flag_and_keep_existing_flags():
     hardware = _hardware()
-    request = _request(episode_time_s=10.0, reset_time_s=5.0, resume=True)
+    request = _request(max_episode_duration_s=10.0, reset_time_s=5.0, resume=True)
     args = build_lerobot_record_args(hardware, request)
 
     assert not any("sync-warmup" in arg or "sync_warmup" in arg for arg in args)
@@ -152,6 +153,8 @@ def test_resolve_lerobot_python_rejects_non_shebang_file(tmp_path):
 
 
 def test_resolve_lerobot_python_matches_real_installed_launcher():
+    if os.name == "nt":
+        pytest.skip("POSIX LeRobot launcher path is validated in the WSL runtime.")
     if not REAL_LEROBOT_RECORD.is_file():
         pytest.skip(f"실제 lerobot-record 런처를 찾을 수 없습니다: {REAL_LEROBOT_RECORD}")
     interpreter = _resolve_lerobot_python(str(REAL_LEROBOT_RECORD))
@@ -191,6 +194,8 @@ def fake_hardware_config(tmp_path) -> Path:
 
 
 def test_record_episodes_dry_run_needs_lerobot_record_on_path(fake_hardware_config, tmp_path, monkeypatch):
+    if os.name == "nt":
+        pytest.skip("POSIX PATH dry-run is validated in the WSL runtime.")
     if shutil.which("lerobot-record") is None and not REAL_LEROBOT_RECORD.is_file():
         pytest.skip("lerobot-record가 이 머신에 없습니다 (LeRobot venv 필요).")
 
@@ -201,7 +206,7 @@ def test_record_episodes_dry_run_needs_lerobot_record_on_path(fake_hardware_conf
         dataset_name="unit_test_dry_run_dataset",
         data_dir=tmp_path / "data",
         num_episodes=1,
-        episode_time_s=10.0,
+        max_episode_duration_s=10.0,
         reset_time_s=5.0,
         sync_warmup_s=3.0,
     )

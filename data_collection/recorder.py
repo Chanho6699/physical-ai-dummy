@@ -27,7 +27,7 @@ class RecordingRequest:
     data_dir: Path
     task: str
     num_episodes: int = 5
-    episode_time_s: float = 30.0
+    max_episode_duration_s: float = 60.0
     reset_time_s: float = 20.0
     fps: int = 30
     resume: bool = False
@@ -57,8 +57,8 @@ class RecordingRequest:
             raise RecordingError("dataset_name must be a single folder name, not a path.")
         if self.num_episodes <= 0:
             raise RecordingError("num_episodes must be greater than 0.")
-        if self.episode_time_s <= 0:
-            raise RecordingError("episode_time_s must be greater than 0.")
+        if self.max_episode_duration_s <= 0:
+            raise RecordingError("max_episode_duration_s must be greater than 0.")
         if self.reset_time_s < 0:
             raise RecordingError("reset_time_s must be 0 or greater.")
         if self.fps <= 0:
@@ -159,7 +159,7 @@ def build_lerobot_record_args(
         f"--dataset.root={request.dataset_root}",
         f"--dataset.single_task={request.task}",
         f"--dataset.fps={request.fps}",
-        f"--dataset.episode_time_s={request.episode_time_s}",
+        f"--dataset.episode_time_s={request.max_episode_duration_s}",
         f"--dataset.reset_time_s={request.reset_time_s}",
         f"--dataset.num_episodes={request.num_episodes}",
         "--dataset.video=true",
@@ -198,13 +198,13 @@ def _print_korean_guide(request: RecordingRequest, hardware: HardwareConfig) -> 
     print(f"[데이터셋] {request.dataset_name}")
     print(f"[작업] {request.task}")
     print(f"[에피소드] {request.num_episodes}개")
-    print(f"[녹화 시간] 각 {request.episode_time_s:g}초")
+    print(f"[비상 제한] {request.max_episode_duration_s:g}초")
     print(f"[초기화 시간] 각 {request.reset_time_s:g}초")
     print(f"[동기화 대기] 매 녹화 시작 전 {request.sync_warmup_s:g}초 (리더/팔로워 안정화, 녹화 시간에 미포함)")
     print(f"[카메라] {camera_roles}")
     print("-" * 68)
     print("[동기화] 매 녹화 직전 리더암과 팔로워암이 동기화될 때까지 잠시 대기합니다.")
-    print("[녹화 중] 작업을 자연스럽게 완료하고 마지막 자세에서 멈추세요.")
+    print("[녹화 중] 시작 자세 복귀까지 완료한 뒤 ENTER 또는 SPACE를 누르세요.")
     print("[초기화 중] 녹화 종료 안내 뒤에만 물체와 팔을 원위치로 옮기세요.")
     print("[종료] 마지막 에피소드 후 프롬프트가 돌아올 때까지 기다리세요.")
     print("[비상] 충돌·과부하 위험일 때만 Ctrl+C를 사용하세요.")

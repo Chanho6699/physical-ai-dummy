@@ -28,6 +28,12 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from data_collection.lerobot_record_runner import (
     DEFAULT_SYNC_WARMUP_S,
+    apply_episode_key,
+    make_episode_keyboard_initializer,
+    make_idempotent_clear_episode_buffer,
+    make_labeled_save_episode,
+    validate_episode_buffer,
+    get_writer_episode_buffer,
     iter_warmup_chunks,
     make_patched_record_loop,
     parse_runner_args,
@@ -108,7 +114,27 @@ def test_warmup_chunks_sub_second_total():
 
 
 class _FakeDataset:
-    """Stand-in for LeRobotDataset - identity is all that matters here."""
+    """Hardware-free stand-in for the LeRobot dataset facade/writer lifecycle."""
+
+    def __init__(self, frames: int = 1):
+        self.num_episodes = 0
+        self.features = {
+            "observation.state": {}, "action": {},
+            "observation.images.workspace": {}, "observation.images.wrist": {},
+        }
+        self.writer = type("Writer", (), {"episode_buffer": _valid_episode_buffer(frames)})()
+        self.save_calls = 0
+        self.clear_calls = 0
+
+    def save_episode(self):
+        self.save_calls += 1
+        self.num_episodes += 1
+        self.writer.episode_buffer = _valid_episode_buffer(0)
+
+    def clear_episode_buffer(self, delete_images=True):
+        assert delete_images is True
+        self.clear_calls += 1
+        self.writer.episode_buffer = _valid_episode_buffer(0)
 
 
 def _make_fake_original_record_loop(calls: list[dict]):
@@ -219,7 +245,8 @@ def test_recording_message_is_last_line_printed_before_the_real_call():
     patched = make_patched_record_loop(fake_record_loop, sync_warmup_s=2.0, print_fn=printed.append)
     patched(**_base_recording_kwargs(dataset=_FakeDataset(), control_time_s=10.0))
 
-    assert printed[-1] == "🔴 녹화를 시작합니다!"
+    assert "🔴 녹화를 시작합니다!" in printed
+    assert printed.index("🔴 녹화를 시작합니다!") < printed.index("RECORDING")
     # the printed "start" line is immediately followed by the real (non-warmup) call
     assert call_order[-1] == "real_dataset_call"
     assert call_order.count("warmup_call") == 2
@@ -257,3 +284,264 @@ def test_missing_required_kwarg_fails_loudly_instead_of_silently_skipping_warmup
 
     with pytest.raises(KeyError):
         patched(**incomplete_kwargs)
+
+
+# ---------------------------------------------------------------------------
+# Explicit episode completion lifecycle
+# ---------------------------------------------------------------------------
+
+
+def _valid_episode_buffer(frames: int, fps: int = 30) -> dict:
+    return {
+        "size": frames,
+        "episode_index": 0,
+        "observation.state": [[0.0] * 6 for _ in range(frames)],
+        "action": [[0.0] * 6 for _ in range(frames)],
+        "observation.images.workspace": [object() for _ in range(frames)],
+        "observation.images.wrist": [object() for _ in range(frames)],
+        "timestamp": [i / fps for i in range(frames)],
+        "frame_index": list(range(frames)),
+        "task": ["Pick up blue cube."] * frames,
+    }
+
+
+def _events() -> dict:
+    return {
+        "exit_early": False, "rerecord_episode": False,
+        "stop_recording": False, "episode_outcome": None,
+        "lifecycle_state": "prepare", "review_choice": None,
+    }
+
+
+def _run_review(choice: str, *, frames: int = 150, order: list[str] | None = None):
+    dataset = _FakeDataset(frames)
+    events = _events()
+
+    def original(**kwargs):
+        apply_episode_key("enter", kwargs["events"], lambda _: None)
+        if order is not None:
+            order.append("record_stopped")
+
+    def review(current_events):
+        assert dataset.writer.episode_buffer["size"] == frames
+        assert dataset.save_calls == 0
+        assert dataset.clear_calls == 0
+        if order is not None:
+            order.append("review")
+        apply_episode_key(choice, current_events, lambda _: None)
+
+    clock_values = iter((10.0, 15.0))
+    patched = make_patched_record_loop(
+        original, 0, print_fn=lambda _: None,
+        monotonic_fn=lambda: next(clock_values), review_wait_fn=review,
+    )
+    patched(**_base_recording_kwargs(dataset=dataset, events=events, control_time_s=60.0))
+    return dataset, events
+
+
+@pytest.mark.parametrize("key", ["enter", "space"])
+def test_recording_finish_key_enters_review_without_classifying_or_saving(key):
+    events = _events()
+    events["lifecycle_state"] = "recording"
+    apply_episode_key(key, events, lambda _: None)
+    assert events["lifecycle_state"] == "recording_finished"
+    assert events["episode_outcome"] is None
+    assert events["exit_early"] is True
+
+
+@pytest.mark.parametrize("key", ["c", "v", "r", "q"])
+def test_recording_state_ignores_classification_keys(key):
+    events = _events()
+    events["lifecycle_state"] = "recording"
+    apply_episode_key(key, events, lambda _: None)
+    assert events["exit_early"] is False
+    assert events["review_choice"] is None
+
+
+def test_review_enter_does_not_implicitly_select_clean():
+    events = _events()
+    events["lifecycle_state"] = "review"
+    apply_episode_key("enter", events, lambda _: None)
+    assert events["review_choice"] is None
+
+
+@pytest.mark.parametrize(("key", "outcome"), [("c", "clean"), ("v", "recovery")])
+def test_review_success_saves_exact_buffer_and_sets_manual_label(key, outcome):
+    dataset, events = _run_review(key)
+    assert dataset.save_calls == 1
+    assert dataset.num_episodes == 1
+    assert dataset.clear_calls == 0
+    assert events["episode_outcome"] == outcome
+    assert dataset._pending_episode_type == outcome
+
+
+def test_review_discard_clears_without_advancing_index_or_label():
+    dataset, events = _run_review("r")
+    assert dataset.save_calls == 0
+    assert dataset.clear_calls == 1
+    assert dataset.num_episodes == 0
+    assert not hasattr(dataset, "_pending_episode_type")
+    assert events["rerecord_episode"] is True
+    assert events["stop_recording"] is False
+
+
+def test_review_quit_discards_and_stops_without_label():
+    dataset, events = _run_review("q")
+    assert dataset.save_calls == 0
+    assert dataset.clear_calls == 1
+    assert dataset.num_episodes == 0
+    assert not hasattr(dataset, "_pending_episode_type")
+    assert events["stop_recording"] is True
+
+
+def test_classification_and_save_complete_before_caller_can_reset():
+    order = []
+    dataset, _ = _run_review("c", order=order)
+    order.append("reset")
+    assert order == ["record_stopped", "review", "reset"]
+    assert dataset.num_episodes == 1
+
+
+@pytest.mark.parametrize("seconds", [3, 8, 15])
+def test_variable_duration_episode_buffers_are_valid(seconds):
+    valid, reason = validate_episode_buffer(_valid_episode_buffer(seconds * 30))
+    assert valid is True
+    assert reason == "ok"
+
+
+def test_emergency_timeout_discards_without_review_or_success():
+    events = _events()
+    dataset = _FakeDataset(150)
+    reviewed = []
+    patched = make_patched_record_loop(
+        lambda **_: None, sync_warmup_s=0, print_fn=lambda _: None,
+        review_wait_fn=lambda _: reviewed.append(True),
+    )
+    patched(**_base_recording_kwargs(dataset=dataset, events=events, control_time_s=5.0))
+    assert events["episode_outcome"] == "timeout"
+    assert events["rerecord_episode"] is True
+    assert dataset.clear_calls == 1
+    assert dataset.save_calls == 0
+    assert reviewed == []
+
+
+def test_keyboard_initializer_only_registers_nonblocking_callback():
+    captured = {}
+    sentinel = object()
+
+    def create_listener(dispatch, **kwargs):
+        captured["dispatch"] = dispatch
+        captured["help"] = kwargs["controls_help"]
+        return sentinel
+
+    listener, events = make_episode_keyboard_initializer(create_listener, lambda _: None)()
+    assert listener is sentinel
+    assert events["exit_early"] is False
+    events["lifecycle_state"] = "recording"
+    captured["dispatch"]("space")
+    assert events["lifecycle_state"] == "recording_finished"
+
+
+def test_integrity_rejects_unaligned_or_nonmonotonic_samples():
+    buffer = _valid_episode_buffer(10)
+    buffer["action"].pop()
+    assert validate_episode_buffer(buffer)[0] is False
+    buffer = _valid_episode_buffer(10)
+    buffer["timestamp"][5] = buffer["timestamp"][4]
+    assert validate_episode_buffer(buffer)[0] is False
+
+
+def test_real_lerobot_facade_uses_writer_episode_buffer():
+    buffer = _valid_episode_buffer(150)
+    dataset = type("Dataset", (), {
+        "writer": type("Writer", (), {"episode_buffer": buffer})(),
+    })()
+    assert get_writer_episode_buffer(dataset) is buffer
+    assert validate_episode_buffer(get_writer_episode_buffer(dataset))[0] is True
+
+
+def test_empty_real_writer_buffer_fails():
+    assert validate_episode_buffer(_valid_episode_buffer(0))[0] is False
+
+
+def test_missing_single_camera_fails():
+    buffer = _valid_episode_buffer(30)
+    del buffer["observation.images.wrist"]
+    valid, reason = validate_episode_buffer(buffer)
+    assert valid is False
+    assert "wrist" in reason
+
+
+def test_actual_writer_buffer_allows_streaming_video_none_placeholders():
+    buffer = _valid_episode_buffer(30)
+    buffer["observation.images.workspace"] = [None] * 30
+    buffer["observation.images.wrist"] = [None] * 30
+    assert validate_episode_buffer(buffer)[0] is True
+
+
+def test_episode_report_uses_writer_size_and_wall_duration():
+    printed = []
+    dataset = _FakeDataset(150)
+    events = _events()
+
+    def original(**kwargs):
+        apply_episode_key("enter", kwargs["events"], lambda _: None)
+
+    def review(current_events):
+        apply_episode_key("c", current_events, lambda _: None)
+
+    clock_values = iter((10.0, 15.0))
+    patched = make_patched_record_loop(
+        original, 0, print_fn=printed.append,
+        monotonic_fn=lambda: next(clock_values), review_wait_fn=review,
+    )
+    patched(**_base_recording_kwargs(dataset=dataset, events=events, control_time_s=60.0))
+    summary = next(line for line in printed if line.startswith("[EPISODE END]"))
+    assert "duration=5.00s" in summary
+    assert "frames=150" in summary
+    assert events["episode_outcome"] == "clean"
+
+
+
+def test_upstream_post_review_save_is_suppressed_exactly_once():
+    calls = []
+
+    def original(dataset):
+        calls.append("save")
+
+    wrapped = make_labeled_save_episode(original)
+    dataset = type("Dataset", (), {})()
+    dataset._manual_episode_already_saved = True
+    wrapped(dataset)
+    assert calls == []
+    assert not hasattr(dataset, "_manual_episode_already_saved")
+
+
+def test_upstream_post_review_clear_is_suppressed_exactly_once():
+    calls = []
+
+    def original(dataset, *args, **kwargs):
+        calls.append((args, kwargs))
+
+    wrapped = make_idempotent_clear_episode_buffer(original)
+    dataset = type("Dataset", (), {})()
+    dataset._manual_episode_already_cleared = True
+    wrapped(dataset)
+    assert calls == []
+    assert not hasattr(dataset, "_manual_episode_already_cleared")
+    wrapped(dataset, delete_images=True)
+    assert calls == [((), {"delete_images": True})]
+
+
+def test_reset_call_transitions_only_after_episode_is_handled():
+    observed = []
+    events = _events()
+    events["lifecycle_state"] = "handled"
+
+    def original(**kwargs):
+        observed.append(kwargs["events"]["lifecycle_state"])
+
+    patched = make_patched_record_loop(original, 0, print_fn=lambda _: None)
+    patched(**_base_recording_kwargs(events=events, control_time_s=2.0))
+    assert observed == ["reset"]
+    assert events["lifecycle_state"] == "prepare"
