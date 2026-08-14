@@ -81,6 +81,11 @@ from hardware.diagnostics.instrumented_teleop import (
     run_instrumented_teleop_loop,
 )
 from hardware.diagnostics.instrumented_teleop_console import TerminalDashboard, render_dashboard_lines
+from hardware.diagnostics.teleop_servo_lead import (
+    AllJointServoLeadLogger,
+    run_official_teleop_with_post_send_hook,
+    write_analysis,
+)
 from hardware.diagnostics.instrumented_teleop_logger import (
     CsvSampleWriter,
     build_csv_path,
@@ -271,6 +276,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--num-read-retries", type=int, default=DEFAULT_NUM_READ_RETRIES, help=f"계측 레지스터 read 재시도 횟수 (기본 {DEFAULT_NUM_READ_RETRIES}).")
     parser.add_argument("--dashboard-interval-s", type=float, default=DEFAULT_DASHBOARD_INTERVAL_S, help=f"터미널 대시보드 갱신 최소 간격(초) (기본 {DEFAULT_DASHBOARD_INTERVAL_S:g}).")
     parser.add_argument("--no-dashboard", action="store_true", help="터미널 대시보드 출력을 끈다 (CSV/분석은 그대로 수행).")
+    parser.add_argument("--servo-lead-log", action="store_true", help="send_action 이후 6-joint Goal/Present/velocity/load/current/Moving read-only 기록.")
     parser.add_argument("--csv-dir", default=None, help=f"CSV/JSON 저장 디렉터리 (기본 {REPORTS_DIR_RELATIVE}/)")
     parser.add_argument(
         "--dry-run",
@@ -351,6 +357,46 @@ def run_dry_run(args: argparse.Namespace, *, stdout=None) -> int:
 # ---------------------------------------------------------------------------
 
 
+def _run_official_servo_lead(args, config, stdout):
+    from lerobot.processor import make_default_processors
+    from lerobot.robots import make_robot_from_config
+    from lerobot.robots.so_follower import SO101FollowerConfig
+    from lerobot.scripts.lerobot_teleoperate import teleop_loop
+    from lerobot.teleoperators import make_teleoperator_from_config
+    from lerobot.teleoperators.so_leader import SO101LeaderConfig
+
+    teleop = make_teleoperator_from_config(SO101LeaderConfig(port=config.leader_port, id=config.leader_id))
+    robot = make_robot_from_config(SO101FollowerConfig(port=config.follower_port, id=config.follower_id))
+    teleop_processor, robot_processor, observation_processor = make_default_processors()
+    output_dir = Path(args.csv_dir).expanduser() if args.csv_dir else PROJECT_ROOT / REPORTS_DIR_RELATIVE
+    base_path = build_csv_path(output_dir)
+    csv_path = base_path.with_name(base_path.stem + "_servo_lead.csv")
+    summary_path = csv_path.with_suffix(".json")
+    logger = AllJointServoLeadLogger(bus=robot.bus, csv_path=csv_path)
+    errors = []
+    try:
+        errors = run_official_teleop_with_post_send_hook(
+            teleop=teleop, robot=robot, teleop_loop_fn=teleop_loop,
+            loop_kwargs={
+                "fps": args.fps, "duration": args.duration_sec,
+                "teleop_action_processor": teleop_processor,
+                "robot_action_processor": robot_processor,
+                "robot_observation_processor": observation_processor,
+                "display_data": False,
+            },
+            logger=logger, clock=time.monotonic,
+        )
+    except KeyboardInterrupt:
+        pass
+    report = write_analysis(summary_path, logger.samples)
+    report["diagnostic_errors"] = errors
+    summary_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(f"servo_lead_csv={csv_path}", file=stdout)
+    print(f"servo_lead_summary={summary_path}", file=stdout)
+    return 0
+
+
+
 def run(
     args: argparse.Namespace,
     *,
@@ -380,6 +426,9 @@ def run(
     except (calres.ResolutionError, RefusalError) as exc:
         _p(f"거부: {exc}")
         return 2
+
+    if args.servo_lead_log and leader_factory is None and follower_factory is None and processors_factory is None:
+        return _run_official_servo_lead(args, config, stdout)
 
     _p("Instrumented Teleop Diagnostic - 정상 LeRobot teleoperation 경로 사용 (follower가 실제로 움직입니다)")
     _p(f"leader_port={config.leader_port} (source={config.leader_port_source}) id={config.leader_id}")
