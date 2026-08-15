@@ -44,3 +44,24 @@ def test_checkpoint_alone_is_valid(cli_module) -> None:
     args = cli_module.parse_args(["--checkpoint", "/some/path"])
     assert args.fake is False
     assert args.checkpoint == "/some/path"
+
+
+def test_cli_seed_becomes_runner_effective_seed(cli_module, monkeypatch) -> None:
+    class Runner:
+        def __init__(self, checkpoint, **kwargs):
+            self.inference_seed = kwargs["inference_seed"]
+
+    monkeypatch.setattr(cli_module, "SmolVLAPolicyRunner", Runner)
+    args = cli_module.parse_args(["--checkpoint", "/some/path", "--inference-seed", "20260815"])
+    runner = cli_module.build_policy_runner(args)
+    assert runner.inference_seed == args.inference_seed == 20260815
+
+
+def test_cli_without_seed_preserves_stochastic_mode(cli_module, monkeypatch) -> None:
+    class Runner:
+        def __init__(self, checkpoint, **kwargs):
+            self.inference_seed = kwargs["inference_seed"]
+
+    monkeypatch.setattr(cli_module, "SmolVLAPolicyRunner", Runner)
+    args = cli_module.parse_args(["--checkpoint", "/some/path"])
+    assert cli_module.build_policy_runner(args).inference_seed is None

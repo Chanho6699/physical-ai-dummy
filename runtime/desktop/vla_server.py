@@ -89,6 +89,7 @@ class PolicyRunner(Protocol):
     # predict_chunk()가 그 시점에 fail-closed로 거부한다(초기화 시점에 서버 전체를 죽이지
     # 않음 - /predict는 이 값과 무관하게 계속 동작해야 하므로).
     chunk_index_spacing_s: float | None
+    inference_seed: int | None
 
     def is_ready(self) -> bool: ...
 
@@ -121,6 +122,7 @@ class FakePolicyRunner:
     # 이 값을 하드코딩하지 않고 dataset 메타데이터에서 구한다, 아래 참고).
     chunk_size: int = 50
     chunk_index_spacing_s: float = 1.0 / 30.0
+    inference_seed: int | None = None
 
     def is_ready(self) -> bool:
         return True
@@ -170,6 +172,7 @@ class SmolVLAPolicyRunner:
         policy_type: str = "smolvla",
         device: str | None = None,
         dataset_fps: float | None = None,
+        inference_seed: int | None = None,
     ) -> None:
         """``dataset_fps``: ``/predict_chunk``의 ``chunk_index_spacing_s`` 산출에 쓰는 학습
         dataset의 fps(예: V3/V4/combined69는 30). 명시적으로 주면 이게 최우선 - 안 주면
@@ -184,6 +187,9 @@ class SmolVLAPolicyRunner:
         self.policy_type = policy_type
         self._device_arg = device
         self._dataset_fps_override = dataset_fps
+        if inference_seed is not None and inference_seed < 0:
+            raise ValueError(f"inference_seed must be non-negative, got {inference_seed}")
+        self.inference_seed = inference_seed
         self._policy = None
         self._preprocessor = None
         self._postprocessor = None
@@ -269,6 +275,19 @@ class SmolVLAPolicyRunner:
         batch["task"] = [task]
         return batch
 
+    def _deterministic_noise(self, *, batch_size: int):
+        """Build fixed SmolVLA flow-matching x_1 without mutating global RNG state."""
+        if self.inference_seed is None:
+            return None
+        import torch
+
+        generator = torch.Generator(device=self._device)
+        generator.manual_seed(self.inference_seed)
+        return torch.randn(
+            (batch_size, self._policy.config.chunk_size, self._policy.config.max_action_dim),
+            dtype=torch.float32, device=self._device, generator=generator,
+        )
+
     def predict(self, *, task: str, state: dict[str, float], images: dict[str, object]) -> dict[str, float]:
         if not self.is_ready():
             raise PolicyInferenceError(f"정책이 로딩되지 않았습니다: {self._load_error}")
@@ -279,7 +298,8 @@ class SmolVLAPolicyRunner:
 
             with self._lock, torch.inference_mode():
                 processed = self._preprocessor(batch)
-                raw_action = self._policy.select_action(processed)
+                noise = self._deterministic_noise(batch_size=processed["observation.state"].shape[0])
+                raw_action = self._policy.select_action(processed, noise=noise)
                 action = self._postprocessor(raw_action)
         except PolicyInferenceError:
             raise
@@ -316,7 +336,8 @@ class SmolVLAPolicyRunner:
 
             with self._lock, torch.inference_mode():
                 processed = self._preprocessor(batch)
-                raw_chunk = self._policy.predict_action_chunk(processed)  # select_action()이 아님!
+                noise = self._deterministic_noise(batch_size=processed["observation.state"].shape[0])
+                raw_chunk = self._policy.predict_action_chunk(processed, noise=noise)  # select_action()이 아님!
                 chunk = self._postprocessor(raw_chunk)
         except PolicyInferenceError:
             raise
@@ -394,6 +415,8 @@ class HealthResponseModel(BaseModel):
     model_loaded: bool
     model_id: str
     device: str
+    inference_mode: str
+    inference_seed: int | None
     schema_version: str
     timestamp: float
     errors: list[str] = []
@@ -528,6 +551,8 @@ def create_app(
             model_loaded=ready,
             model_id=policy_runner.model_id,
             device=policy_runner.device_label(),
+            inference_mode=("deterministic" if policy_runner.inference_seed is not None else "stochastic"),
+            inference_seed=policy_runner.inference_seed,
             schema_version=SCHEMA_VERSION,
             timestamp=time.time(),
             errors=[] if ready else ["policy_runner가 준비되지 않았습니다 (체크포인트 로딩 실패 가능)."],

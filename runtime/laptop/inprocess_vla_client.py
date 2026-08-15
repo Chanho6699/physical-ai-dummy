@@ -47,9 +47,12 @@ class InProcessVLAClientError(RuntimeError):
 class InProcessSmolVLAClient:
     """``VLAHttpClient``와 같은 인터페이스로 SmolVLA checkpoint를 in-process 호출한다."""
 
-    def __init__(self, *, checkpoint: str, policy_type: str = "smolvla", device: str | None = None) -> None:
+    def __init__(self, *, checkpoint: str, policy_type: str = "smolvla", device: str | None = None, inference_seed: int | None = None) -> None:
         self.checkpoint = checkpoint
-        self._policy_runner = SmolVLAPolicyRunner(checkpoint, policy_type=policy_type, device=device)
+        runner_kwargs = {"policy_type": policy_type, "device": device}
+        if inference_seed is not None:
+            runner_kwargs["inference_seed"] = inference_seed
+        self._policy_runner = SmolVLAPolicyRunner(checkpoint, **runner_kwargs)
         self._base_url = f"in-process:{checkpoint}"
         if not self._policy_runner.is_ready():
             raise InProcessVLAClientError(

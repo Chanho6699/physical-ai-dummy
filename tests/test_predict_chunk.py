@@ -169,14 +169,14 @@ class _CountingFakePolicy:
     """select_action()/predict_action_chunk() 호출 횟수만 기록하는 최소 stub."""
 
     def __init__(self, chunk_size: int = 4, action_dim: int = 6, chunk_size_mismatch: bool = False):
-        self.config = SimpleNamespace(chunk_size=chunk_size)
+        self.config = SimpleNamespace(chunk_size=chunk_size, max_action_dim=action_dim)
         self._chunk_size = chunk_size
         self._actual_chunk_size = chunk_size + 1 if chunk_size_mismatch else chunk_size
         self._action_dim = action_dim
         self.select_action_calls = 0
         self.predict_action_chunk_calls = 0
 
-    def select_action(self, batch):
+    def select_action(self, batch, noise=None):
         self.select_action_calls += 1
         return torch.zeros(1, self._action_dim)
 
@@ -185,7 +185,7 @@ class _CountingFakePolicy:
         return torch.zeros(1, self._actual_chunk_size, self._action_dim)
 
 
-def _bare_runner(policy, *, preprocessor=None, postprocessor=None, dataset_fps: float | None = 30.0) -> SmolVLAPolicyRunner:
+def _bare_runner(policy, *, preprocessor=None, postprocessor=None, dataset_fps: float | None = 30.0, inference_seed: int | None = None) -> SmolVLAPolicyRunner:
     """``SmolVLAPolicyRunner.__init__``(실제 checkpoint 로딩)을 우회하고, 내부 상태만
     직접 채운 인스턴스를 만든다 - GPU/실제 checkpoint 없이 predict()/predict_chunk()의
     로직 자체(어떤 policy 메서드를 호출하는지, lock, shape 검증)만 검증하기 위함."""
@@ -195,6 +195,7 @@ def _bare_runner(policy, *, preprocessor=None, postprocessor=None, dataset_fps: 
     runner.policy_type = "smolvla"
     runner._device_arg = None
     runner._dataset_fps_override = dataset_fps
+    runner.inference_seed = inference_seed
     runner._policy = policy
     runner._preprocessor = preprocessor if preprocessor is not None else (lambda batch: batch)
     runner._postprocessor = postprocessor if postprocessor is not None else (lambda x: x)
@@ -204,6 +205,33 @@ def _bare_runner(policy, *, preprocessor=None, postprocessor=None, dataset_fps: 
     runner.chunk_index_spacing_s = (1.0 / dataset_fps) if dataset_fps else None
     return runner
 
+
+
+class _NoiseEchoPolicy:
+    def __init__(self):
+        self.config = SimpleNamespace(chunk_size=4, max_action_dim=6)
+
+    def predict_action_chunk(self, batch, noise=None):
+        return noise if noise is not None else torch.randn(1, 4, 6)
+
+
+def test_seeded_predict_chunk_is_bitwise_identical_for_50_calls() -> None:
+    runner = _bare_runner(_NoiseEchoPolicy(), inference_seed=20260815)
+    results = [runner.predict_chunk(task="t", state=_state(), images=_images()) for _ in range(50)]
+    assert all(result == results[0] for result in results[1:])
+
+
+def test_unseeded_predict_chunk_preserves_stochastic_noise() -> None:
+    runner = _bare_runner(_NoiseEchoPolicy(), inference_seed=None)
+    results = [runner.predict_chunk(task="t", state=_state(), images=_images()) for _ in range(3)]
+    assert any(result != results[0] for result in results[1:])
+
+
+def test_deterministic_noise_does_not_mutate_global_rng() -> None:
+    runner = _bare_runner(_NoiseEchoPolicy(), inference_seed=20260815)
+    before = torch.random.get_rng_state().clone()
+    runner.predict_chunk(task="t", state=_state(), images=_images())
+    assert torch.equal(torch.random.get_rng_state(), before)
 
 def _state() -> dict[str, float]:
     return {j: 0.0 for j in JOINT_ORDER}
@@ -340,7 +368,7 @@ class _SlowFakePolicy:
             self.intervals.append((label, t0, t1))
         return result
 
-    def select_action(self, batch):
+    def select_action(self, batch, noise=None):
         return self._run("select_action", torch.zeros(1, 6))
 
     def predict_action_chunk(self, batch, noise=None):

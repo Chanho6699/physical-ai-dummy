@@ -53,6 +53,20 @@ def test_health_ok() -> None:
     assert data["status"] == "ok"
     assert data["backend"] == "fake"
     assert data["model_loaded"] is True
+    assert data["inference_mode"] == "stochastic"
+    assert data["inference_seed"] is None
+
+
+def test_health_reports_runner_effective_seed() -> None:
+    runner = FakePolicyRunner(inference_seed=20260815)
+    data = _client(runner).get("/health").json()
+    assert data["inference_mode"] == "deterministic"
+    assert data["inference_seed"] == runner.inference_seed
+    assert data["status"] == "ok"
+    assert data["backend"] == "fake"
+    assert data["model_loaded"] is True
+    assert data["model_id"] == runner.model_id
+    assert data["device"] == "cpu (fake)"
 
 
 def test_health_degraded_when_not_ready() -> None:
