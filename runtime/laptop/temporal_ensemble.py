@@ -80,6 +80,7 @@ class EnsembledTarget:
     newest_observation_age_ms: float  # target_time 기준 가장 "신선한" 기여 chunk의 관측 나이(ms)
     oldest_observation_age_ms: float  # target_time 기준 가장 "오래된" 기여 chunk의 관측 나이(ms)
     num_contributors: int
+    phase_offset_s: float = 0.0
 
 
 class TemporalEnsembler:
@@ -96,6 +97,8 @@ class TemporalEnsembler:
         max_contributors: int = DEFAULT_MAX_CONTRIBUTORS,
         half_life_s: float = DEFAULT_HALF_LIFE_S,
         lookahead_s: float = DEFAULT_LOOKAHEAD_S,
+        phase_continuity: bool = False,
+        phase_fade_cadence_scale: float = 1.0,
     ) -> None:
         if max_contributors < 1:
             raise ValueError(f"max_contributors는 1 이상이어야 합니다: {max_contributors}")
@@ -103,10 +106,14 @@ class TemporalEnsembler:
             raise ValueError(f"half_life_s는 양수여야 합니다: {half_life_s}")
         if lookahead_s < 0:
             raise ValueError(f"lookahead_s는 음수일 수 없습니다: {lookahead_s}")
+        if phase_fade_cadence_scale <= 0:
+            raise ValueError("phase_fade_cadence_scale must be positive")
         self._max_contributors = max_contributors
         self._half_life_s = half_life_s
         self._lambda = math.log(2.0) / half_life_s
         self._lookahead_s = lookahead_s
+        self._phase_continuity = phase_continuity
+        self._phase_fade_cadence_scale = phase_fade_cadence_scale
 
     @property
     def max_contributors(self) -> int:
@@ -123,61 +130,104 @@ class TemporalEnsembler:
     # -- 공개 API (섹션 13) -------------------------------------------------------------
 
     def compute_target(
-        self, chunks: Sequence[TimestampedActionChunk], target_time_monotonic: float
+        self,
+        chunks: Sequence[TimestampedActionChunk],
+        target_time_monotonic: float,
     ) -> EnsembledTarget | None:
-        """``chunks``(``TrajectoryBuffer.snapshot()``/``valid_chunks()`` 등에서 얻은,
-        순서 무관한 chunk 목록) 중 ``target_time_monotonic``을 실제로 커버하는 것들만
-        골라 ensemble한다. 커버하는 chunk가 하나도 없으면 ``None``(fail-closed, 섹션 6 -
-        임의 extrapolation 절대 안 함)."""
-        candidates = [c for c in chunks if self._covers(c, target_time_monotonic)]
+        return self._compute_target_with_offsets(chunks, target_time_monotonic, {})
+
+    def _compute_target_with_offsets(
+        self,
+        chunks: Sequence[TimestampedActionChunk],
+        target_time_monotonic: float,
+        offsets: dict[int, float],
+    ) -> EnsembledTarget | None:
+        candidates = [
+            c for c in chunks
+            if self._covers(c, target_time_monotonic + offsets.get(c.sequence, 0.0))
+        ]
         if not candidates:
             return None
-
-        # 최신 observation_time 순으로 정렬해 최대 max_contributors개만 남긴다(섹션 3).
         candidates.sort(key=lambda c: c.observation_time_monotonic, reverse=True)
-        candidates = candidates[: self._max_contributors]
+        # Continuity mode retains one rolling boundary contributor. Its phase
+        # envelope reaches zero before removal, avoiding a hard top-k swap.
+        candidate_limit = self._max_contributors + 1 if self._phase_continuity else self._max_contributors
+        candidates = candidates[:candidate_limit]
 
-        samples: list[tuple[TimestampedActionChunk, dict[str, float], int, int]] = []
+        samples: list[tuple[TimestampedActionChunk, dict[str, float], int, int, float]] = []
         for chunk in candidates:
             ok, _ = chunk.validate()
             if not ok:
-                continue  # defense-in-depth (섹션 7) - 정상 경로라면 buffer.publish()가 이미 막았어야 함
-            sampled, lower, upper = self._sample_action_at(chunk, target_time_monotonic)
+                continue
+            offset = offsets.get(chunk.sequence, 0.0)
+            sampled, lower, upper = self._sample_action_at(chunk, target_time_monotonic + offset)
             valid_sample, _ = validate_joint_dict(sampled, context="ensemble contributor")
-            if valid_sample is None:
-                continue  # interpolation 결과가 비정상(이론상 거의 불가능) - 이 기여자만 제외
-            samples.append((chunk, valid_sample, lower, upper))
-
+            if valid_sample is not None:
+                samples.append((chunk, valid_sample, lower, upper, offset))
         if not samples:
-            return None  # 전부 defense-in-depth에 걸러짐 - fail-closed
-
-        newest_obs_time = max(chunk.observation_time_monotonic for chunk, _, _, _ in samples)
-        weights_raw = [math.exp(-self._lambda * (newest_obs_time - chunk.observation_time_monotonic)) for chunk, _, _, _ in samples]
-        weight_sum = sum(weights_raw)
-        weights = [w / weight_sum for w in weights_raw]
-
-        action: dict[str, float] = {}
-        for joint in JOINT_ORDER:
-            action[joint] = sum(w * sample[joint] for (_, sample, _, _), w in zip(samples, weights))
-
-        valid_action, reason = validate_joint_dict(action, context="ensembled target")
-        if valid_action is None:
-            # 수학적으로 finite 가중합은 finite해야 하므로 정상 경로에서는 도달 불가능하지만,
-            # "ensemble 후 target도 finite/joint keys 검증"(섹션 7) 요구사항을 문자 그대로
-            # 지키기 위해 명시적으로 다시 확인한다.
             return None
 
-        observation_ages_ms = [(target_time_monotonic - chunk.observation_time_monotonic) * 1000.0 for chunk, _, _, _ in samples]
-
+        newest_obs_time = max(chunk.observation_time_monotonic for chunk, _, _, _, _ in samples)
+        recency_weights = [
+            math.exp(-self._lambda * (newest_obs_time - chunk.observation_time_monotonic))
+            for chunk, _, _, _, _ in samples
+        ]
+        weights_raw = list(recency_weights)
+        if self._phase_continuity and len(samples) > 1:
+            observation_times = sorted({chunk.observation_time_monotonic for chunk, _, _, _, _ in samples})
+            cadence_values = [
+                b - a for a, b in zip(observation_times, observation_times[1:])
+                if b - a > _FLOAT_EPSILON
+            ]
+            cadence_s = (
+                sorted(cadence_values)[len(cadence_values) // 2]
+                if cadence_values
+                else min(chunk.chunk_index_spacing_s for chunk, _, _, _, _ in samples)
+            )
+            cadence_s *= self._phase_fade_cadence_scale
+            newest_chunk = samples[0][0]
+            admission_age_s = max(
+                0.0, target_time_monotonic - newest_chunk.response_received_time_monotonic
+            )
+            admission_phase = min(1.0, admission_age_s / cadence_s)
+            weights_raw[0] *= admission_phase
+            if len(samples) == self._max_contributors + 1:
+                weights_raw[-1] *= 1.0 - admission_phase
+            else:
+                oldest_chunk, _, _, _, oldest_offset = samples[-1]
+                remaining_phase_s = max(
+                    0.0,
+                    oldest_chunk.nominal_target_time(oldest_chunk.chunk_size - 1)
+                    - (target_time_monotonic + oldest_offset),
+                )
+                weights_raw[-1] *= min(1.0, remaining_phase_s / cadence_s)
+        weight_sum = sum(weights_raw)
+        if weight_sum <= _FLOAT_EPSILON:
+            weights_raw = recency_weights
+            weight_sum = sum(weights_raw)
+        weights = [w / weight_sum for w in weights_raw]
+        action = {
+            joint: sum(w * sample[joint] for (_, sample, _, _, _), w in zip(samples, weights))
+            for joint in JOINT_ORDER
+        }
+        valid_action, _ = validate_joint_dict(action, context="ensembled target")
+        if valid_action is None:
+            return None
+        observation_ages_ms = [
+            (target_time_monotonic - chunk.observation_time_monotonic) * 1000.0
+            for chunk, _, _, _, _ in samples
+        ]
+        weighted_phase_offset = sum(w * offset for (_, _, _, _, offset), w in zip(samples, weights))
         return EnsembledTarget(
             target_time_monotonic=target_time_monotonic,
             action=valid_action,
-            contributing_sequences=tuple(chunk.sequence for chunk, _, _, _ in samples),
-            contributing_chunk_indices=tuple((lower, upper) for _, _, lower, upper in samples),
+            contributing_sequences=tuple(chunk.sequence for chunk, _, _, _, _ in samples),
+            contributing_chunk_indices=tuple((lower, upper) for _, _, lower, upper, _ in samples),
             weights=tuple(weights),
-            newest_observation_age_ms=min(observation_ages_ms),  # 가장 최근 관측 = 나이가 가장 작음
+            newest_observation_age_ms=min(observation_ages_ms),
             oldest_observation_age_ms=max(observation_ages_ms),
             num_contributors=len(samples),
+            phase_offset_s=weighted_phase_offset,
         )
 
     def compute_target_for_now(

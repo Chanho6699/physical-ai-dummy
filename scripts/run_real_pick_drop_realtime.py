@@ -336,7 +336,7 @@ class RealtimeSessionOrchestrator:
             session_id=session_id, task=task, min_interval_s=0.0,
         )
         real_generator = RealTimeControlTargetGenerator(
-            ensembler=TemporalEnsembler(half_life_s=0.338, max_contributors=3), safety_gate=safety_gate,
+            ensembler=TemporalEnsembler(half_life_s=0.338, max_contributors=3, phase_continuity=True, phase_fade_cadence_scale=0.5), safety_gate=safety_gate,
             motion_limits=motion_limits or DEFAULT_JOINT_MOTION_LIMITS, control_hz=control_hz,
         )
         # 진단 전용(analysis/instrumentation only), additive - diagnostic_jsonl_path가

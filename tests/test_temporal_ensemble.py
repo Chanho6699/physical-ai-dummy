@@ -408,3 +408,78 @@ def test_lookahead_positive_shifts_target_time_forward() -> None:
     target = ensembler.compute_target_for_now([chunk], now_monotonic=now)
     assert target.target_time_monotonic == pytest.approx(now + lookahead)
     assert target.contributing_chunk_indices == ((5, 5),)  # (2+3)=index 5
+
+
+# Phase continuity: admission/removal are weighted by actual contributor phase.
+def _constant_chunk(sequence: int, obs_time: float, value: float, *, chunk_size: int = 50):
+    actions = tuple({j: value for j in JOINT_ORDER} for _ in range(chunk_size))
+    return TimestampedActionChunk(
+        sequence=sequence, session_id="phase", observation_time_monotonic=obs_time,
+        request_started_time_monotonic=obs_time,
+        response_received_time_monotonic=obs_time + 0.05,
+        server_received_at=None, server_responded_at=None, inference_latency_ms=50.0,
+        chunk_index_spacing_s=SPACING, chunk_size=chunk_size, actions=actions,
+        model_id="fake", backend="fake",
+    )
+
+
+def test_phase_continuity_a_contributor_addition_1_to_2() -> None:
+    old = _constant_chunk(1, 0.0, 10.0)
+    new = _constant_chunk(2, 0.2, 40.0)
+    ens = TemporalEnsembler(phase_continuity=True)
+    t = new.response_received_time_monotonic
+    before = ens.compute_target([old], t)
+    after = ens.compute_target([old, new], t)
+    assert after.action == pytest.approx(before.action)
+
+
+def test_phase_continuity_b_contributor_removal_2_to_1() -> None:
+    old = _constant_chunk(1, 0.0, 10.0, chunk_size=10)
+    new = _constant_chunk(2, 0.2, 40.0)
+    ens = TemporalEnsembler(phase_continuity=True)
+    last = old.nominal_target_time(old.chunk_size - 1)
+    before = ens.compute_target([old, new], last - 1e-6)
+    after = ens.compute_target([new], last + 1e-6)
+    assert after.action["shoulder_pan"] == pytest.approx(before.action["shoulder_pan"], abs=1e-3)
+
+
+def test_phase_continuity_c_three_contributor_roll() -> None:
+    c1 = _constant_chunk(1, 0.0, 10.0)
+    c2 = _constant_chunk(2, 0.2, 20.0)
+    c3 = _constant_chunk(3, 0.4, 30.0)
+    c4 = _constant_chunk(4, 0.6, 100.0)
+    ens = TemporalEnsembler(max_contributors=3, phase_continuity=True)
+    t = c4.response_received_time_monotonic
+    before = ens.compute_target([c1, c2, c3], t)
+    after = ens.compute_target([c1, c2, c3, c4], t)
+    assert after.action == pytest.approx(before.action)
+
+
+def test_phase_continuity_d_identical_chunks_remain_identical() -> None:
+    old = _constant_chunk(1, 0.0, 7.0)
+    new = _constant_chunk(2, 0.2, 7.0)
+    target = TemporalEnsembler(phase_continuity=True).compute_target(
+        [old, new], new.response_received_time_monotonic + 0.1
+    )
+    assert all(value == pytest.approx(7.0) for value in target.action.values())
+
+
+def test_phase_continuity_e_small_difference_is_admitted_without_boundary_jump() -> None:
+    old = _constant_chunk(1, 0.0, 10.0)
+    new = _constant_chunk(2, 0.2, 10.5)
+    ens = TemporalEnsembler(phase_continuity=True)
+    t = new.response_received_time_monotonic
+    at_boundary = ens.compute_target([old, new], t)
+    mid = ens.compute_target([old, new], t + 0.1)
+    assert at_boundary.action["elbow_flex"] == pytest.approx(10.0)
+    assert 10.0 < mid.action["elbow_flex"] < 10.5
+
+
+def test_phase_continuity_f_large_stochastic_difference_has_no_boundary_jump() -> None:
+    old = _constant_chunk(1, 0.0, -50.0)
+    new = _constant_chunk(2, 0.2, 80.0)
+    ens = TemporalEnsembler(phase_continuity=True)
+    t = new.response_received_time_monotonic
+    before = ens.compute_target([old], t)
+    after = ens.compute_target([old, new], t)
+    assert after.action == pytest.approx(before.action)
