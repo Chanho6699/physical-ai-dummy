@@ -143,6 +143,9 @@ class _PendingGeneratorRecord:
     current_follower_state_deg: dict[str, float] | None
     contributing_sequences: tuple[int, ...]
     raw_ensemble_target: dict[str, float] | None
+    target_lookahead: dict[str, float] | None
+    motion_guard_dt_s: float | None
+    motion_guard_diagnostics: dict | None
     intent_decision: str | None
     intent_reasons: tuple[str, ...]
     intent_diagnostics: dict | None  # _evaluate_stage_diagnostics(raw_ensemble_target)
@@ -197,6 +200,9 @@ class TickDiagnosticRecorder:
                 current_follower_state_deg=(dict(current_follower_state_deg) if current_follower_state_deg else None),
                 contributing_sequences=tuple(result.contributing_sequences),
                 raw_ensemble_target=(dict(result.raw_ensemble_target) if result.raw_ensemble_target else None),
+                target_lookahead=(dict(result.target_lookahead) if result.target_lookahead else None),
+                motion_guard_dt_s=result.motion_guard_dt_s,
+                motion_guard_diagnostics=result.motion_guard_diagnostics,
                 intent_decision=result.intent_decision,
                 intent_reasons=tuple(result.intent_reasons),
                 intent_diagnostics=intent_diag,
@@ -212,7 +218,8 @@ class TickDiagnosticRecorder:
             pending = _PendingGeneratorRecord(
                 now_monotonic=now_monotonic,
                 current_follower_state_deg=(dict(current_follower_state_deg) if current_follower_state_deg else None),
-                contributing_sequences=(), raw_ensemble_target=None, intent_decision=None, intent_reasons=(),
+                contributing_sequences=(), raw_ensemble_target=None, target_lookahead=None,
+                motion_guard_dt_s=None, motion_guard_diagnostics=None, intent_decision=None, intent_reasons=(),
                 intent_diagnostics={"capture_error": f"{type(exc).__name__}: {exc}"}, guarded_target=None,
                 final_target=None, clamp_reasons=(), safety_decision=None, safety_reasons=(), safety_diagnostics=None, stop_reason=None,
             )
@@ -278,7 +285,16 @@ class TickDiagnosticRecorder:
                 "after_tick": quarantined_after_tick,
             },
             "current_follower_state_deg": None,
+            "encoder_state": None,
             "raw_ensemble_target": None,
+            "target_lookahead": None,
+            "motion_guard_dt_s": None,
+            "motion_guard_phase_scale": None,
+            "motion_guard_config": None,
+            "motion_guard_pre_state": None,
+            "motion_guard_post_state": None,
+            "motion_guard_phase_state": None,
+            "motion_guard_deterministic_reset": None,
             "raw_target": record.raw_target,
             "intent_decision": record.intent_decision,
             "intent_reasons": [],
@@ -301,7 +317,17 @@ class TickDiagnosticRecorder:
 
         if pending is not None:
             event["current_follower_state_deg"] = pending.current_follower_state_deg
+            event["encoder_state"] = pending.current_follower_state_deg
             event["raw_ensemble_target"] = pending.raw_ensemble_target
+            event["target_lookahead"] = pending.target_lookahead
+            event["motion_guard_dt_s"] = pending.motion_guard_dt_s
+            motion_diag = pending.motion_guard_diagnostics or {}
+            event["motion_guard_phase_scale"] = motion_diag.get("phase_scale")
+            event["motion_guard_config"] = motion_diag.get("config")
+            event["motion_guard_pre_state"] = motion_diag.get("pre_state")
+            event["motion_guard_post_state"] = motion_diag.get("post_state")
+            event["motion_guard_phase_state"] = motion_diag.get("phase_state")
+            event["motion_guard_deterministic_reset"] = motion_diag.get("deterministic_reset")
             event["intent_reasons"] = list(pending.intent_reasons)
             event["intent_per_joint"] = self._per_joint_of(pending.intent_diagnostics)
             event["guarded_target"] = pending.guarded_target

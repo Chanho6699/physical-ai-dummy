@@ -98,6 +98,11 @@ class ControlTargetResult:
     contributing_sequences: tuple[int, ...]
     target_valid: bool  # True == intent_decision==ACCEPT AND safety_decision==ACCEPT
     stop_reason: str | None  # target_valid=False일 때만 채워짐
+    # MotionGuard exact-replay provenance. Defaults preserve compatibility for
+    # callers constructing results for early/fault paths and older tests.
+    target_lookahead: dict[str, float] | None = None
+    motion_guard_dt_s: float | None = None
+    motion_guard_diagnostics: dict | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -114,7 +119,26 @@ class ControlTargetResult:
             "contributing_sequences": list(self.contributing_sequences),
             "target_valid": self.target_valid,
             "stop_reason": self.stop_reason,
+            "target_lookahead": dict(self.target_lookahead) if self.target_lookahead else None,
+            "motion_guard_dt_s": self.motion_guard_dt_s,
+            "motion_guard_diagnostics": self.motion_guard_diagnostics,
         }
+
+
+def _coordinated_state_to_dict(state: CoordinatedGuardState | None) -> dict | None:
+    if state is None:
+        return None
+    return {
+        "positions": dict(state.positions),
+        "velocities": dict(state.velocities),
+        "accelerations": dict(state.accelerations),
+        "phase_scale": state.phase_scale,
+        "previous_actual_positions": (
+            dict(state.previous_actual_positions) if state.previous_actual_positions else None
+        ),
+        "no_response_duration_s": state.no_response_duration_s,
+        "opposite_response_duration_s": state.opposite_response_duration_s,
+    }
 
 
 def _early_result(
@@ -240,6 +264,7 @@ class RealTimeControlTargetGenerator:
         # -- 5. Motion Guard (관절별, intent가 승인한 target에만 적용) ---------------------
         guarded: dict[str, float] = {}
         new_guard_states: dict[str, GuardState] = {}
+        coordinated_pre_state = self._coordinated_guard_state
         try:
             if dt_s <= 0 or not math.isfinite(dt_s):
                 raise MotionGuardError(f"dt_s is invalid: {dt_s}")
@@ -306,4 +331,29 @@ class RealTimeControlTargetGenerator:
             contributing_sequences=ensembled.contributing_sequences,
             target_valid=target_valid,
             stop_reason=stop_reason,
+            target_lookahead=dict(target_lookahead),
+            motion_guard_dt_s=dt_s,
+            motion_guard_diagnostics={
+                "deterministic_reset": coordinated_pre_state is None,
+                "config": {
+                    "motion_limits": {
+                        joint: {
+                            "velocity_limit": limit.velocity_limit,
+                            "acceleration_limit": limit.acceleration_limit,
+                            "jerk_limit": limit.jerk_limit,
+                        }
+                        for joint, limit in self._motion_limits.items()
+                    },
+                    "tracking_lead_limits": dict(self._tracking_lead_limits),
+                    "correction_time_constant_s": self._correction_time_constant_s,
+                },
+                "pre_state": _coordinated_state_to_dict(coordinated_pre_state),
+                "post_state": _coordinated_state_to_dict(coordinated_state),
+                "phase_scale": coordinated_state.phase_scale,
+                "phase_state": (
+                    "HOLD" if coordinated_state.phase_scale == 0.0
+                    else "SLOWDOWN" if coordinated_state.phase_scale < 1.0
+                    else "NORMAL"
+                ),
+            },
         )

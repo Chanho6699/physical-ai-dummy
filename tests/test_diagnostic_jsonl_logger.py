@@ -68,14 +68,16 @@ def _result(
     *, raw_target: dict | None, intent_decision: str | None, guarded_target: dict | None = None,
     safety_decision: str | None = None, contributing_sequences: tuple[int, ...] = (),
     stop_reason: str | None = None, target_valid: bool = False, final_target: dict | None = None,
-    clamp_reasons: tuple[str, ...] = (),
+    clamp_reasons: tuple[str, ...] = (), target_lookahead: dict | None = None,
+    motion_guard_dt_s: float | None = None, motion_guard_diagnostics: dict | None = None,
 ) -> ControlTargetResult:
     return ControlTargetResult(
         target_time_monotonic=0.0, raw_ensemble_target=raw_target, intent_decision=intent_decision,
         intent_reasons=(), smoothed_target=guarded_target, guarded_target=guarded_target,
         final_target=final_target, clamp_reasons=clamp_reasons,
         safety_decision=safety_decision, safety_reasons=(), contributing_sequences=contributing_sequences,
-        target_valid=target_valid, stop_reason=stop_reason,
+        target_valid=target_valid, stop_reason=stop_reason, target_lookahead=target_lookahead,
+        motion_guard_dt_s=motion_guard_dt_s, motion_guard_diagnostics=motion_guard_diagnostics,
     )
 
 
@@ -218,6 +220,11 @@ def test_full_tick_accept_and_write_round_trip(tmp_path):
     result = _result(
         raw_target=raw, intent_decision="ACCEPT", guarded_target=guarded, final_target=guarded,
         safety_decision="ACCEPT", contributing_sequences=(3, 4), target_valid=True,
+        target_lookahead=_neutral(1.1), motion_guard_dt_s=1 / 60.0,
+        motion_guard_diagnostics={
+            "deterministic_reset": True, "phase_scale": 0.75, "phase_state": "SLOWDOWN",
+            "pre_state": None, "post_state": {"positions": guarded},
+        },
     )
     recorder.capture_generator_tick(now_monotonic=10.0, current_follower_state_deg=current, result=result)
     tick = _tick_record(
@@ -235,8 +242,16 @@ def test_full_tick_accept_and_write_round_trip(tmp_path):
 
     assert event["control_state"] == "RUNNING"
     assert event["current_follower_state_deg"] == current
+    assert event["encoder_state"] == current
     assert event["raw_ensemble_target"] == raw
     assert event["raw_target"] == raw
+    assert event["target_lookahead"] == _neutral(1.1)
+    assert event["motion_guard_dt_s"] == pytest.approx(1 / 60.0)
+    assert event["motion_guard_phase_scale"] == pytest.approx(0.75)
+    assert event["motion_guard_phase_state"] == "SLOWDOWN"
+    assert event["motion_guard_deterministic_reset"] is True
+    assert event["motion_guard_pre_state"] is None
+    assert event["motion_guard_post_state"]["positions"] == guarded
     assert event["guarded_target"] == guarded
     assert event["final_target"] == guarded
     assert event["clamp_reasons"] == []
