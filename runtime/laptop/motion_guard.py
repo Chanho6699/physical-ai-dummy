@@ -154,14 +154,14 @@ class JointMotionLimits:
 # ``vel_acc_jerk_60hz_resampled_results.json`` 참고. gripper가 다른 관절보다 배율이
 # 큰 건 단위 스케일 차이(percent_0_100) 때문 - 최초 C-3A 표와 동일한 이유.)
 DEFAULT_JOINT_MOTION_LIMITS: dict[str, JointMotionLimits] = {
-    # so101_blue_cube_place_return_v1 41ep를 runtime 60Hz로 linear-resample한
-    # |velocity|/|acceleration|/|jerk| p99.5.
-    "shoulder_pan": JointMotionLimits(velocity_limit=42.20, acceleration_limit=791.21, jerk_limit=47472.89),
-    "shoulder_lift": JointMotionLimits(velocity_limit=65.94, acceleration_limit=791.21, jerk_limit=56966.93),
-    "elbow_flex": JointMotionLimits(velocity_limit=68.58, acceleration_limit=791.21, jerk_limit=56967.04),
-    "wrist_flex": JointMotionLimits(velocity_limit=47.48, acceleration_limit=949.44, jerk_limit=66460.97),
-    "wrist_roll": JointMotionLimits(velocity_limit=55.39, acceleration_limit=1265.94, jerk_limit=94945.05),
-    "gripper": JointMotionLimits(velocity_limit=87.30, acceleration_limit=1533.01, jerk_limit=107310.13),
+    # BLUE CUBE V1 41ep + V2 61ep, runtime-60Hz linear-resampled
+    # absolute velocity/acceleration/jerk p99.5; maxima are not calibration targets.
+    "shoulder_pan": JointMotionLimits(velocity_limit=50.11, acceleration_limit=791.21, jerk_limit=56967.13),
+    "shoulder_lift": JointMotionLimits(velocity_limit=71.21, acceleration_limit=949.44, jerk_limit=66461.59),
+    "elbow_flex": JointMotionLimits(velocity_limit=68.58, acceleration_limit=949.44, jerk_limit=66461.38),
+    "wrist_flex": JointMotionLimits(velocity_limit=50.11, acceleration_limit=949.45, jerk_limit=66462.62),
+    "wrist_roll": JointMotionLimits(velocity_limit=60.66, acceleration_limit=1424.18, jerk_limit=104439.55),
+    "gripper": JointMotionLimits(velocity_limit=106.46, acceleration_limit=1788.49, jerk_limit=122640.17),
 }
 
 
@@ -294,22 +294,23 @@ class CoordinatedGuardState:
 
 
 DEFAULT_TRACKING_LEAD_LIMITS: dict[str, float] = {
-    # Teleop observed max plus dataset-limit stopping distance (v^2/2a).
+    # Merged V1+V2 p99.5 command-to-encoder lead plus the recalibrated
+    # dataset-limit stopping distance (v^2/2a).
     # This is a phase-hold trigger, not a lag-only fatal threshold.
-    "shoulder_pan": 6.9275880272960695,
-    "shoulder_lift": 11.53895186826798,
-    "elbow_flex": 9.126013088035567,
-    "wrist_flex": 8.308079154583202,
-    "wrist_roll": 5.607372765353356,
-    "gripper": 11.04335337406125,
+    "shoulder_pan": 7.389015312097191,
+    "shoulder_lift": 13.044076711090879,
+    "elbow_flex": 11.399913712550704,
+    "wrist_flex": 14.3772977867699,
+    "wrist_roll": 7.821954747465231,
+    "gripper": 15.0839339008059,
 }
 DEFAULT_LAG_SOFT_FRACTIONS: dict[str, float] = {
-    "shoulder_pan": 5.165714285714285 / DEFAULT_TRACKING_LEAD_LIMITS["shoulder_pan"],
-    "shoulder_lift": 8.066813186813185 / DEFAULT_TRACKING_LEAD_LIMITS["shoulder_lift"],
-    "elbow_flex": 6.065934065934059 / DEFAULT_TRACKING_LEAD_LIMITS["elbow_flex"],
-    "wrist_flex": 7.120879120879124 / DEFAULT_TRACKING_LEAD_LIMITS["wrist_flex"],
-    "wrist_roll": 3.604395604395605 / DEFAULT_TRACKING_LEAD_LIMITS["wrist_roll"],
-    "gripper": 8.488612836438925 / DEFAULT_TRACKING_LEAD_LIMITS["gripper"],
+    "shoulder_pan": 5.362637786865235 / DEFAULT_TRACKING_LEAD_LIMITS["shoulder_pan"],
+    "shoulder_lift": 10.021976470947266 / DEFAULT_TRACKING_LEAD_LIMITS["shoulder_lift"],
+    "elbow_flex": 8.571427345275879 / DEFAULT_TRACKING_LEAD_LIMITS["elbow_flex"],
+    "wrist_flex": 12.879127502441406 / DEFAULT_TRACKING_LEAD_LIMITS["wrist_flex"],
+    "wrist_roll": 5.978021621704102 / DEFAULT_TRACKING_LEAD_LIMITS["wrist_roll"],
+    "gripper": 10.952271881103513 / DEFAULT_TRACKING_LEAD_LIMITS["gripper"],
 }
 DEFAULT_LAG_SOFT_FRACTION = min(DEFAULT_LAG_SOFT_FRACTIONS.values())
 DEFAULT_PHASE_RECOVERY_PER_S = 2.0

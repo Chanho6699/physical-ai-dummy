@@ -1,11 +1,13 @@
-# Intent gross-outlier envelopes for the blue-cube 41-episode policy family.
+# Intent gross-outlier envelopes for the merged BLUE CUBE V1+V2 policy family.
 provenance:
-  dataset: data/so101_blue_cube_place_return_v1
-  dataset_episodes: 41
-  dataset_frames: 21925
+  datasets:
+    - data/so101_blue_cube_place_return_v1
+    - data/so101_blue_cube_place_return_v2
+  dataset_episodes: 102
+  v2_episode_types: {clean: 52, recovery: 9}
   dataset_fps: 30
   approved_baseline_jsonl: reports/real_pick_drop_realtime_v1/tick_diagnostics_1786520614.jsonl
-  derivation: 1.10x observed dataset and approved-baseline envelopes
+  derivation: Existing envelopes retained except gripper temporal-single; that value is 1.12x merged p99.99 normal action delta, not a single maximum.
 simultaneous_joint_count: 3
 initial_multi_joint:
   shoulder_pan: 7.736
@@ -20,7 +22,7 @@ temporal_single_hard:
   elbow_flex: 23.038
   wrist_flex: 3.051
   wrist_roll: 3.385
-  gripper: 4.528
+  gripper: 5.95
 temporal_multi_joint:
   shoulder_pan: 1.451
   shoulder_lift: 19.718

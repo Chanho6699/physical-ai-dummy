@@ -423,3 +423,52 @@ def test_sustained_opposite_encoder_response_fails_closed() -> None:
                 prev_state=state,
                 dt_s=DT,
             )
+
+
+def test_tracking_calibration_artifact_matches_runtime_constants() -> None:
+    from pathlib import Path
+    import yaml
+    from runtime.laptop.motion_guard import (
+        DEFAULT_LAG_SOFT_FRACTIONS,
+        DEFAULT_TRACKING_LEAD_LIMITS,
+    )
+
+    artifact = yaml.safe_load(
+        (Path(__file__).parents[1] / "configs/motion_guard_tracking.yaml").read_text()
+    )
+    assert artifact["generated_from"]["datasets"]["episodes"] == 102
+    for joint, values in artifact["joints"].items():
+        assert DEFAULT_TRACKING_LEAD_LIMITS[joint] == pytest.approx(values["hold_lead"])
+        runtime_soft = (
+            DEFAULT_TRACKING_LEAD_LIMITS[joint] * DEFAULT_LAG_SOFT_FRACTIONS[joint]
+        )
+        assert runtime_soft == pytest.approx(values["soft_lead"])
+
+
+def test_v2_recalibrated_limits_keep_common_guard_within_dynamics() -> None:
+    from runtime.laptop.motion_guard import (
+        DEFAULT_JOINT_MOTION_LIMITS,
+        apply_coordinated_motion_guard,
+    )
+
+    current = {joint: 0.0 for joint in DEFAULT_JOINT_MOTION_LIMITS}
+    target_now = dict(current)
+    target_lookahead = {
+        "shoulder_pan": 50.11 / 60.0,
+        "shoulder_lift": -71.21 / 60.0,
+        "elbow_flex": 68.58 / 60.0,
+        "wrist_flex": -50.11 / 60.0,
+        "wrist_roll": 60.66 / 60.0,
+        "gripper": 106.46 / 60.0,
+    }
+    _, state = apply_coordinated_motion_guard(
+        limits_by_joint=DEFAULT_JOINT_MOTION_LIMITS,
+        current_state=current,
+        target_now=target_now,
+        target_lookahead=target_lookahead,
+        prev_state=None,
+        dt_s=1 / 60,
+    )
+    for joint, limit in DEFAULT_JOINT_MOTION_LIMITS.items():
+        assert abs(state.velocities[joint]) <= limit.velocity_limit + 1e-9
+        assert abs(state.accelerations[joint]) <= limit.acceleration_limit + 1e-9

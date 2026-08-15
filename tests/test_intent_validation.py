@@ -33,7 +33,11 @@ def _real_validator() -> PolicyIntentValidator:
 def test_gross_outlier_envelope_has_dataset_and_real_log_provenance() -> None:
     config = IntentGrossOutlierConfig.from_yaml()
     assert config.simultaneous_joint_count == 3
-    assert config.provenance["dataset"] == "data/so101_blue_cube_place_return_v1"
+    assert config.provenance["datasets"] == [
+        "data/so101_blue_cube_place_return_v1",
+        "data/so101_blue_cube_place_return_v2",
+    ]
+    assert config.provenance["dataset_episodes"] == 102
     assert config.provenance["approved_baseline_jsonl"].endswith(
         "tick_diagnostics_1786520614.jsonl"
     )
@@ -222,3 +226,27 @@ def test_far_lift_elbow_target_is_not_compared_to_current_step_threshold() -> No
     result = validator.check_intent(raw_target_deg=raw, current_state_deg=current)
     assert result.valid is True
     assert result.decision == "ACCEPT"
+
+
+def test_v2_normal_fast_gripper_delta_is_not_a_gross_temporal_outlier() -> None:
+    validator = _real_validator()
+    current = _neutral(0.0)
+    assert validator.check_intent(raw_target_deg=current, current_state_deg=current).valid
+    normal_v2_step = dict(current)
+    normal_v2_step["gripper"] = 5.890703201293945
+    result = validator.check_intent(
+        raw_target_deg=normal_v2_step, current_state_deg=current
+    )
+    assert result.valid is True
+    assert result.decision == "ACCEPT"
+
+
+def test_clearly_larger_gripper_temporal_spike_remains_rejected() -> None:
+    validator = _real_validator()
+    current = _neutral(0.0)
+    assert validator.check_intent(raw_target_deg=current, current_state_deg=current).valid
+    spike = dict(current)
+    spike["gripper"] = 8.0
+    result = validator.check_intent(raw_target_deg=spike, current_state_deg=current)
+    assert result.valid is False
+    assert result.decision == "REJECT"
