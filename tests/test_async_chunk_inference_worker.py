@@ -389,3 +389,86 @@ def test_worker_publishes_multiple_chunks_in_real_background_thread() -> None:
     assert h.total_published >= 1
     assert buffer.latest() is not None
     assert h.consecutive_failures == 0
+
+
+def test_max_requests_one_stops_after_exactly_one_publish() -> None:
+    clock = FakeClock()
+    client = ScriptedVLAChunkClient(clock=clock, plans=[ChunkPlan(latency_s=0.0)])
+    provider = FakeObservationSnapshotProvider(clock=clock)
+    buffer = TrajectoryBuffer()
+    worker = AsyncVLAChunkInferenceWorker(
+        vla_client=client, observation_provider=provider, buffer=buffer, session_id="single",
+        task="t", min_interval_s=0.0, max_requests=1, monotonic_fn=time.monotonic,
+    )
+
+    worker.start()
+    time.sleep(0.05)
+    worker.stop()
+
+    health = worker.health_snapshot()
+    assert health.total_requests == 1
+    assert health.total_published == 1
+    assert len(client.calls) == 1
+    assert [chunk.sequence for chunk in buffer.snapshot()] == [0]
+
+
+@pytest.mark.parametrize("value", [0, -1])
+def test_max_requests_rejects_non_positive_values(value: int) -> None:
+    clock = FakeClock()
+    with pytest.raises(ValueError, match="max_requests"):
+        AsyncVLAChunkInferenceWorker(
+            vla_client=ScriptedVLAChunkClient(clock=clock, plans=[ChunkPlan()]),
+            observation_provider=FakeObservationSnapshotProvider(clock=clock),
+            buffer=TrajectoryBuffer(), session_id="single", task="t", max_requests=value,
+        )
+
+
+def test_slow_single_response_is_published_but_expired_on_observation_timebase() -> None:
+    clock = FakeClock(start=7000.0)
+    client = ScriptedVLAChunkClient(clock=clock, plans=[ChunkPlan(latency_s=2.0)])
+    provider = FakeObservationSnapshotProvider(clock=clock)
+    buffer = TrajectoryBuffer()
+    worker = AsyncVLAChunkInferenceWorker(
+        vla_client=client, observation_provider=provider, buffer=buffer,
+        session_id="trace", task="t", max_requests=1, monotonic_fn=clock,
+    )
+
+    worker._run_one_iteration()
+    health = worker.health_snapshot()
+
+    assert health.total_requests == 1
+    assert health.total_published == 1
+    assert buffer.latest().sequence == 0
+    assert health.last_observation_capture_time_monotonic == pytest.approx(7000.0)
+    assert health.last_request_started_time_monotonic == pytest.approx(7000.0)
+    assert health.last_response_received_time_monotonic == pytest.approx(7002.0)
+    assert health.last_publication_time_monotonic == pytest.approx(7002.0)
+    assert health.last_chunk_end_time_monotonic == pytest.approx(7000.0 + 50.0 / 30.0)
+    assert buffer.valid_chunks(clock.now()) == ()
+
+
+def test_single_diagnostic_rebases_only_effective_chunk_time_to_publication() -> None:
+    clock = FakeClock(start=8000.0)
+    client = ScriptedVLAChunkClient(clock=clock, plans=[ChunkPlan(latency_s=2.0)])
+    provider = FakeObservationSnapshotProvider(clock=clock)
+    buffer = TrajectoryBuffer()
+    worker = AsyncVLAChunkInferenceWorker(
+        vla_client=client, observation_provider=provider, buffer=buffer,
+        session_id="trace", task="t", max_requests=1,
+        rebase_chunk_to_publication_time=True, monotonic_fn=clock,
+    )
+
+    worker._run_one_iteration()
+    health = worker.health_snapshot()
+    chunk = buffer.latest()
+
+    assert health.total_requests == 1
+    assert health.total_published == 1
+    assert chunk.sequence == 0
+    assert health.last_observation_capture_time_monotonic == pytest.approx(8000.0)
+    assert health.last_request_started_time_monotonic == pytest.approx(8000.0)
+    assert health.last_response_received_time_monotonic == pytest.approx(8002.0)
+    assert health.last_publication_time_monotonic == pytest.approx(8002.0)
+    assert chunk.observation_time_monotonic == pytest.approx(8002.0)
+    assert chunk.horizon_end_time_monotonic == pytest.approx(8002.0 + 50.0 / 30.0)
+    assert buffer.valid_chunks(clock.now()) == (chunk,)

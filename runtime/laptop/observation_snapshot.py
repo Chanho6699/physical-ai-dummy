@@ -19,7 +19,7 @@ observation 한 벌"을 얻기 위한 최소 read-only 인터페이스.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol
 
 
@@ -32,6 +32,8 @@ class ObservationSnapshot:
     task: str
     capture_monotonic_time: float  # 이 관측을 "캡처했다"고 볼 수 있는 monotonic 시각
     sequence: int  # 이 캡처를 요청한 worker의 sequence (그대로 echo)
+    frame_capture_monotonic_times: dict[str, float] = field(default_factory=dict)
+    frame_capture_wall_times: dict[str, float] = field(default_factory=dict)
 
 
 class ObservationSnapshotProvider(Protocol):

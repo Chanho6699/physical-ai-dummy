@@ -44,7 +44,7 @@ from __future__ import annotations
 
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from typing import Callable, Protocol
 
 from runtime.laptop.observation_snapshot import ObservationSnapshotProvider
@@ -91,6 +91,14 @@ class WorkerHealthSnapshot:
     total_requests: int
     total_published: int
     total_discarded_stale: int
+    last_observation_capture_time_monotonic: float | None = None
+    last_request_started_time_monotonic: float | None = None
+    last_response_received_time_monotonic: float | None = None
+    last_publication_time_monotonic: float | None = None
+    last_chunk_start_time_monotonic: float | None = None
+    last_chunk_end_time_monotonic: float | None = None
+    last_frame_capture_monotonic_times: dict[str, float] = field(default_factory=dict)
+    last_frame_capture_wall_times: dict[str, float] = field(default_factory=dict)
 
 
 class AsyncVLAChunkInferenceWorker:
@@ -110,8 +118,15 @@ class AsyncVLAChunkInferenceWorker:
         session_id: str,
         task: str,
         min_interval_s: float = DEFAULT_MIN_INTERVAL_S,
+        max_requests: int | None = None,
+        initial_sequence: int = 0,
+        rebase_chunk_to_publication_time: bool = False,
         monotonic_fn: Callable[[], float] = time.monotonic,
     ) -> None:
+        if max_requests is not None and max_requests < 1:
+            raise ValueError(f"max_requests must be >= 1: {max_requests}")
+        if initial_sequence < 0:
+            raise ValueError(f"initial_sequence must be >= 0: {initial_sequence}")
         if min_interval_s < 0:
             raise ValueError(f"min_interval_s는 음수일 수 없습니다: {min_interval_s}")
         self._vla_client = vla_client
@@ -120,11 +135,13 @@ class AsyncVLAChunkInferenceWorker:
         self._session_id = session_id
         self._task = task
         self._min_interval_s = min_interval_s
+        self._max_requests = max_requests
+        self._rebase_chunk_to_publication_time = rebase_chunk_to_publication_time
         self._monotonic = monotonic_fn
 
         self._thread: threading.Thread | None = None
         self._stop_event = threading.Event()
-        self._sequence = 0
+        self._sequence = initial_sequence
 
         # health 상태는 worker thread가 쓰고 임의의 다른 thread(호출자)가 읽으므로 별도
         # lock으로 보호한다 - TrajectoryBuffer의 lock과는 완전히 분리된 lock이고, 이
@@ -140,6 +157,14 @@ class AsyncVLAChunkInferenceWorker:
         self._total_requests = 0
         self._total_published = 0
         self._total_discarded_stale = 0
+        self._last_observation_capture_time_monotonic: float | None = None
+        self._last_request_started_time_monotonic: float | None = None
+        self._last_response_received_time_monotonic: float | None = None
+        self._last_publication_time_monotonic: float | None = None
+        self._last_chunk_start_time_monotonic: float | None = None
+        self._last_chunk_end_time_monotonic: float | None = None
+        self._last_frame_capture_monotonic_times: dict[str, float] = {}
+        self._last_frame_capture_wall_times: dict[str, float] = {}
 
     # -- lifecycle (섹션 9) -------------------------------------------------------------
 
@@ -188,12 +213,23 @@ class AsyncVLAChunkInferenceWorker:
                 total_requests=self._total_requests,
                 total_published=self._total_published,
                 total_discarded_stale=self._total_discarded_stale,
+                last_observation_capture_time_monotonic=self._last_observation_capture_time_monotonic,
+                last_request_started_time_monotonic=self._last_request_started_time_monotonic,
+                last_response_received_time_monotonic=self._last_response_received_time_monotonic,
+                last_publication_time_monotonic=self._last_publication_time_monotonic,
+                last_chunk_start_time_monotonic=self._last_chunk_start_time_monotonic,
+                last_chunk_end_time_monotonic=self._last_chunk_end_time_monotonic,
+                last_frame_capture_monotonic_times=dict(self._last_frame_capture_monotonic_times),
+                last_frame_capture_wall_times=dict(self._last_frame_capture_wall_times),
             )
 
     # -- 내부 루프 --------------------------------------------------------------------
 
     def _run_loop(self) -> None:
         while not self._stop_event.is_set():
+            with self._health_lock:
+                if self._max_requests is not None and self._total_requests >= self._max_requests:
+                    break
             self._run_one_iteration()
             if self._min_interval_s > 0:
                 # sleep 대신 stop_event.wait()을 써서, 대기 중에도 stop()이 즉시 반응하게
@@ -212,6 +248,9 @@ class AsyncVLAChunkInferenceWorker:
             self._record_failure(f"observation capture 실패: {type(exc).__name__}: {exc}")
             return
 
+        with self._health_lock:
+            self._last_frame_capture_monotonic_times = dict(snapshot.frame_capture_monotonic_times)
+            self._last_frame_capture_wall_times = dict(snapshot.frame_capture_wall_times)
         request_started = self._monotonic()
         try:
             result = self._vla_client.predict_chunk(
@@ -248,6 +287,17 @@ class AsyncVLAChunkInferenceWorker:
             self._record_failure(f"TimestampedActionChunk 생성 실패: {type(exc).__name__}: {exc}")
             return
 
+        source_observation_time = chunk.observation_time_monotonic
+        publication_time = self._monotonic()
+        if self._rebase_chunk_to_publication_time:
+            chunk = replace(chunk, observation_time_monotonic=publication_time)
+        with self._health_lock:
+            self._last_observation_capture_time_monotonic = source_observation_time
+            self._last_request_started_time_monotonic = request_started
+            self._last_response_received_time_monotonic = response_received
+            self._last_publication_time_monotonic = publication_time
+            self._last_chunk_start_time_monotonic = chunk.observation_time_monotonic
+            self._last_chunk_end_time_monotonic = chunk.horizon_end_time_monotonic
         publish_result = self._buffer.publish(chunk)
         if publish_result.accepted:
             self._record_success(sequence)
