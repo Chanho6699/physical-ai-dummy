@@ -52,3 +52,15 @@ reports/joint_range_analysis/
 reports/hardware_single_joint_dry_run/
 reports/shadow_teleop/
 reports/instrumented_teleop/
+
+# High-volume tick_diagnostics replay logs (100s of MB of per-tick JSONL) -
+# same rationale as the diagnostic report dirs above.
+reports/readonly_real_shadow/
+reports/real_pick_drop_merged93_7500/
+reports/real_pick_drop_merged93_7500_sequential/
+reports/real_pick_drop_realtime_canonical_a_7500/
+reports/real_pick_drop_realtime_v1/
+reports/real_pick_drop_v3_10000_sequential_unlimited/
+reports/real_pick_drop_v3_7500_realtime/
+reports/real_pick_drop_v3_7500_sequential/
+reports/real_pick_drop_v3_7500_sequential_unlimited/
