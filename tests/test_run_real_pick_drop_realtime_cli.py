@@ -53,6 +53,8 @@ class ScriptedVLAClient:
     action_by_default: dict[str, float] | None = None
     fail: bool = False
     delay_s: float = 0.01
+    chunk_size: int = 50
+    spacing_s: float = 1.0 / 30.0
     calls: list[int] = field(default_factory=list)
 
     def predict_chunk(self, *, session_id, task, sequence, state, images):
@@ -65,9 +67,9 @@ class ScriptedVLAClient:
                 error_kind="communication", error_message="injected failure",
             )
         action = self.action_by_default if self.action_by_default is not None else dict(state)
-        chunk = [dict(action) for _ in range(50)]
+        chunk = [dict(action) for _ in range(self.chunk_size)]
         return _FakeChunkResult(
-            ok=True, chunk=chunk, chunk_size=50, chunk_index_spacing_s=1.0 / 30.0,
+            ok=True, chunk=chunk, chunk_size=self.chunk_size, chunk_index_spacing_s=self.spacing_s,
             model_id="fake", backend="fake", inference_latency_ms=self.delay_s * 1000.0,
             server_received_at=None, server_responded_at=None, error_kind=None, error_message=None,
         )
@@ -358,3 +360,294 @@ def test_desktop_default_config_still_allows_fallback(tmp_path) -> None:
     )
     config = SafetyGateConfig.from_repo_defaults(follower_safe_mapper_config_path=mapper)
     assert config.uses_calibration_fallback is True
+
+
+def test_single_chunk_mode_publishes_once_holds_at_expiry_and_exits() -> None:
+    state_source = FakeFollowerStateSource(initial_state_deg=_neutral(0.0))
+    writer = FakeFollowerWriter()
+    vla_client = ScriptedVLAClient(delay_s=0.01)
+
+    orchestrator = _make_orchestrator(
+        vla_client=vla_client, state_source=state_source, writer=writer,
+        single_chunk=True, sanity_window_s=10.0, max_runtime_s=3.0,
+    )
+    report = orchestrator.run()
+
+    assert report.stop_reason == cli.StopReason.SINGLE_CHUNK_COMPLETE.value
+    assert vla_client.calls == [0]
+    assert report.inference["total_requests"] == 1
+    assert report.inference["total_published"] == 1
+    assert report.inference["observation_capture_timestamp"] <= report.inference["request_timestamp"]
+    assert report.inference["request_timestamp"] <= report.inference["response_received_timestamp"]
+    assert report.inference["response_received_timestamp"] <= report.inference["publication_timestamp"]
+    assert report.inference["effective_chunk_start_timestamp"] == report.inference["publication_timestamp"]
+    assert report.inference["effective_chunk_end_timestamp"] > report.inference["publication_timestamp"]
+    assert len(orchestrator._buffer.snapshot()) == 1
+    assert report.trajectory["single_chunk_diagnostic"] is True
+    assert report.trajectory["accepted_chunk_sequence"] == 0
+    assert report.trajectory["chunk_end_hold_reason"] == "CHUNK_HORIZON_EXPIRED_ENCODER_HOLD_NO_WRITE"
+    assert report.trajectory["chunk_execution_duration_s"] < 3.0
+    assert report.control["actual_hz"] is not None and report.control["actual_hz"] > 30.0
+    assert report.intent["accept"] > 0
+    assert report.final_safety["accept"] > 0
+    assert writer.write_count > 0
+    assert writer.write_count < report.control["n_ticks"]
+    assert orchestrator._gen_proxy.results[-1].stop_reason in {"NO_TARGET", "STALE_TRAJECTORY"}
+    assert orchestrator._worker.is_running() is False
+    assert orchestrator._loop.is_running() is False
+
+
+def test_single_chunk_cli_is_opt_in() -> None:
+    required = ["--follower-port", "/dev/null", "--hardware-config", "configs/hardware.local.json"]
+    assert cli.parse_args(required).single_chunk is False
+    assert cli.parse_args([*required, "--single-chunk"]).single_chunk is True
+
+
+def test_sequential_three_chunk_fake_integration_is_strictly_non_overlapping() -> None:
+    state_source = FakeFollowerStateSource(initial_state_deg=_neutral(0.0))
+    writer = FakeFollowerWriter()
+    vla_client = ScriptedVLAClient(delay_s=0.02, chunk_size=5, spacing_s=1.0 / 30.0)
+    observation_provider = FakeObservationProvider(state_source, TASK)
+    gate = SafetyGate(SafetyGateConfig(
+        joint_range_deg={j: (-1000.0, 1000.0) for j in JOINT_ORDER},
+        max_step_deg={j: 1000.0 for j in JOINT_ORDER},
+    ))
+    orchestrator = cli.SequentialChunksOrchestrator(
+        observation_provider=observation_provider,
+        state_source=state_source,
+        writer=writer,
+        vla_client=vla_client,
+        safety_gate=gate,
+        motion_limits=None,
+        session_id="sequential-test",
+        task=TASK,
+        control_hz=60.0,
+        max_runtime_s=5.0,
+        max_sequential_chunks=3,
+        trajectory_wait_timeout_s=1.0,
+        print_fn=lambda *a, **k: None,
+    )
+
+    report = orchestrator.run()
+
+    assert report.stop_reason == cli.SequentialStopReason.MAX_CHUNKS_REACHED.value
+    assert report.total_chunks_requested == 3
+    assert report.total_chunks_executed == 3
+    assert vla_client.calls == [0, 1, 2]
+    assert len(report.chunks) == 3
+    assert report.total_inference_time_s > 0.0
+    assert report.total_motion_time_s > 0.0
+    assert report.total_hold_duration_s > 0.0
+
+    for index, cycle in enumerate(report.chunks):
+        assert cycle["sequential_chunk_index"] == index
+        assert cycle["vla_sequence"] == index
+        assert cycle["inference_requests"] == 1
+        assert cycle["published_chunks"] == 1
+        assert cycle["contributor_sequences"] == [index]
+        assert cycle["max_contributors_per_tick"] == 1
+        assert cycle["effective_start_timestamp"] == cycle["publication_timestamp"]
+        assert cycle["effective_end_timestamp"] > cycle["effective_start_timestamp"]
+        assert cycle["child_stop_reason"] == cli.StopReason.SINGLE_CHUNK_COMPLETE.value
+        assert cycle["trajectory"]["chunk_end_hold_reason"] == "CHUNK_HORIZON_EXPIRED_ENCODER_HOLD_NO_WRITE"
+        assert (
+            cycle["trajectory"]["no_target_fraction"] + cycle["trajectory"]["stale_fraction"]
+        ) > 0.0
+        assert cycle["writer"]["write_count_delta"] > 0
+        assert cycle["writer"]["write_count_delta"] < cycle["trajectory"]["n_ticks_seen"]
+        assert cycle["execution_duration_s"] >= (
+            cycle["effective_end_timestamp"] - cycle["effective_start_timestamp"]
+        )
+        assert cycle["start_encoder_state"] == _neutral(0.0)
+        assert cycle["end_encoder_state"] == _neutral(0.0)
+
+    for previous, current in zip(report.chunks, report.chunks[1:]):
+        assert current["observation_capture_timestamp"] >= previous["effective_end_timestamp"]
+        assert current["request_timestamp"] >= previous["effective_end_timestamp"]
+        assert current["publication_timestamp"] > previous["effective_end_timestamp"]
+        assert current["hold_duration_before_s"] > 0.0
+
+
+def test_single_and_sequential_cli_are_mutually_exclusive() -> None:
+    required = ["--follower-port", "/dev/null", "--hardware-config", "configs/hardware.local.json"]
+    with pytest.raises(SystemExit):
+        cli.parse_args([*required, "--single-chunk", "--sequential-chunks"])
+
+
+def test_sequential_cli_defaults_and_override() -> None:
+    required = ["--follower-port", "/dev/null", "--hardware-config", "configs/hardware.local.json"]
+    default = cli.parse_args([*required, "--sequential-chunks"])
+    assert default.sequential_chunks is True
+    assert default.max_sequential_chunks is None
+    overridden = cli.parse_args([*required, "--sequential-chunks", "--max-sequential-chunks", "3"])
+    assert overridden.max_sequential_chunks == 3
+
+
+def test_sequential_orchestrator_rejects_non_positive_chunk_limit() -> None:
+    state_source = FakeFollowerStateSource(initial_state_deg=_neutral(0.0))
+    gate = SafetyGate(SafetyGateConfig(
+        joint_range_deg={j: (-1000.0, 1000.0) for j in JOINT_ORDER},
+        max_step_deg={j: 1000.0 for j in JOINT_ORDER},
+    ))
+    with pytest.raises(ValueError, match="max_sequential_chunks"):
+        cli.SequentialChunksOrchestrator(
+            observation_provider=FakeObservationProvider(state_source, TASK),
+            state_source=state_source,
+            writer=FakeFollowerWriter(),
+            vla_client=ScriptedVLAClient(),
+            safety_gate=gate,
+            motion_limits=None,
+            session_id="invalid",
+            task=TASK,
+            max_sequential_chunks=0,
+        )
+
+
+class _FakeClock:
+    def __init__(self) -> None:
+        self.now = 0.0
+
+    def monotonic(self) -> float:
+        return self.now
+
+    def sleep(self, seconds: float) -> None:
+        self.now += max(0.0, seconds)
+
+
+class _TrackingWriter(FakeFollowerWriter):
+    def __init__(self, state_source) -> None:
+        super().__init__()
+        self.state_source = state_source
+
+    def write(self, action_deg):
+        result = super().write(action_deg)
+        if result.executed:
+            self.state_source.set_state(action_deg)
+        return result
+
+
+def test_return_to_start_is_smooth_encoder_confirmed_and_speed_bounded() -> None:
+    clock = _FakeClock()
+    start = _neutral(0.0)
+    current = {
+        "shoulder_pan": 10.0, "shoulder_lift": 20.0, "elbow_flex": -15.0,
+        "wrist_flex": 8.0, "wrist_roll": 4.0, "gripper": 12.0,
+    }
+    state = FakeFollowerStateSource(
+        initial_state_deg=current, monotonic_fn=clock.monotonic, wall_fn=clock.monotonic,
+    )
+    writer = _TrackingWriter(state)
+    gate = SafetyGate(SafetyGateConfig(
+        joint_range_deg={j: (-1000.0, 1000.0) for j in JOINT_ORDER},
+        max_step_deg={j: 1000.0 for j in JOINT_ORDER},
+    ))
+    report = cli.execute_return_to_start(
+        start_state=start, state_source=state, writer=writer, safety_gate=gate,
+        motion_limits=None, control_hz=60.0, monotonic_fn=clock.monotonic,
+        sleep_fn=clock.sleep, print_fn=lambda *_: None,
+    )
+    assert report["stop_reason"] == "RETURN_TO_START_COMPLETE_ENCODER_CONFIRMED_HOLD_NO_WRITE"
+    assert report["encoder_confirmed"] is True
+    assert report["first_command_jump_max"] < 0.01
+    assert all(abs(v) <= cli.RETURN_POSITION_TOLERANCE for v in report["encoder_error"].values())
+    for joint, velocity in report["max_command_velocity"].items():
+        assert velocity <= cli.DEMO_RETURN_SPEED_LIMITS[joint] * 1.02
+    count_after = writer.write_count
+    clock.sleep(1.0)
+    assert writer.write_count == count_after
+
+
+def test_return_to_start_second_ctrl_c_aborts_immediately_no_more_writes() -> None:
+    clock = _FakeClock()
+    state = FakeFollowerStateSource(
+        initial_state_deg=_neutral(10.0), monotonic_fn=clock.monotonic, wall_fn=clock.monotonic,
+    )
+    writer = _TrackingWriter(state)
+    gate = SafetyGate(SafetyGateConfig(
+        joint_range_deg={j: (-1000.0, 1000.0) for j in JOINT_ORDER},
+        max_step_deg={j: 1000.0 for j in JOINT_ORDER},
+    ))
+    calls = {"n": 0}
+
+    def interrupting_sleep(seconds: float) -> None:
+        calls["n"] += 1
+        if calls["n"] == 3:
+            raise KeyboardInterrupt
+        clock.sleep(seconds)
+
+    report = cli.execute_return_to_start(
+        start_state=_neutral(0.0), state_source=state, writer=writer, safety_gate=gate,
+        motion_limits=None, control_hz=60.0, monotonic_fn=clock.monotonic,
+        sleep_fn=interrupting_sleep, print_fn=lambda *_: None,
+    )
+    assert report["stop_reason"] == "RETURN_TO_START_SECOND_CTRL_C_ABORT_HOLD_NO_WRITE"
+    count_after = writer.write_count
+    clock.sleep(1.0)
+    assert writer.write_count == count_after
+
+
+def test_sequential_explicit_watchdog_can_run_more_than_twenty_chunks() -> None:
+    state_source = FakeFollowerStateSource(initial_state_deg=_neutral(0.0))
+    writer = FakeFollowerWriter()
+    vla_client = ScriptedVLAClient(delay_s=0.001, chunk_size=5, spacing_s=1.0 / 30.0)
+    gate = SafetyGate(SafetyGateConfig(
+        joint_range_deg={j: (-1000.0, 1000.0) for j in JOINT_ORDER},
+        max_step_deg={j: 1000.0 for j in JOINT_ORDER},
+    ))
+    orchestrator = cli.SequentialChunksOrchestrator(
+        observation_provider=FakeObservationProvider(state_source, TASK),
+        state_source=state_source, writer=writer, vla_client=vla_client,
+        safety_gate=gate, motion_limits=None, session_id="sequential-21", task=TASK,
+        control_hz=60.0, max_runtime_s=15.0, max_sequential_chunks=21,
+        trajectory_wait_timeout_s=1.0, print_fn=lambda *_: None,
+    )
+    report = orchestrator.run()
+    assert report.stop_reason == cli.SequentialStopReason.MAX_CHUNKS_REACHED.value
+    assert report.total_chunks_requested == 21
+    assert report.total_chunks_executed == 21
+    assert vla_client.calls == list(range(21))
+
+
+def test_first_ctrl_c_stops_inference_and_returns_to_session_start(monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    clock = _FakeClock()
+    start = _neutral(0.0)
+    moved = _neutral(5.0)
+    state = FakeFollowerStateSource(
+        initial_state_deg=start, monotonic_fn=clock.monotonic, wall_fn=clock.monotonic,
+    )
+    writer = _TrackingWriter(state)
+    vla = ScriptedVLAClient()
+    gate = SafetyGate(SafetyGateConfig(
+        joint_range_deg={j: (-1000.0, 1000.0) for j in JOINT_ORDER},
+        max_step_deg={j: 1000.0 for j in JOINT_ORDER},
+    ))
+
+    class InterruptingChild:
+        def __init__(self, **kwargs):
+            self.sequence = kwargs["initial_inference_sequence"]
+
+        def run(self):
+            vla.calls.append(self.sequence)
+            state.set_state(moved)
+            return SimpleNamespace(
+                stop_reason=cli.StopReason.KEYBOARD_INTERRUPT.value,
+                inference={"total_requests": 1},
+            )
+
+    monkeypatch.setattr(cli, "RealtimeSessionOrchestrator", InterruptingChild)
+    orchestrator = cli.SequentialChunksOrchestrator(
+        observation_provider=FakeObservationProvider(state, TASK), state_source=state,
+        writer=writer, vla_client=vla, safety_gate=gate, motion_limits=None,
+        session_id="interrupt-return", task=TASK, control_hz=60.0,
+        max_runtime_s=None, max_sequential_chunks=None, monotonic_fn=clock.monotonic,
+        sleep_fn=clock.sleep, print_fn=lambda *_: None,
+    )
+    report = orchestrator.run()
+    assert report.stop_reason == cli.StopReason.KEYBOARD_INTERRUPT.value
+    assert vla.calls == [0]
+    assert report.total_chunks_requested == 1
+    assert report.return_to_start["encoder_confirmed"] is True
+    assert report.return_to_start["start_state"] == start
+    assert report.return_to_start["return_begin_state"] == moved

@@ -83,6 +83,7 @@ loop를 ``--max-runtime-s``까지 계속 돌린다"로 구현한다 - 정책 자
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
 import sys
 import threading
@@ -124,6 +125,22 @@ DEFAULT_VLA_SERVER_URL = "http://100.75.147.72:9200"
 DEFAULT_FOLLOWER_ID = "chanho_follower"
 DEFAULT_CONTROL_HZ = 60.0
 DEFAULT_REPORT_DIR = PROJECT_ROOT / "reports" / "real_pick_drop_realtime_v1"
+DEFAULT_MAX_SEQUENTIAL_CHUNKS = None
+
+# Measured from the non-stationary ticks in the final 3 seconds of all 41 V1
+# successful demonstrations. Quintic easing duration also accounts for its
+# 1.875 peak derivative; MotionGuard remains authoritative.
+DEMO_RETURN_SPEED_LIMITS = {
+    "shoulder_pan": 5.27,
+    "shoulder_lift": 36.92,
+    "elbow_flex": 31.65,
+    "wrist_flex": 18.46,
+    "wrist_roll": 2.64,
+    "gripper": 17.03,
+}
+RETURN_EASING_PEAK_DERIVATIVE = 1.875
+RETURN_POSITION_TOLERANCE = 1.0
+RETURN_SETTLE_TICKS = 6
 
 # -- 타이밍/판정 상수 (전부 근거를 docstring에 남긴다 - 임의 숫자 아님) -------------------
 DEFAULT_SANITY_WINDOW_S = 1.5  # 사용자 요구사항 "최초 1~2초" 중간값
@@ -173,6 +190,8 @@ def print_calibration_preflight(*, follower_id: str, config: SafetyGateConfig) -
 
 class StopReason(str, Enum):
     NORMAL_MAX_RUNTIME = "NORMAL_MAX_RUNTIME_REACHED"
+    SINGLE_CHUNK_COMPLETE = "SINGLE_CHUNK_HORIZON_COMPLETE_HOLD"
+    SINGLE_CHUNK_ADMISSION_FATAL = "SINGLE_CHUNK_SECOND_ADMISSION_FATAL"
     KEYBOARD_INTERRUPT = "KEYBOARD_INTERRUPT"
     SANITY_WINDOW_FATAL = "SANITY_WINDOW_FATAL_NO_WRITE"
     NONPRODUCTIVE_FATAL = "NONPRODUCTIVE_STATE_SUSTAINED_FATAL"
@@ -222,14 +241,38 @@ class RealObservationSnapshotProvider:
     def capture(self, *, sequence: int):
         from runtime.laptop.observation_snapshot import ObservationSnapshot
 
-        t0 = self.monotonic_fn()
+        snapshot_time = self.monotonic_fn()
         frames = self.camera_source.capture_all()
         images = {key: frame.image_rgb for key, frame in frames.items()}
+        frame_monotonic = {
+            key: frame.captured_at_monotonic
+            for key, frame in frames.items()
+            if frame.captured_at_monotonic is not None
+        }
+        frame_wall = {key: frame.captured_at_wall for key, frame in frames.items()}
         state_snapshot = self.state_source.read()
+        # Preserve the existing trajectory timestamp semantics. Individual camera
+        # timestamps are diagnostic metadata and do not retime policy actions.
+        capture_time = snapshot_time
         return ObservationSnapshot(
             images=images, state=state_snapshot.positions_deg, task=self.task,
-            capture_monotonic_time=t0, sequence=sequence,
+            capture_monotonic_time=capture_time, sequence=sequence,
+            frame_capture_monotonic_times=frame_monotonic,
+            frame_capture_wall_times=frame_wall,
         )
+
+
+@dataclass
+class CapturingObservationProvider:
+    """Record the exact fresh observation used by one sequential inference."""
+
+    inner: object
+    last_snapshot: object | None = None
+
+    def capture(self, *, sequence: int):
+        snapshot = self.inner.capture(sequence=sequence)
+        self.last_snapshot = snapshot
+        return snapshot
 
 
 # ---------------------------------------------------------------------------
@@ -246,6 +289,10 @@ class RealObservationSnapshotProvider:
 # ---------------------------------------------------------------------------
 # SessionReport (섹션 10 요구사항 필드)
 # ---------------------------------------------------------------------------
+
+
+class SequentialStopReason(str, Enum):
+    MAX_CHUNKS_REACHED = "SEQUENTIAL_MAX_CHUNKS_REACHED"
 
 
 @dataclass
@@ -267,6 +314,33 @@ class SessionReport:
             "control": self.control, "inference": self.inference, "trajectory": self.trajectory,
             "intent": self.intent, "motion_guard": self.motion_guard, "final_safety": self.final_safety,
             "writer": self.writer, "quarantined_sequences": self.quarantined_sequences,
+        }
+
+
+@dataclass
+class SequentialSessionReport:
+    stop_reason: str
+    runtime_duration_s: float
+    total_chunks_requested: int
+    total_chunks_executed: int
+    total_inference_time_s: float
+    total_motion_time_s: float
+    total_hold_duration_s: float
+    chunks: list[dict]
+    return_to_start: dict | None = None
+
+    def to_dict(self) -> dict:
+        return {
+            "mode": "sequential_chunks",
+            "stop_reason": self.stop_reason,
+            "runtime_duration_s": self.runtime_duration_s,
+            "total_chunks_requested": self.total_chunks_requested,
+            "total_chunks_executed": self.total_chunks_executed,
+            "total_inference_time_s": self.total_inference_time_s,
+            "total_motion_time_s": self.total_motion_time_s,
+            "total_hold_duration_s": self.total_hold_duration_s,
+            "chunks": self.chunks,
+            "return_to_start": self.return_to_start,
         }
 
 
@@ -308,6 +382,8 @@ class RealtimeSessionOrchestrator:
         sleep_fn: Callable[[float], None] = time.sleep,
         print_fn: Callable[[str], None] = print,
         diagnostic_jsonl_path: Path | str | None = None,
+        single_chunk: bool = False,
+        initial_inference_sequence: int = 0,
     ) -> None:
         from runtime.laptop.async_chunk_inference_worker import AsyncVLAChunkInferenceWorker
         from runtime.laptop.diagnostic_jsonl_logger import DiagnosticCapturingGeneratorProxy, TickDiagnosticRecorder
@@ -329,11 +405,17 @@ class RealtimeSessionOrchestrator:
         self._trajectory_wait_timeout_s = trajectory_wait_timeout_s
         self._session_id = session_id
         self._writer = writer
+        self._single_chunk = single_chunk
+        self._accepted_single_chunk = None
+        self._single_chunk_hold_reason: str | None = None
 
         self._buffer = TrajectoryBuffer(max_chunks=4)
         self._worker = AsyncVLAChunkInferenceWorker(
             vla_client=vla_client, observation_provider=observation_provider, buffer=self._buffer,
             session_id=session_id, task=task, min_interval_s=0.0,
+            max_requests=1 if single_chunk else None,
+            initial_sequence=initial_inference_sequence,
+            rebase_chunk_to_publication_time=single_chunk,
         )
         real_generator = RealTimeControlTargetGenerator(
             ensembler=TemporalEnsembler(half_life_s=0.338, max_contributors=3, phase_continuity=True, phase_fade_cadence_scale=0.5), safety_gate=safety_gate,
@@ -380,9 +462,40 @@ class RealtimeSessionOrchestrator:
             raise RealtimeRunError(
                 f"{self._trajectory_wait_timeout_s:.1f}s 안에 usable trajectory가 생기지 않았습니다 - "
                 f"VLA 서버/체크포인트/카메라를 확인하세요 (worker health: "
-                f"consecutive_failures={health.consecutive_failures}, last_error={health.last_error!r})."
+                f"requests={health.total_requests}, published={health.total_published}, "
+                f"sequence={health.latest_sequence}, consecutive_failures={health.consecutive_failures}, "
+                f"last_error={health.last_error!r}, "
+                f"observation={health.last_observation_capture_time_monotonic}, "
+                f"request={health.last_request_started_time_monotonic}, "
+                f"response={health.last_response_received_time_monotonic}, "
+                f"publication={health.last_publication_time_monotonic}, "
+                f"chunk_start={health.last_chunk_start_time_monotonic}, "
+                f"chunk_end={health.last_chunk_end_time_monotonic}, lookup={self._monotonic()})."
             )
         self._print("[시작] 최초 trajectory 확보 완료 - realtime control loop 시작")
+        if self._single_chunk:
+            self._worker.stop()
+            health = self._worker.health_snapshot()
+            chunks = self._buffer.snapshot()
+            if health.total_requests != 1 or health.total_published != 1 or len(chunks) != 1:
+                raise RealtimeRunError(
+                    "single-chunk fail-closed: expected exactly one request/published chunk; "
+                    f"requests={health.total_requests}, published={health.total_published}, buffered={len(chunks)}"
+                )
+            self._accepted_single_chunk = chunks[0]
+            self._print("SINGLE_CHUNK_DIAGNOSTIC=True")
+            self._print(f"accepted_chunk_sequence={chunks[0].sequence}")
+            self._print(
+                f"observation_capture_timestamp={health.last_observation_capture_time_monotonic:.9f}"
+            )
+            self._print(f"inference_request_timestamp={health.last_request_started_time_monotonic:.9f}")
+            self._print(f"response_received_timestamp={health.last_response_received_time_monotonic:.9f}")
+            self._print(f"chunk_publication_timestamp={health.last_publication_time_monotonic:.9f}")
+            self._print(f"first_usable_lookup_timestamp={self._monotonic():.9f}")
+            self._print(f"chunk_start_timestamp={chunks[0].observation_time_monotonic:.9f}")
+            self._print(f"chunk_end_timestamp={chunks[0].horizon_end_time_monotonic:.9f}")
+            self._print(f"inference_request_count={health.total_requests}")
+            self._print(f"published_chunk_count={health.total_published}")
 
         self._loop.start()
         start_time = self._monotonic()
@@ -456,6 +569,25 @@ class RealtimeSessionOrchestrator:
                         nonproductive_since = None
 
                 health = self._worker.health_snapshot()
+                if self._single_chunk:
+                    chunks = self._buffer.snapshot()
+                    if health.total_published > 1 or len(chunks) > 1:
+                        self._print(
+                            "[FATAL] single-chunk mode admitted a second chunk: "
+                            f"published={health.total_published}, buffered={len(chunks)}"
+                        )
+                        return StopReason.SINGLE_CHUNK_ADMISSION_FATAL
+                    chunk = self._accepted_single_chunk
+                    if (
+                        chunk is not None
+                        and now >= chunk.horizon_end_time_monotonic
+                        and not self._buffer.valid_chunks(now)
+                        and recent is not None
+                        and recent.state.value in _NONPRODUCTIVE_STATE_NAMES
+                    ):
+                        self._single_chunk_hold_reason = "CHUNK_HORIZON_EXPIRED_ENCODER_HOLD_NO_WRITE"
+                        self._print(f"chunk_end_hold_reason={self._single_chunk_hold_reason}")
+                        return StopReason.SINGLE_CHUNK_COMPLETE
                 if health.last_success_time_monotonic is not None:
                     last_inference_success = health.last_success_time_monotonic
                 if now - last_inference_success >= FATAL_NONPRODUCTIVE_S * 3:  # 15s
@@ -567,12 +699,34 @@ class RealtimeSessionOrchestrator:
                 "total_requests": health.total_requests, "total_published": health.total_published,
                 "total_discarded_stale": health.total_discarded_stale, "consecutive_failures": health.consecutive_failures,
                 "last_error": health.last_error, "latest_sequence": health.latest_sequence,
+                "observation_capture_timestamp": health.last_observation_capture_time_monotonic,
+                "request_timestamp": health.last_request_started_time_monotonic,
+                "response_received_timestamp": health.last_response_received_time_monotonic,
+                "publication_timestamp": health.last_publication_time_monotonic,
+                "effective_chunk_start_timestamp": health.last_chunk_start_time_monotonic,
+                "effective_chunk_end_timestamp": health.last_chunk_end_time_monotonic,
+                "frame_capture_monotonic_times": dict(health.last_frame_capture_monotonic_times),
+                "frame_capture_wall_times": dict(health.last_frame_capture_wall_times),
             },
             trajectory={
                 "n_ticks_seen": n_results,
                 "usable_fraction": (n_usable / n_results) if n_results else None,
                 "no_target_fraction": (n_no_target / n_results) if n_results else None,
                 "stale_fraction": (n_stale / n_results) if n_results else None,
+                "single_chunk_diagnostic": self._single_chunk,
+                "accepted_chunk_sequence": (
+                    self._accepted_single_chunk.sequence if self._accepted_single_chunk is not None else None
+                ),
+                "chunk_start_timestamp": (
+                    self._accepted_single_chunk.observation_time_monotonic
+                    if self._accepted_single_chunk is not None else None
+                ),
+                "chunk_end_timestamp": (
+                    self._accepted_single_chunk.horizon_end_time_monotonic
+                    if self._accepted_single_chunk is not None else None
+                ),
+                "chunk_execution_duration_s": duration_s if self._single_chunk else None,
+                "chunk_end_hold_reason": self._single_chunk_hold_reason,
             },
             intent={"n": len(intent), "accept": intent.count("ACCEPT"), "would_clamp": intent.count("WOULD_CLAMP"), "reject": intent.count("REJECT")},
             motion_guard=motion_guard,
@@ -582,6 +736,332 @@ class RealtimeSessionOrchestrator:
         )
         self._print("\n" + json.dumps(report.to_dict(), indent=2, default=str))
         return report
+
+
+
+def _smootherstep(progress: float) -> float:
+    progress = min(1.0, max(0.0, progress))
+    return progress * progress * progress * (progress * (progress * 6.0 - 15.0) + 10.0)
+
+
+def execute_return_to_start(
+    *,
+    start_state: dict[str, float],
+    state_source,
+    writer,
+    safety_gate,
+    motion_limits,
+    control_hz: float,
+    monotonic_fn: Callable[[], float] = time.monotonic,
+    sleep_fn: Callable[[float], None] = time.sleep,
+    print_fn: Callable[[str], None] = print,
+) -> dict:
+    """Return through the existing MotionGuard -> Final Safety -> writer path."""
+    from runtime.common.vla_contract import JOINT_ORDER
+    from runtime.laptop.action_adapter import adapt_vla_action
+    from runtime.laptop.motion_guard import DEFAULT_JOINT_MOTION_LIMITS, MotionGuardError, apply_coordinated_motion_guard
+
+    limits = motion_limits or DEFAULT_JOINT_MOTION_LIMITS
+    period = 1.0 / control_hz
+    current = dict(state_source.read().positions_deg)
+    delta = {joint: start_state[joint] - current[joint] for joint in JOINT_ORDER}
+    duration = max(period, max(
+        RETURN_EASING_PEAK_DERIVATIVE * abs(delta[joint]) / DEMO_RETURN_SPEED_LIMITS[joint]
+        for joint in JOINT_ORDER
+    ))
+    timeout = duration * 2.0 + 5.0
+    started = monotonic_fn()
+    previous_tick = started
+    previous_guard_state = None
+    writes = 0
+    settled = 0
+    first_command_jump = None
+    max_command_velocity = {joint: 0.0 for joint in JOINT_ORDER}
+    previous_command = dict(current)
+    stop_reason = "RETURN_TO_START_TIMEOUT"
+    print_fn(f"[return-to-start] duration={duration:.3f}s timeout={timeout:.3f}s start={start_state} current={current}")
+    try:
+        while True:
+            now = monotonic_fn()
+            elapsed = now - started
+            if elapsed > timeout:
+                break
+            progress = min(1.0, elapsed / duration)
+            next_progress = min(1.0, (elapsed + period) / duration)
+            scale = _smootherstep(progress)
+            next_scale = _smootherstep(next_progress)
+            raw_target = {joint: current[joint] + delta[joint] * scale for joint in JOINT_ORDER}
+            lookahead = {joint: current[joint] + delta[joint] * next_scale for joint in JOINT_ORDER}
+            measured = dict(state_source.read().positions_deg)
+            dt_s = max(period * 0.5, min(period * 2.0, now - previous_tick if writes else period))
+            previous_tick = now
+            try:
+                guarded, previous_guard_state = apply_coordinated_motion_guard(
+                    limits_by_joint=limits, current_state=measured, target_now=raw_target,
+                    target_lookahead=lookahead, prev_state=previous_guard_state, dt_s=dt_s,
+                )
+            except MotionGuardError as exc:
+                stop_reason = f"RETURN_TO_START_MOTION_GUARD_BLOCKED: {exc}"
+                break
+            decision = safety_gate.evaluate(
+                adapted_action=adapt_vla_action(guarded), current_state_deg=measured,
+                observation_valid=True, check_excessive_step=False,
+            )
+            soft_saturation = (
+                decision.decision == "WOULD_CLAMP" and bool(decision.reasons)
+                and all(reason.startswith("MECHANICAL_LIMIT_CLAMPED:") for reason in decision.reasons)
+                and decision.safe_action is not None
+            )
+            if decision.decision != "ACCEPT" and not soft_saturation:
+                stop_reason = f"RETURN_TO_START_FINAL_SAFETY_BLOCKED: {decision.decision}"
+                break
+            command = dict(decision.safe_action)
+            result = writer.write(command)
+            if not result.executed:
+                stop_reason = f"RETURN_TO_START_WRITE_FAILED: {result.error}"
+                break
+            writes += 1
+            if first_command_jump is None:
+                first_command_jump = max(abs(command[j] - measured[j]) for j in JOINT_ORDER)
+            for joint in JOINT_ORDER:
+                velocity = abs(command[joint] - previous_command[joint]) / dt_s
+                max_command_velocity[joint] = max(max_command_velocity[joint], velocity)
+            previous_command = command
+            measured_after = dict(state_source.read().positions_deg)
+            within = all(abs(measured_after[j] - start_state[j]) <= RETURN_POSITION_TOLERANCE for j in JOINT_ORDER)
+            settled = settled + 1 if progress >= 1.0 and within else 0
+            if settled >= RETURN_SETTLE_TICKS:
+                stop_reason = "RETURN_TO_START_COMPLETE_ENCODER_CONFIRMED_HOLD_NO_WRITE"
+                break
+            deadline = started + writes * period
+            sleep_fn(max(0.0, deadline - monotonic_fn()))
+    except KeyboardInterrupt:
+        stop_reason = "RETURN_TO_START_SECOND_CTRL_C_ABORT_HOLD_NO_WRITE"
+    final_state = dict(state_source.read().positions_deg)
+    return {
+        "attempted": True, "stop_reason": stop_reason, "planned_duration_s": duration,
+        "timeout_s": timeout, "actual_duration_s": monotonic_fn() - started, "write_count": writes,
+        "first_command_jump_max": first_command_jump, "max_command_velocity": max_command_velocity,
+        "start_state": dict(start_state), "return_begin_state": current, "final_encoder_state": final_state,
+        "encoder_error": {joint: final_state[joint] - start_state[joint] for joint in JOINT_ORDER},
+        "encoder_confirmed": stop_reason == "RETURN_TO_START_COMPLETE_ENCODER_CONFIRMED_HOLD_NO_WRITE",
+    }
+
+
+class SequentialChunksOrchestrator:
+    """Strict OBS -> INFER -> EXECUTE -> HOLD cycles with no cross-chunk state."""
+
+    def __init__(
+        self,
+        *,
+        observation_provider,
+        state_source,
+        writer,
+        vla_client,
+        safety_gate,
+        motion_limits,
+        session_id: str,
+        task: str,
+        control_hz: float = DEFAULT_CONTROL_HZ,
+        max_runtime_s: float | None = None,
+        max_sequential_chunks: int | None = DEFAULT_MAX_SEQUENTIAL_CHUNKS,
+        trajectory_wait_timeout_s: float = DEFAULT_TRAJECTORY_WAIT_TIMEOUT_S,
+        monotonic_fn: Callable[[], float] = time.monotonic,
+        sleep_fn: Callable[[float], None] = time.sleep,
+        print_fn: Callable[[str], None] = print,
+        diagnostic_jsonl_path: Path | str | None = None,
+    ) -> None:
+        if max_sequential_chunks is not None and max_sequential_chunks < 1:
+            raise ValueError("max_sequential_chunks must be >= 1 when specified")
+        if max_runtime_s is not None and max_runtime_s <= 0:
+            raise ValueError("max_runtime_s must be > 0 when specified")
+        self._observation_provider = observation_provider
+        self._state_source = state_source
+        self._writer = writer
+        self._vla_client = vla_client
+        self._safety_gate = safety_gate
+        self._motion_limits = motion_limits
+        self._session_id = session_id
+        self._task = task
+        self._control_hz = control_hz
+        self._max_runtime_s = max_runtime_s
+        self._max_chunks = max_sequential_chunks
+        self._trajectory_wait_timeout_s = trajectory_wait_timeout_s
+        self._monotonic = monotonic_fn
+        self._sleep = sleep_fn
+        self._print = print_fn
+        self._diagnostic_path = Path(diagnostic_jsonl_path) if diagnostic_jsonl_path is not None else None
+
+    def _chunk_diagnostic_path(self, index: int) -> Path | None:
+        if self._diagnostic_path is None:
+            return None
+        path = self._diagnostic_path
+        suffix = path.suffix or ".jsonl"
+        return path.with_name(f"{path.stem}_chunk_{index:03d}{suffix}")
+
+    def run(self) -> SequentialSessionReport:
+        started = self._monotonic()
+        start_state = dict(self._state_source.read().positions_deg)
+        cycles: list[dict] = []
+        total_inference_s = 0.0
+        total_motion_s = 0.0
+        total_hold_s = 0.0
+        total_requested = 0
+        total_executed = 0
+        previous_end: float | None = None
+        stop_reason = "SEQUENTIAL_RUNNING"
+        return_report: dict | None = None
+        indices = range(self._max_chunks) if self._max_chunks is not None else itertools.count()
+        child = None
+
+        try:
+            for index in indices:
+                elapsed = self._monotonic() - started
+                remaining = None if self._max_runtime_s is None else self._max_runtime_s - elapsed
+                if remaining is not None and remaining <= 0:
+                    stop_reason = StopReason.NORMAL_MAX_RUNTIME.value
+                    break
+
+                child_runtime = remaining if remaining is not None else DEFAULT_MAX_RUNTIME_S
+                capture = CapturingObservationProvider(self._observation_provider)
+                writes_before = self._writer.write_count if hasattr(self._writer, "write_count") else None
+                child = RealtimeSessionOrchestrator(
+                    observation_provider=capture,
+                    state_source=self._state_source,
+                    writer=self._writer,
+                    vla_client=self._vla_client,
+                    safety_gate=self._safety_gate,
+                    motion_limits=self._motion_limits,
+                    session_id=f"{self._session_id}-chunk-{index:03d}",
+                    task=self._task,
+                    control_hz=self._control_hz,
+                    sanity_window_s=max(child_runtime + 1.0, DEFAULT_SANITY_WINDOW_S),
+                    max_runtime_s=child_runtime,
+                    trajectory_wait_timeout_s=min(self._trajectory_wait_timeout_s, max(0.1, child_runtime)),
+                    monotonic_fn=self._monotonic,
+                    sleep_fn=self._sleep,
+                    print_fn=self._print,
+                    diagnostic_jsonl_path=self._chunk_diagnostic_path(index),
+                    single_chunk=True,
+                    initial_inference_sequence=index,
+                )
+                self._print(f"sequential_chunk_index={index}")
+                child_report = child.run()
+                total_requested += child_report.inference["total_requests"]
+
+                if child_report.stop_reason == StopReason.KEYBOARD_INTERRUPT.value:
+                    stop_reason = StopReason.KEYBOARD_INTERRUPT.value
+                    return_report = execute_return_to_start(
+                        start_state=start_state, state_source=self._state_source, writer=self._writer,
+                        safety_gate=self._safety_gate, motion_limits=self._motion_limits,
+                        control_hz=self._control_hz, monotonic_fn=self._monotonic,
+                        sleep_fn=self._sleep, print_fn=self._print,
+                    )
+                    break
+
+                snapshot = capture.last_snapshot
+                if snapshot is None:
+                    raise RealtimeRunError("sequential cycle completed without a captured observation")
+                end_state = self._state_source.read().positions_deg
+                request_time = child_report.inference["request_timestamp"]
+                response_time = child_report.inference["response_received_timestamp"]
+                publication_time = child_report.inference["publication_timestamp"]
+                effective_start = child_report.inference["effective_chunk_start_timestamp"]
+                effective_end = child_report.inference["effective_chunk_end_timestamp"]
+                inference_s = max(0.0, response_time - request_time)
+                hold_s = 0.0 if previous_end is None else max(0.0, effective_start - previous_end)
+                execution_s = child_report.runtime_duration_s
+
+                total_inference_s += inference_s
+                total_hold_s += hold_s
+                total_motion_s += execution_s
+                completed = child_report.stop_reason == StopReason.SINGLE_CHUNK_COMPLETE.value
+                if completed:
+                    total_executed += 1
+
+                contributor_sequences = sorted({
+                    sequence for result in child._gen_proxy.results for sequence in result.contributing_sequences
+                })
+                max_contributors_per_tick = max(
+                    (len(result.contributing_sequences) for result in child._gen_proxy.results), default=0,
+                )
+                cycle = {
+                    "sequential_chunk_index": index,
+                    "vla_sequence": child_report.inference["latest_sequence"],
+                    "observation_capture_timestamp": child_report.inference["observation_capture_timestamp"],
+                    "request_timestamp": request_time,
+                    "response_timestamp": response_time,
+                    "publication_timestamp": publication_time,
+                    "effective_start_timestamp": effective_start,
+                    "effective_end_timestamp": effective_end,
+                    "execution_duration_s": execution_s,
+                    "hold_duration_before_s": hold_s,
+                    "start_encoder_state": dict(snapshot.state),
+                    "end_encoder_state": dict(end_state),
+                    "inference_requests": child_report.inference["total_requests"],
+                    "published_chunks": child_report.inference["total_published"],
+                    "contributor_sequences": contributor_sequences,
+                    "max_contributors_per_tick": max_contributors_per_tick,
+                    "trajectory": child_report.trajectory,
+                    "intent": child_report.intent,
+                    "motion_guard": child_report.motion_guard,
+                    "final_safety": child_report.final_safety,
+                    "writer": {
+                        "write_count_start": writes_before,
+                        "write_count_end": child_report.writer["write_count"],
+                        "write_count_delta": (
+                            child_report.writer["write_count"] - writes_before
+                            if writes_before is not None and child_report.writer["write_count"] is not None else None
+                        ),
+                    },
+                    "child_stop_reason": child_report.stop_reason,
+                }
+                cycles.append(cycle)
+                self._print(json.dumps(cycle, default=str))
+
+                if not completed:
+                    stop_reason = child_report.stop_reason
+                    break
+                previous_end = effective_end
+                if self._max_runtime_s is not None and self._monotonic() - started >= self._max_runtime_s:
+                    stop_reason = StopReason.NORMAL_MAX_RUNTIME.value
+                    break
+            else:
+                stop_reason = SequentialStopReason.MAX_CHUNKS_REACHED.value
+        except KeyboardInterrupt:
+            # Ctrl+C can arrive during observation/inference startup, before the
+            # child orchestrator's own monitor loop. Stop both child threads
+            # before beginning any return writes.
+            if child is not None:
+                try:
+                    child._loop.stop()
+                except Exception:
+                    pass
+                try:
+                    child._worker.stop()
+                except Exception:
+                    pass
+            stop_reason = StopReason.KEYBOARD_INTERRUPT.value
+            return_report = execute_return_to_start(
+                start_state=start_state, state_source=self._state_source, writer=self._writer,
+                safety_gate=self._safety_gate, motion_limits=self._motion_limits,
+                control_hz=self._control_hz, monotonic_fn=self._monotonic,
+                sleep_fn=self._sleep, print_fn=self._print,
+            )
+
+        return SequentialSessionReport(
+            stop_reason=stop_reason,
+            runtime_duration_s=self._monotonic() - started,
+            total_chunks_requested=total_requested,
+            total_chunks_executed=total_executed,
+            total_inference_time_s=total_inference_s,
+            total_motion_time_s=total_motion_s,
+            total_hold_duration_s=total_hold_s,
+            chunks=cycles,
+            return_to_start=return_report,
+        )
+
+
 
 
 # ---------------------------------------------------------------------------
@@ -603,7 +1083,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--vla-api-token", default=None)
     p.add_argument("--force-checkpoint-mismatch", action="store_true")
     p.add_argument("--sanity-window-s", type=float, default=DEFAULT_SANITY_WINDOW_S)
-    p.add_argument("--max-runtime-s", type=float, default=DEFAULT_MAX_RUNTIME_S)
+    p.add_argument(
+        "--max-runtime-s", type=float, default=None,
+        help="explicit watchdog; default is unlimited for --sequential-chunks and 180s for continuous mode",
+    )
     p.add_argument("--trajectory-wait-timeout-s", type=float, default=DEFAULT_TRAJECTORY_WAIT_TIMEOUT_S)
     p.add_argument("--report-dir", type=Path, default=DEFAULT_REPORT_DIR)
     p.add_argument(
@@ -614,6 +1097,19 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument(
         "--disable-diagnostic-jsonl", action="store_true",
         help="tick-level 진단 JSONL 기록을 끈다(기본은 켜짐 - additive-only라 안전하지만 옵션으로 제공).",
+    )
+    diagnostic_mode = p.add_mutually_exclusive_group()
+    diagnostic_mode.add_argument(
+        "--single-chunk", action="store_true",
+        help="first usable VLA chunk only; HOLD and exit at horizon end",
+    )
+    diagnostic_mode.add_argument(
+        "--sequential-chunks", action="store_true",
+        help="strict sequential OBS->INFER->EXECUTE->HOLD chunk cycles",
+    )
+    p.add_argument(
+        "--max-sequential-chunks", type=int, default=DEFAULT_MAX_SEQUENTIAL_CHUNKS,
+        help="optional sequential watchdog; omitted means unlimited until Ctrl+C",
     )
     p.add_argument("--dry-run", action="store_true", help="하드웨어/네트워크에 전혀 접근하지 않고 계획만 출력")
     p.add_argument("--confirm-physically-present", action="store_true")
@@ -627,8 +1123,14 @@ def print_banner(args: argparse.Namespace) -> None:
     print(f"CHECKPOINT={args.checkpoint} (Desktop이 이 checkpoint를 로딩했는지 /health로 검증됨)")
     print(f"TASK={args.task!r}")
     print(f"FOLLOWER_PORT={args.follower_port}  FOLLOWER_ID={args.follower_id}")
-    print(f"CONTROL_HZ={args.control_hz}  MAX_RUNTIME_S={args.max_runtime_s}  SANITY_WINDOW_S={args.sanity_window_s}")
+    effective_runtime = args.max_runtime_s if args.max_runtime_s is not None else (
+        "unlimited" if args.sequential_chunks else DEFAULT_MAX_RUNTIME_S
+    )
+    print(f"CONTROL_HZ={args.control_hz}  MAX_RUNTIME_S={effective_runtime}  SANITY_WINDOW_S={args.sanity_window_s}")
     print("SAFETY_GATE=BLUE_CUBE_41EP_RECALIBRATED · HOLD_POLICY=NO_WRITE · WRITE_PATH=SO101FollowerActionWriter 단 하나")
+    print(f"SINGLE_CHUNK_DIAGNOSTIC={args.single_chunk}")
+    print(f"SEQUENTIAL_CHUNKS_DIAGNOSTIC={args.sequential_chunks}")
+    print(f"MAX_SEQUENTIAL_CHUNKS={args.max_sequential_chunks}")
     print(f"DRY_RUN={args.dry_run}")
     print("=" * 70)
 
@@ -718,13 +1220,26 @@ def main(argv: list[str] | None = None) -> int:
             else (args.diagnostic_jsonl_path or args.report_dir / f"tick_diagnostics_{session_ts}.jsonl")
         )
 
-        orchestrator = RealtimeSessionOrchestrator(
-            observation_provider=observation_provider, state_source=state_source, writer=writer, vla_client=vla_client,
-            safety_gate=safety_gate, motion_limits=None, session_id="c5-real-pick-drop", task=args.task,
-            control_hz=args.control_hz, sanity_window_s=args.sanity_window_s, max_runtime_s=args.max_runtime_s,
-            trajectory_wait_timeout_s=args.trajectory_wait_timeout_s,
-            diagnostic_jsonl_path=diagnostic_jsonl_path,
-        )
+        if args.sequential_chunks:
+            orchestrator = SequentialChunksOrchestrator(
+                observation_provider=observation_provider, state_source=state_source,
+                writer=writer, vla_client=vla_client, safety_gate=safety_gate,
+                motion_limits=None, session_id="c5-real-pick-drop-sequential", task=args.task,
+                control_hz=args.control_hz, max_runtime_s=args.max_runtime_s,
+                max_sequential_chunks=args.max_sequential_chunks,
+                trajectory_wait_timeout_s=args.trajectory_wait_timeout_s,
+                diagnostic_jsonl_path=diagnostic_jsonl_path,
+            )
+        else:
+            orchestrator = RealtimeSessionOrchestrator(
+                observation_provider=observation_provider, state_source=state_source, writer=writer, vla_client=vla_client,
+                safety_gate=safety_gate, motion_limits=None, session_id="c5-real-pick-drop", task=args.task,
+                control_hz=args.control_hz, sanity_window_s=args.sanity_window_s,
+                max_runtime_s=(args.max_runtime_s if args.max_runtime_s is not None else DEFAULT_MAX_RUNTIME_S),
+                trajectory_wait_timeout_s=args.trajectory_wait_timeout_s,
+                diagnostic_jsonl_path=diagnostic_jsonl_path,
+                single_chunk=args.single_chunk,
+            )
         report = orchestrator.run()
 
         report_path = args.report_dir / f"session_{int(time.time())}.json"
