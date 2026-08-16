@@ -1,0 +1,2238 @@
+{
+  "schema": "v1-canonicalized-training-view-design-v1",
+  "dataset_root": "/home/sunglee/Projects/physical-ai-dummy/data/so101_blue_cube_place_return_v1",
+  "source_dataset_modified": false,
+  "baseline": {
+    "pairs_frame0_vs_later_static": 1068,
+    "close_input_pairs": 1067,
+    "close_fraction": 0.9990636704119851,
+    "high_conflict_pairs": 486,
+    "high_conflict_fraction_close": 0.4554826616682287,
+    "all_chunk_mae_p50_p95_max": [
+      3.0474519960085553,
+      8.249881577256446,
+      11.526722914179166
+    ],
+    "close_chunk_mae_p50_p95_max": [
+      3.0446049439907075,
+      8.232916829188664,
+      11.526722914179166
+    ],
+    "close_relative_shift_p50_p95_max": [
+      14.0,
+      30.0,
+      40.0
+    ],
+    "top_high_conflicts": [
+      {
+        "ep": 18,
+        "t": 27,
+        "state": 0.09072118622334356,
+        "workspace": 0.08700268802312004,
+        "wrist": 0.07673106840834247,
+        "chunk_mae": 11.526722914179166,
+        "relative_onset_shift": 27
+      },
+      {
+        "ep": 18,
+        "t": 26,
+        "state": 0.0,
+        "workspace": 0.08700268802312004,
+        "wrist": 0.07673106840834247,
+        "chunk_mae": 10.943043125867844,
+        "relative_onset_shift": 26
+      },
+      {
+        "ep": 0,
+        "t": 37,
+        "state": 0.0,
+        "workspace": 0.07236619249705366,
+        "wrist": 0.08340765196496268,
+        "chunk_mae": 10.64289259965221,
+        "relative_onset_shift": 37
+      },
+      {
+        "ep": 15,
+        "t": 26,
+        "state": 0.09072118622334356,
+        "workspace": 0.1223191954721801,
+        "wrist": 0.10199544991989513,
+        "chunk_mae": 10.640876056949297,
+        "relative_onset_shift": 26
+      },
+      {
+        "ep": 7,
+        "t": 34,
+        "state": 0.0,
+        "workspace": 0.06580488219144473,
+        "wrist": 0.10867792510149615,
+        "chunk_mae": 10.516630177497865,
+        "relative_onset_shift": 34
+      },
+      {
+        "ep": 18,
+        "t": 25,
+        "state": 0.0,
+        "workspace": 0.07880319838217921,
+        "wrist": 0.07991136175786143,
+        "chunk_mae": 10.368154549002647,
+        "relative_onset_shift": 25
+      },
+      {
+        "ep": 3,
+        "t": 32,
+        "state": 0.12247411808113952,
+        "workspace": 0.09747339023643442,
+        "wrist": 0.3138612749447581,
+        "chunk_mae": 10.183443355560303,
+        "relative_onset_shift": 32
+      },
+      {
+        "ep": 0,
+        "t": 36,
+        "state": 0.0,
+        "workspace": 0.07236619249705366,
+        "wrist": 0.08339965004511192,
+        "chunk_mae": 10.140091924220323,
+        "relative_onset_shift": 36
+      },
+      {
+        "ep": 15,
+        "t": 25,
+        "state": 0.04536059311167178,
+        "workspace": 0.1240118858485649,
+        "wrist": 0.0863761275204609,
+        "chunk_mae": 10.05221459488074,
+        "relative_onset_shift": 25
+      },
+      {
+        "ep": 7,
+        "t": 33,
+        "state": 0.0,
+        "workspace": 0.07080924349707622,
+        "wrist": 0.10072041523225356,
+        "chunk_mae": 10.033992789586385,
+        "relative_onset_shift": 33
+      },
+      {
+        "ep": 2,
+        "t": 34,
+        "state": 0.0,
+        "workspace": 0.08438787688856053,
+        "wrist": 0.10145778399910059,
+        "chunk_mae": 10.025626310507457,
+        "relative_onset_shift": 34
+      },
+      {
+        "ep": 19,
+        "t": 29,
+        "state": 0.0,
+        "workspace": 0.07076325665217091,
+        "wrist": 0.08907931008643173,
+        "chunk_mae": 9.942857501755158,
+        "relative_onset_shift": 29
+      },
+      {
+        "ep": 18,
+        "t": 24,
+        "state": 0.0,
+        "workspace": 0.07880319838217921,
+        "wrist": 0.07991136175786143,
+        "chunk_mae": 9.802643259366354,
+        "relative_onset_shift": 24
+      },
+      {
+        "ep": 3,
+        "t": 31,
+        "state": 0.0680413079323733,
+        "workspace": 0.09550659918391656,
+        "wrist": 0.10514888780765198,
+        "chunk_mae": 9.681172273953756,
+        "relative_onset_shift": 31
+      },
+      {
+        "ep": 0,
+        "t": 35,
+        "state": 0.0,
+        "workspace": 0.06942729366140495,
+        "wrist": 0.10399611597800035,
+        "chunk_mae": 9.651064157634973,
+        "relative_onset_shift": 35
+      },
+      {
+        "ep": 7,
+        "t": 32,
+        "state": 0.0,
+        "workspace": 0.07080924349707622,
+        "wrist": 0.10072041523225356,
+        "chunk_mae": 9.560732690493266,
+        "relative_onset_shift": 32
+      },
+      {
+        "ep": 1,
+        "t": 40,
+        "state": 0.0,
+        "workspace": 0.06775014727631422,
+        "wrist": 0.10987605532295891,
+        "chunk_mae": 9.560146900266409,
+        "relative_onset_shift": 40
+      },
+      {
+        "ep": 2,
+        "t": 33,
+        "state": 0.0,
+        "workspace": 0.08189991670959262,
+        "wrist": 0.09826985759917595,
+        "chunk_mae": 9.533668140769004,
+        "relative_onset_shift": 33
+      },
+      {
+        "ep": 15,
+        "t": 24,
+        "state": 0.0,
+        "workspace": 0.1240118858485649,
+        "wrist": 0.0851241118261809,
+        "chunk_mae": 9.476446898579598,
+        "relative_onset_shift": 24
+      },
+      {
+        "ep": 27,
+        "t": 36,
+        "state": 0.027216995567214127,
+        "workspace": 0.07753981776014304,
+        "wrist": 0.08104250326776045,
+        "chunk_mae": 9.42375588213404,
+        "relative_onset_shift": 36
+      }
+    ]
+  },
+  "candidates": {
+    "A": {
+      "anchors": "initial",
+      "total_training_samples": 20857,
+      "removed_static_samples": 1068,
+      "retained_static_samples": 41,
+      "retained_motion_samples": 20816,
+      "static_fraction": 0.0019657668888143067,
+      "motion_fraction": 0.9980342331111857,
+      "near_identical_conflict_pairs": 0,
+      "high_conflict_pairs": 0,
+      "high_conflict_fraction": 0.0,
+      "high_conflict_pairs_per_training_sample": 0.0,
+      "action_chunk_distribution": {
+        "lift_elbow_l1_step0_to_40": {
+          "p5": 0.0,
+          "median": 31.824172973632812,
+          "p95": 121.58241806030273
+        },
+        "abs_pan_step0_to_40": {
+          "p5": 0.0,
+          "median": 2.5494508743286133,
+          "p95": 29.098900985717773
+        },
+        "gripper_step0_to_40": {
+          "p5": -28.743789672851562,
+          "median": 0.0,
+          "p95": 29.169624519348144
+        }
+      },
+      "close_pair_details": []
+    },
+    "B": {
+      "anchors": "initial+pre_onset",
+      "total_training_samples": 20898,
+      "removed_static_samples": 1027,
+      "retained_static_samples": 82,
+      "retained_motion_samples": 20816,
+      "static_fraction": 0.003923820461288162,
+      "motion_fraction": 0.9960761795387119,
+      "near_identical_conflict_pairs": 40,
+      "high_conflict_pairs": 39,
+      "high_conflict_fraction": 0.975,
+      "high_conflict_pairs_per_training_sample": 0.0018662072925638817,
+      "action_chunk_distribution": {
+        "lift_elbow_l1_step0_to_40": {
+          "p5": 0.0,
+          "median": 31.912086486816406,
+          "p95": 121.58241674900054
+        },
+        "abs_pan_step0_to_40": {
+          "p5": 0.0,
+          "median": 2.5494508743286133,
+          "p95": 29.09889998435974
+        },
+        "gripper_step0_to_40": {
+          "p5": -28.74378909468651,
+          "median": 0.0,
+          "p95": 29.169623947143556
+        }
+      },
+      "close_pair_details": [
+        {
+          "episode": 0,
+          "frames": [
+            0,
+            37
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07236619249705366,
+          "wrist_distance": 0.08340765196496268,
+          "chunk_mae": 10.64289259965221,
+          "high_conflict": true
+        },
+        {
+          "episode": 1,
+          "frames": [
+            0,
+            40
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06775014727631422,
+          "wrist_distance": 0.10987605532295891,
+          "chunk_mae": 9.560146900266409,
+          "high_conflict": true
+        },
+        {
+          "episode": 2,
+          "frames": [
+            0,
+            34
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08438787688856053,
+          "wrist_distance": 0.10145778399910059,
+          "chunk_mae": 10.025626310507457,
+          "high_conflict": true
+        },
+        {
+          "episode": 3,
+          "frames": [
+            0,
+            32
+          ],
+          "state_distance": 0.12247411808113952,
+          "workspace_distance": 0.09747339023643442,
+          "wrist_distance": 0.3138612749447581,
+          "chunk_mae": 10.183443355560303,
+          "high_conflict": true
+        },
+        {
+          "episode": 4,
+          "frames": [
+            0,
+            2
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07213436297406958,
+          "wrist_distance": 0.08234626136382794,
+          "chunk_mae": 0.3954914593696594,
+          "high_conflict": false
+        },
+        {
+          "episode": 5,
+          "frames": [
+            0,
+            26
+          ],
+          "state_distance": 0.030429506309836922,
+          "workspace_distance": 0.13026054643632723,
+          "wrist_distance": 0.0970190644718892,
+          "chunk_mae": 8.143000696897507,
+          "high_conflict": true
+        },
+        {
+          "episode": 6,
+          "frames": [
+            0,
+            21
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08180577077206927,
+          "wrist_distance": 0.0844346945063292,
+          "chunk_mae": 8.256622517419357,
+          "high_conflict": true
+        },
+        {
+          "episode": 7,
+          "frames": [
+            0,
+            34
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06580488219144473,
+          "wrist_distance": 0.10867792510149615,
+          "chunk_mae": 10.516630177497865,
+          "high_conflict": true
+        },
+        {
+          "episode": 8,
+          "frames": [
+            0,
+            25
+          ],
+          "state_distance": 0.022680419574953266,
+          "workspace_distance": 0.06713806814882188,
+          "wrist_distance": 0.1409608638895325,
+          "chunk_mae": 7.595160097964108,
+          "high_conflict": true
+        },
+        {
+          "episode": 9,
+          "frames": [
+            0,
+            22
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06898651976710471,
+          "wrist_distance": 0.09937663760669528,
+          "chunk_mae": 7.511501820882161,
+          "high_conflict": true
+        },
+        {
+          "episode": 10,
+          "frames": [
+            0,
+            23
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07070875912725125,
+          "wrist_distance": 0.08076193735689004,
+          "chunk_mae": 6.74285702864329,
+          "high_conflict": true
+        },
+        {
+          "episode": 11,
+          "frames": [
+            0,
+            28
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06928816607666584,
+          "wrist_distance": 0.07922100089406664,
+          "chunk_mae": 8.9529667254289,
+          "high_conflict": true
+        },
+        {
+          "episode": 12,
+          "frames": [
+            0,
+            20
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07453309360167104,
+          "wrist_distance": 0.07875228726387051,
+          "chunk_mae": 8.328756144841511,
+          "high_conflict": true
+        },
+        {
+          "episode": 13,
+          "frames": [
+            0,
+            24
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08509962334472022,
+          "wrist_distance": 0.08758935572567432,
+          "chunk_mae": 7.400732380015155,
+          "high_conflict": true
+        },
+        {
+          "episode": 14,
+          "frames": [
+            0,
+            25
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08664603630099409,
+          "wrist_distance": 0.0854768802101655,
+          "chunk_mae": 6.520541082620621,
+          "high_conflict": true
+        },
+        {
+          "episode": 15,
+          "frames": [
+            0,
+            26
+          ],
+          "state_distance": 0.09072118622334356,
+          "workspace_distance": 0.1223191954721801,
+          "wrist_distance": 0.10199544991989513,
+          "chunk_mae": 10.640876056949297,
+          "high_conflict": true
+        },
+        {
+          "episode": 17,
+          "frames": [
+            0,
+            25
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08299753310148364,
+          "wrist_distance": 0.07667319810308712,
+          "chunk_mae": 6.868865046898524,
+          "high_conflict": true
+        },
+        {
+          "episode": 18,
+          "frames": [
+            0,
+            27
+          ],
+          "state_distance": 0.09072118622334356,
+          "workspace_distance": 0.08700268802312004,
+          "wrist_distance": 0.07673106840834247,
+          "chunk_mae": 11.526722914179166,
+          "high_conflict": true
+        },
+        {
+          "episode": 19,
+          "frames": [
+            0,
+            29
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07076325665217091,
+          "wrist_distance": 0.08907931008643173,
+          "chunk_mae": 9.942857501755158,
+          "high_conflict": true
+        },
+        {
+          "episode": 20,
+          "frames": [
+            0,
+            28
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08058783176914544,
+          "wrist_distance": 0.07785094561911626,
+          "chunk_mae": 8.042490850637357,
+          "high_conflict": true
+        },
+        {
+          "episode": 21,
+          "frames": [
+            0,
+            24
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.09426805633528326,
+          "wrist_distance": 0.0786304264328885,
+          "chunk_mae": 6.270768949190775,
+          "high_conflict": true
+        },
+        {
+          "episode": 22,
+          "frames": [
+            0,
+            17
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07016924088325918,
+          "wrist_distance": 0.07659508545213484,
+          "chunk_mae": 6.070835135380427,
+          "high_conflict": true
+        },
+        {
+          "episode": 23,
+          "frames": [
+            0,
+            39
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07593853363101635,
+          "wrist_distance": 0.08825172198751166,
+          "chunk_mae": 8.182120135029157,
+          "high_conflict": true
+        },
+        {
+          "episode": 24,
+          "frames": [
+            0,
+            23
+          ],
+          "state_distance": 0.013608497783607064,
+          "workspace_distance": 0.08070394360228954,
+          "wrist_distance": 0.1023744597547557,
+          "chunk_mae": 7.834701017489036,
+          "high_conflict": true
+        },
+        {
+          "episode": 25,
+          "frames": [
+            0,
+            21
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.12150727816842549,
+          "wrist_distance": 0.10845296438394221,
+          "chunk_mae": 6.445714281400044,
+          "high_conflict": true
+        },
+        {
+          "episode": 26,
+          "frames": [
+            0,
+            38
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07928991245131002,
+          "wrist_distance": 0.08633972677287763,
+          "chunk_mae": 8.971793685952822,
+          "high_conflict": true
+        },
+        {
+          "episode": 27,
+          "frames": [
+            0,
+            36
+          ],
+          "state_distance": 0.027216995567214127,
+          "workspace_distance": 0.07753981776014304,
+          "wrist_distance": 0.08104250326776045,
+          "chunk_mae": 9.42375588213404,
+          "high_conflict": true
+        },
+        {
+          "episode": 28,
+          "frames": [
+            0,
+            30
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.12041925658783195,
+          "wrist_distance": 0.1151366011868136,
+          "chunk_mae": 8.949695033927759,
+          "high_conflict": true
+        },
+        {
+          "episode": 29,
+          "frames": [
+            0,
+            19
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08323315962036015,
+          "wrist_distance": 0.10535715187340212,
+          "chunk_mae": 5.015053319533666,
+          "high_conflict": true
+        },
+        {
+          "episode": 30,
+          "frames": [
+            0,
+            19
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07298174630570724,
+          "wrist_distance": 0.10633998665304473,
+          "chunk_mae": 7.78498350183169,
+          "high_conflict": true
+        },
+        {
+          "episode": 31,
+          "frames": [
+            0,
+            20
+          ],
+          "state_distance": 0.013608497783607064,
+          "workspace_distance": 0.0677775291435869,
+          "wrist_distance": 0.07851577251234089,
+          "chunk_mae": 5.686218265692393,
+          "high_conflict": true
+        },
+        {
+          "episode": 32,
+          "frames": [
+            0,
+            26
+          ],
+          "state_distance": 0.030536820888930245,
+          "workspace_distance": 0.11664029753515802,
+          "wrist_distance": 0.07970244822257042,
+          "chunk_mae": 5.289010972976684,
+          "high_conflict": true
+        },
+        {
+          "episode": 33,
+          "frames": [
+            0,
+            28
+          ],
+          "state_distance": 0.09173714302129578,
+          "workspace_distance": 0.07624535819895836,
+          "wrist_distance": 0.13376297156667527,
+          "chunk_mae": 7.768675583650668,
+          "high_conflict": true
+        },
+        {
+          "episode": 34,
+          "frames": [
+            0,
+            19
+          ],
+          "state_distance": 0.11340197485564896,
+          "workspace_distance": 0.09884958266053182,
+          "wrist_distance": 0.29536168498382165,
+          "chunk_mae": 5.319737654825052,
+          "high_conflict": true
+        },
+        {
+          "episode": 35,
+          "frames": [
+            0,
+            31
+          ],
+          "state_distance": 0.34020690871988585,
+          "workspace_distance": 0.10126332623143713,
+          "wrist_distance": 0.25982455377346697,
+          "chunk_mae": 8.88058332045873,
+          "high_conflict": true
+        },
+        {
+          "episode": 36,
+          "frames": [
+            0,
+            28
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07938184046529322,
+          "wrist_distance": 0.10495127990415629,
+          "chunk_mae": 7.396043728192647,
+          "high_conflict": true
+        },
+        {
+          "episode": 37,
+          "frames": [
+            0,
+            25
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08589509716998649,
+          "wrist_distance": 0.10728940351284881,
+          "chunk_mae": 7.319625134778519,
+          "high_conflict": true
+        },
+        {
+          "episode": 38,
+          "frames": [
+            0,
+            21
+          ],
+          "state_distance": 0.136761506757,
+          "workspace_distance": 0.11094456132781873,
+          "wrist_distance": 0.16394512966672062,
+          "chunk_mae": 4.765464283513526,
+          "high_conflict": true
+        },
+        {
+          "episode": 39,
+          "frames": [
+            0,
+            28
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.0795125644493775,
+          "wrist_distance": 0.08441224219623211,
+          "chunk_mae": 9.0662548939387,
+          "high_conflict": true
+        },
+        {
+          "episode": 40,
+          "frames": [
+            0,
+            19
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.10452552595217562,
+          "wrist_distance": 0.08013458650564681,
+          "chunk_mae": 5.802700567046801,
+          "high_conflict": true
+        }
+      ]
+    },
+    "C": {
+      "anchors": "initial+midpoint+pre_onset",
+      "total_training_samples": 20939,
+      "removed_static_samples": 986,
+      "retained_static_samples": 123,
+      "retained_motion_samples": 20816,
+      "static_fraction": 0.005874206027030899,
+      "motion_fraction": 0.9941257939729691,
+      "near_identical_conflict_pairs": 121,
+      "high_conflict_pairs": 81,
+      "high_conflict_fraction": 0.6694214876033058,
+      "high_conflict_pairs_per_training_sample": 0.003868379578776446,
+      "action_chunk_distribution": {
+        "lift_elbow_l1_step0_to_40": {
+          "p5": 0.0,
+          "median": 31.912094116210938,
+          "p95": 121.49450562000274
+        },
+        "abs_pan_step0_to_40": {
+          "p5": 0.0,
+          "median": 2.549450606107712,
+          "p95": 29.098899841308594
+        },
+        "gripper_step0_to_40": {
+          "p5": -28.679916131496423,
+          "median": 0.0,
+          "p95": 29.169623851776123
+        }
+      },
+      "close_pair_details": [
+        {
+          "episode": 0,
+          "frames": [
+            0,
+            18
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06966406060674388,
+          "wrist_distance": 0.10959725593025507,
+          "chunk_mae": 3.1942950240770975,
+          "high_conflict": false
+        },
+        {
+          "episode": 0,
+          "frames": [
+            0,
+            37
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07236619249705366,
+          "wrist_distance": 0.08340765196496268,
+          "chunk_mae": 10.64289259965221,
+          "high_conflict": true
+        },
+        {
+          "episode": 0,
+          "frames": [
+            18,
+            37
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06390711945967976,
+          "wrist_distance": 0.10972189633111022,
+          "chunk_mae": 7.448597575575113,
+          "high_conflict": true
+        },
+        {
+          "episode": 1,
+          "frames": [
+            0,
+            20
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06931791306964108,
+          "wrist_distance": 0.10208379183793269,
+          "chunk_mae": 2.7718680477142335,
+          "high_conflict": false
+        },
+        {
+          "episode": 1,
+          "frames": [
+            0,
+            40
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06775014727631422,
+          "wrist_distance": 0.10987605532295891,
+          "chunk_mae": 9.560146900266409,
+          "high_conflict": true
+        },
+        {
+          "episode": 1,
+          "frames": [
+            20,
+            40
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06850155205771764,
+          "wrist_distance": 0.08479634092404476,
+          "chunk_mae": 6.840439646492402,
+          "high_conflict": true
+        },
+        {
+          "episode": 2,
+          "frames": [
+            0,
+            17
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.10565091354886254,
+          "wrist_distance": 0.10010685469815495,
+          "chunk_mae": 3.494424890875816,
+          "high_conflict": true
+        },
+        {
+          "episode": 2,
+          "frames": [
+            0,
+            34
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08438787688856053,
+          "wrist_distance": 0.10145778399910059,
+          "chunk_mae": 10.025626310507457,
+          "high_conflict": true
+        },
+        {
+          "episode": 2,
+          "frames": [
+            17,
+            34
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.10814702331907411,
+          "wrist_distance": 0.10269756875898986,
+          "chunk_mae": 6.581604416966439,
+          "high_conflict": true
+        },
+        {
+          "episode": 3,
+          "frames": [
+            0,
+            16
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.1347053008020001,
+          "wrist_distance": 0.11394434598592881,
+          "chunk_mae": 3.510329661369324,
+          "high_conflict": true
+        },
+        {
+          "episode": 3,
+          "frames": [
+            0,
+            32
+          ],
+          "state_distance": 0.12247411808113952,
+          "workspace_distance": 0.09747339023643442,
+          "wrist_distance": 0.3138612749447581,
+          "chunk_mae": 10.183443355560303,
+          "high_conflict": true
+        },
+        {
+          "episode": 3,
+          "frames": [
+            16,
+            32
+          ],
+          "state_distance": 0.12247411808113952,
+          "workspace_distance": 0.1019695421786229,
+          "wrist_distance": 0.33007497183463214,
+          "chunk_mae": 6.701831466356913,
+          "high_conflict": true
+        },
+        {
+          "episode": 4,
+          "frames": [
+            0,
+            1
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.009766381524998783,
+          "wrist_distance": 0.009162563456854204,
+          "chunk_mae": 0.19276403864224753,
+          "high_conflict": false
+        },
+        {
+          "episode": 4,
+          "frames": [
+            0,
+            2
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07213436297406958,
+          "wrist_distance": 0.08234626136382794,
+          "chunk_mae": 0.3954914593696594,
+          "high_conflict": false
+        },
+        {
+          "episode": 4,
+          "frames": [
+            1,
+            2
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07285666522492917,
+          "wrist_distance": 0.08276468483691135,
+          "chunk_mae": 0.20331350127855938,
+          "high_conflict": false
+        },
+        {
+          "episode": 5,
+          "frames": [
+            0,
+            13
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.09174125883225936,
+          "wrist_distance": 0.07705719794273792,
+          "chunk_mae": 3.053038786451022,
+          "high_conflict": false
+        },
+        {
+          "episode": 5,
+          "frames": [
+            0,
+            26
+          ],
+          "state_distance": 0.030429506309836922,
+          "workspace_distance": 0.13026054643632723,
+          "wrist_distance": 0.0970190644718892,
+          "chunk_mae": 8.143000696897507,
+          "high_conflict": true
+        },
+        {
+          "episode": 5,
+          "frames": [
+            13,
+            26
+          ],
+          "state_distance": 0.030429506309836922,
+          "workspace_distance": 0.1100073591383751,
+          "wrist_distance": 0.10263925595002057,
+          "chunk_mae": 5.109302549560865,
+          "high_conflict": true
+        },
+        {
+          "episode": 6,
+          "frames": [
+            0,
+            10
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.0853572817537693,
+          "wrist_distance": 0.07915241484750958,
+          "chunk_mae": 3.2571643198654057,
+          "high_conflict": false
+        },
+        {
+          "episode": 6,
+          "frames": [
+            0,
+            21
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08180577077206927,
+          "wrist_distance": 0.0844346945063292,
+          "chunk_mae": 8.256622517419357,
+          "high_conflict": true
+        },
+        {
+          "episode": 6,
+          "frames": [
+            10,
+            21
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07708943966448151,
+          "wrist_distance": 0.08190307528722678,
+          "chunk_mae": 5.007663325270017,
+          "high_conflict": true
+        },
+        {
+          "episode": 7,
+          "frames": [
+            0,
+            17
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06922906617883527,
+          "wrist_distance": 0.10649569950342215,
+          "chunk_mae": 3.7333334271113077,
+          "high_conflict": true
+        },
+        {
+          "episode": 7,
+          "frames": [
+            0,
+            34
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06580488219144473,
+          "wrist_distance": 0.10867792510149615,
+          "chunk_mae": 10.516630177497865,
+          "high_conflict": true
+        },
+        {
+          "episode": 7,
+          "frames": [
+            17,
+            34
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06596516344554648,
+          "wrist_distance": 0.08082768640485448,
+          "chunk_mae": 6.805567811330159,
+          "high_conflict": true
+        },
+        {
+          "episode": 8,
+          "frames": [
+            0,
+            12
+          ],
+          "state_distance": 0.022680419574953266,
+          "workspace_distance": 0.06325538193935105,
+          "wrist_distance": 0.14683985996939178,
+          "chunk_mae": 2.7857859005530674,
+          "high_conflict": false
+        },
+        {
+          "episode": 8,
+          "frames": [
+            0,
+            25
+          ],
+          "state_distance": 0.022680419574953266,
+          "workspace_distance": 0.06713806814882188,
+          "wrist_distance": 0.1409608638895325,
+          "chunk_mae": 7.595160097964108,
+          "high_conflict": true
+        },
+        {
+          "episode": 8,
+          "frames": [
+            12,
+            25
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06724244959058884,
+          "wrist_distance": 0.08438505926509593,
+          "chunk_mae": 4.814062879967193,
+          "high_conflict": true
+        },
+        {
+          "episode": 9,
+          "frames": [
+            0,
+            11
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06979849190858833,
+          "wrist_distance": 0.09085476257931771,
+          "chunk_mae": 3.0054211600621543,
+          "high_conflict": false
+        },
+        {
+          "episode": 9,
+          "frames": [
+            0,
+            22
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06898651976710471,
+          "wrist_distance": 0.09937663760669528,
+          "chunk_mae": 7.511501820882161,
+          "high_conflict": true
+        },
+        {
+          "episode": 9,
+          "frames": [
+            11,
+            22
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06549470781726563,
+          "wrist_distance": 0.08678063853174776,
+          "chunk_mae": 4.515457774798075,
+          "high_conflict": true
+        },
+        {
+          "episode": 10,
+          "frames": [
+            0,
+            11
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07176930606285212,
+          "wrist_distance": 0.08265704625028096,
+          "chunk_mae": 2.518681236902873,
+          "high_conflict": false
+        },
+        {
+          "episode": 10,
+          "frames": [
+            0,
+            23
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07070875912725125,
+          "wrist_distance": 0.08076193735689004,
+          "chunk_mae": 6.74285702864329,
+          "high_conflict": true
+        },
+        {
+          "episode": 10,
+          "frames": [
+            11,
+            23
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07096485365597394,
+          "wrist_distance": 0.0797004598198969,
+          "chunk_mae": 4.234725241661072,
+          "high_conflict": true
+        },
+        {
+          "episode": 11,
+          "frames": [
+            0,
+            14
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06859393887227434,
+          "wrist_distance": 0.07550697602908468,
+          "chunk_mae": 3.470476001103719,
+          "high_conflict": true
+        },
+        {
+          "episode": 11,
+          "frames": [
+            0,
+            28
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06928816607666584,
+          "wrist_distance": 0.07922100089406664,
+          "chunk_mae": 8.9529667254289,
+          "high_conflict": true
+        },
+        {
+          "episode": 11,
+          "frames": [
+            14,
+            28
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.0694027072874813,
+          "wrist_distance": 0.07731848554945527,
+          "chunk_mae": 5.532307552099228,
+          "high_conflict": true
+        },
+        {
+          "episode": 12,
+          "frames": [
+            0,
+            10
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07133960710010408,
+          "wrist_distance": 0.07730309389678205,
+          "chunk_mae": 3.5878831430276237,
+          "high_conflict": true
+        },
+        {
+          "episode": 12,
+          "frames": [
+            0,
+            20
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07453309360167104,
+          "wrist_distance": 0.07875228726387051,
+          "chunk_mae": 8.328756144841511,
+          "high_conflict": true
+        },
+        {
+          "episode": 12,
+          "frames": [
+            10,
+            20
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06888988668216328,
+          "wrist_distance": 0.07735101277416334,
+          "chunk_mae": 4.751083716154098,
+          "high_conflict": true
+        },
+        {
+          "episode": 13,
+          "frames": [
+            0,
+            12
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.09627043536833912,
+          "wrist_distance": 0.15437785271510754,
+          "chunk_mae": 3.030329507937034,
+          "high_conflict": false
+        },
+        {
+          "episode": 13,
+          "frames": [
+            0,
+            24
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08509962334472022,
+          "wrist_distance": 0.08758935572567432,
+          "chunk_mae": 7.400732380015155,
+          "high_conflict": true
+        },
+        {
+          "episode": 13,
+          "frames": [
+            12,
+            24
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.0762689036167034,
+          "wrist_distance": 0.14261503130357267,
+          "chunk_mae": 4.3786079050228,
+          "high_conflict": true
+        },
+        {
+          "episode": 14,
+          "frames": [
+            0,
+            12
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08690726549491042,
+          "wrist_distance": 0.08129862339403864,
+          "chunk_mae": 2.511543221871058,
+          "high_conflict": false
+        },
+        {
+          "episode": 14,
+          "frames": [
+            0,
+            25
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08664603630099409,
+          "wrist_distance": 0.0854768802101655,
+          "chunk_mae": 6.520541082620621,
+          "high_conflict": true
+        },
+        {
+          "episode": 14,
+          "frames": [
+            12,
+            25
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08787496490589715,
+          "wrist_distance": 0.08342985010341916,
+          "chunk_mae": 4.02247763077418,
+          "high_conflict": true
+        },
+        {
+          "episode": 15,
+          "frames": [
+            0,
+            13
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.09344128214272436,
+          "wrist_distance": 0.07900172910497888,
+          "chunk_mae": 4.19179333070914,
+          "high_conflict": true
+        },
+        {
+          "episode": 15,
+          "frames": [
+            0,
+            26
+          ],
+          "state_distance": 0.09072118622334356,
+          "workspace_distance": 0.1223191954721801,
+          "wrist_distance": 0.10199544991989513,
+          "chunk_mae": 10.640876056949297,
+          "high_conflict": true
+        },
+        {
+          "episode": 15,
+          "frames": [
+            13,
+            26
+          ],
+          "state_distance": 0.09072118622334356,
+          "workspace_distance": 0.08641310780596226,
+          "wrist_distance": 0.10074274065760128,
+          "chunk_mae": 6.497141389846802,
+          "high_conflict": true
+        },
+        {
+          "episode": 16,
+          "frames": [
+            0,
+            14
+          ],
+          "state_distance": 0.04536083914990653,
+          "workspace_distance": 0.0918634122892874,
+          "wrist_distance": 0.08218847850950413,
+          "chunk_mae": 3.139447670777639,
+          "high_conflict": false
+        },
+        {
+          "episode": 17,
+          "frames": [
+            0,
+            12
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.0790538775607113,
+          "wrist_distance": 0.07231419199858109,
+          "chunk_mae": 2.5884252897898357,
+          "high_conflict": false
+        },
+        {
+          "episode": 17,
+          "frames": [
+            0,
+            25
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08299753310148364,
+          "wrist_distance": 0.07667319810308712,
+          "chunk_mae": 6.868865046898524,
+          "high_conflict": true
+        },
+        {
+          "episode": 17,
+          "frames": [
+            12,
+            25
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08238767261649138,
+          "wrist_distance": 0.07557070185508699,
+          "chunk_mae": 4.293333541154862,
+          "high_conflict": true
+        },
+        {
+          "episode": 18,
+          "frames": [
+            0,
+            13
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.09452915407925998,
+          "wrist_distance": 0.0769541614718487,
+          "chunk_mae": 4.2763338468472165,
+          "high_conflict": true
+        },
+        {
+          "episode": 18,
+          "frames": [
+            0,
+            27
+          ],
+          "state_distance": 0.09072118622334356,
+          "workspace_distance": 0.08700268802312004,
+          "wrist_distance": 0.07673106840834247,
+          "chunk_mae": 11.526722914179166,
+          "high_conflict": true
+        },
+        {
+          "episode": 18,
+          "frames": [
+            13,
+            27
+          ],
+          "state_distance": 0.09072118622334356,
+          "workspace_distance": 0.10243766860646439,
+          "wrist_distance": 0.07869816803709742,
+          "chunk_mae": 7.2873121420542395,
+          "high_conflict": true
+        },
+        {
+          "episode": 19,
+          "frames": [
+            0,
+            14
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.0705192815867571,
+          "wrist_distance": 0.1072771661047191,
+          "chunk_mae": 3.4408793210983277,
+          "high_conflict": true
+        },
+        {
+          "episode": 19,
+          "frames": [
+            0,
+            29
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07076325665217091,
+          "wrist_distance": 0.08907931008643173,
+          "chunk_mae": 9.942857501755158,
+          "high_conflict": true
+        },
+        {
+          "episode": 19,
+          "frames": [
+            14,
+            29
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07304190274526708,
+          "wrist_distance": 0.08746330634280465,
+          "chunk_mae": 6.514871952782075,
+          "high_conflict": true
+        },
+        {
+          "episode": 20,
+          "frames": [
+            0,
+            14
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08055600016927451,
+          "wrist_distance": 0.08170408913458063,
+          "chunk_mae": 2.979340528647105,
+          "high_conflict": false
+        },
+        {
+          "episode": 20,
+          "frames": [
+            0,
+            28
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08058783176914544,
+          "wrist_distance": 0.07785094561911626,
+          "chunk_mae": 8.042490850637357,
+          "high_conflict": true
+        },
+        {
+          "episode": 20,
+          "frames": [
+            14,
+            28
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07891717551829106,
+          "wrist_distance": 0.07868488858442263,
+          "chunk_mae": 5.087765514403582,
+          "high_conflict": true
+        },
+        {
+          "episode": 21,
+          "frames": [
+            0,
+            12
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.09873758832339606,
+          "wrist_distance": 0.07630940472047638,
+          "chunk_mae": 2.471501611073812,
+          "high_conflict": false
+        },
+        {
+          "episode": 21,
+          "frames": [
+            0,
+            24
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.09426805633528326,
+          "wrist_distance": 0.0786304264328885,
+          "chunk_mae": 6.270768949190775,
+          "high_conflict": true
+        },
+        {
+          "episode": 21,
+          "frames": [
+            12,
+            24
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.1133554595764519,
+          "wrist_distance": 0.07752613919790297,
+          "chunk_mae": 3.8068863852818806,
+          "high_conflict": true
+        },
+        {
+          "episode": 22,
+          "frames": [
+            0,
+            8
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07088438567247128,
+          "wrist_distance": 0.07620119073144455,
+          "chunk_mae": 2.4437974945704144,
+          "high_conflict": false
+        },
+        {
+          "episode": 22,
+          "frames": [
+            0,
+            17
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07016924088325918,
+          "wrist_distance": 0.07659508545213484,
+          "chunk_mae": 6.070835135380427,
+          "high_conflict": true
+        },
+        {
+          "episode": 22,
+          "frames": [
+            8,
+            17
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06717513077079491,
+          "wrist_distance": 0.07874909528966482,
+          "chunk_mae": 3.6457922184467315,
+          "high_conflict": true
+        },
+        {
+          "episode": 23,
+          "frames": [
+            0,
+            19
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07523616426646045,
+          "wrist_distance": 0.08150638575015078,
+          "chunk_mae": 2.1838353780905404,
+          "high_conflict": false
+        },
+        {
+          "episode": 23,
+          "frames": [
+            0,
+            39
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07593853363101635,
+          "wrist_distance": 0.08825172198751166,
+          "chunk_mae": 8.182120135029157,
+          "high_conflict": true
+        },
+        {
+          "episode": 23,
+          "frames": [
+            19,
+            39
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07701385545727885,
+          "wrist_distance": 0.09304368985933502,
+          "chunk_mae": 6.031691157619158,
+          "high_conflict": true
+        },
+        {
+          "episode": 24,
+          "frames": [
+            0,
+            11
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08049136195639209,
+          "wrist_distance": 0.10413394056513137,
+          "chunk_mae": 2.8812393784026304,
+          "high_conflict": false
+        },
+        {
+          "episode": 24,
+          "frames": [
+            0,
+            23
+          ],
+          "state_distance": 0.013608497783607064,
+          "workspace_distance": 0.08070394360228954,
+          "wrist_distance": 0.1023744597547557,
+          "chunk_mae": 7.834701017489036,
+          "high_conflict": true
+        },
+        {
+          "episode": 24,
+          "frames": [
+            11,
+            23
+          ],
+          "state_distance": 0.013608497783607064,
+          "workspace_distance": 0.075236108216025,
+          "wrist_distance": 0.09618085070443494,
+          "chunk_mae": 4.953461639086405,
+          "high_conflict": true
+        },
+        {
+          "episode": 25,
+          "frames": [
+            0,
+            10
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07370749186989205,
+          "wrist_distance": 0.10463584173288248,
+          "chunk_mae": 2.631501859029134,
+          "high_conflict": false
+        },
+        {
+          "episode": 25,
+          "frames": [
+            0,
+            21
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.12150727816842549,
+          "wrist_distance": 0.10845296438394221,
+          "chunk_mae": 6.445714281400044,
+          "high_conflict": true
+        },
+        {
+          "episode": 25,
+          "frames": [
+            10,
+            21
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.12413240408159502,
+          "wrist_distance": 0.08271612476584916,
+          "chunk_mae": 3.818315002123515,
+          "high_conflict": true
+        },
+        {
+          "episode": 26,
+          "frames": [
+            0,
+            19
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08007748711175829,
+          "wrist_distance": 0.09512275895389995,
+          "chunk_mae": 2.870429064830144,
+          "high_conflict": false
+        },
+        {
+          "episode": 26,
+          "frames": [
+            0,
+            38
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07928991245131002,
+          "wrist_distance": 0.08633972677287763,
+          "chunk_mae": 8.971793685952822,
+          "high_conflict": true
+        },
+        {
+          "episode": 26,
+          "frames": [
+            19,
+            38
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07851385779125944,
+          "wrist_distance": 0.1006492859568612,
+          "chunk_mae": 6.112634657820066,
+          "high_conflict": true
+        },
+        {
+          "episode": 27,
+          "frames": [
+            0,
+            18
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07697432716549928,
+          "wrist_distance": 0.08008198887350422,
+          "chunk_mae": 2.758398697376251,
+          "high_conflict": false
+        },
+        {
+          "episode": 27,
+          "frames": [
+            0,
+            36
+          ],
+          "state_distance": 0.027216995567214127,
+          "workspace_distance": 0.07753981776014304,
+          "wrist_distance": 0.08104250326776045,
+          "chunk_mae": 9.42375588213404,
+          "high_conflict": true
+        },
+        {
+          "episode": 27,
+          "frames": [
+            18,
+            36
+          ],
+          "state_distance": 0.027216995567214127,
+          "workspace_distance": 0.07734306881548503,
+          "wrist_distance": 0.07971440286170575,
+          "chunk_mae": 6.6929029786090055,
+          "high_conflict": true
+        },
+        {
+          "episode": 28,
+          "frames": [
+            0,
+            15
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.0796635673556718,
+          "wrist_distance": 0.08235917946800682,
+          "chunk_mae": 2.9535853266716003,
+          "high_conflict": false
+        },
+        {
+          "episode": 28,
+          "frames": [
+            0,
+            30
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.12041925658783195,
+          "wrist_distance": 0.1151366011868136,
+          "chunk_mae": 8.949695033927759,
+          "high_conflict": true
+        },
+        {
+          "episode": 28,
+          "frames": [
+            15,
+            30
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.10496005671332606,
+          "wrist_distance": 0.11879146514485768,
+          "chunk_mae": 6.017794665396213,
+          "high_conflict": true
+        },
+        {
+          "episode": 29,
+          "frames": [
+            0,
+            9
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08270701887195864,
+          "wrist_distance": 0.10216323388692644,
+          "chunk_mae": 1.8345877957344054,
+          "high_conflict": false
+        },
+        {
+          "episode": 29,
+          "frames": [
+            0,
+            19
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08323315962036015,
+          "wrist_distance": 0.10535715187340212,
+          "chunk_mae": 5.015053319533666,
+          "high_conflict": true
+        },
+        {
+          "episode": 29,
+          "frames": [
+            9,
+            19
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08411347770676936,
+          "wrist_distance": 0.08317511847402485,
+          "chunk_mae": 3.1804655237992603,
+          "high_conflict": false
+        },
+        {
+          "episode": 30,
+          "frames": [
+            0,
+            9
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07013916290456977,
+          "wrist_distance": 0.09346214500718357,
+          "chunk_mae": 3.0056334952513377,
+          "high_conflict": false
+        },
+        {
+          "episode": 30,
+          "frames": [
+            0,
+            19
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07298174630570724,
+          "wrist_distance": 0.10633998665304473,
+          "chunk_mae": 7.78498350183169,
+          "high_conflict": true
+        },
+        {
+          "episode": 30,
+          "frames": [
+            9,
+            19
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07241059864201853,
+          "wrist_distance": 0.08921338047197515,
+          "chunk_mae": 4.78696905374527,
+          "high_conflict": true
+        },
+        {
+          "episode": 31,
+          "frames": [
+            0,
+            10
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.06956382855699542,
+          "wrist_distance": 0.07818805496994374,
+          "chunk_mae": 2.2883731150627136,
+          "high_conflict": false
+        },
+        {
+          "episode": 31,
+          "frames": [
+            0,
+            20
+          ],
+          "state_distance": 0.013608497783607064,
+          "workspace_distance": 0.0677775291435869,
+          "wrist_distance": 0.07851577251234089,
+          "chunk_mae": 5.686218265692393,
+          "high_conflict": true
+        },
+        {
+          "episode": 31,
+          "frames": [
+            10,
+            20
+          ],
+          "state_distance": 0.013608497783607064,
+          "workspace_distance": 0.0716749057874706,
+          "wrist_distance": 0.07709171397421827,
+          "chunk_mae": 3.401361633936564,
+          "high_conflict": false
+        },
+        {
+          "episode": 32,
+          "frames": [
+            0,
+            13
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08573797931495912,
+          "wrist_distance": 0.07830866917178897,
+          "chunk_mae": 1.8862973761558532,
+          "high_conflict": false
+        },
+        {
+          "episode": 32,
+          "frames": [
+            0,
+            26
+          ],
+          "state_distance": 0.030536820888930245,
+          "workspace_distance": 0.11664029753515802,
+          "wrist_distance": 0.07970244822257042,
+          "chunk_mae": 5.289010972976684,
+          "high_conflict": true
+        },
+        {
+          "episode": 32,
+          "frames": [
+            13,
+            26
+          ],
+          "state_distance": 0.030536820888930245,
+          "workspace_distance": 0.10861070026304916,
+          "wrist_distance": 0.07982444504606542,
+          "chunk_mae": 3.4273291198412577,
+          "high_conflict": false
+        },
+        {
+          "episode": 33,
+          "frames": [
+            0,
+            14
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07025819650764807,
+          "wrist_distance": 0.0771667030282412,
+          "chunk_mae": 2.8789164690176645,
+          "high_conflict": false
+        },
+        {
+          "episode": 33,
+          "frames": [
+            0,
+            28
+          ],
+          "state_distance": 0.09173714302129578,
+          "workspace_distance": 0.07624535819895836,
+          "wrist_distance": 0.13376297156667527,
+          "chunk_mae": 7.768675583650668,
+          "high_conflict": true
+        },
+        {
+          "episode": 33,
+          "frames": [
+            14,
+            28
+          ],
+          "state_distance": 0.09173714302129578,
+          "workspace_distance": 0.07286893599441834,
+          "wrist_distance": 0.13444825971382168,
+          "chunk_mae": 4.891517356286446,
+          "high_conflict": true
+        },
+        {
+          "episode": 34,
+          "frames": [
+            0,
+            9
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08034236632750268,
+          "wrist_distance": 0.07733551096011095,
+          "chunk_mae": 2.0250642917553585,
+          "high_conflict": false
+        },
+        {
+          "episode": 34,
+          "frames": [
+            0,
+            19
+          ],
+          "state_distance": 0.11340197485564896,
+          "workspace_distance": 0.09884958266053182,
+          "wrist_distance": 0.29536168498382165,
+          "chunk_mae": 5.319737654825052,
+          "high_conflict": true
+        },
+        {
+          "episode": 34,
+          "frames": [
+            9,
+            19
+          ],
+          "state_distance": 0.11340197485564896,
+          "workspace_distance": 0.10573511015938755,
+          "wrist_distance": 0.2952208084014053,
+          "chunk_mae": 3.33687116275231,
+          "high_conflict": false
+        },
+        {
+          "episode": 35,
+          "frames": [
+            0,
+            15
+          ],
+          "state_distance": 0.2041241452319315,
+          "workspace_distance": 0.08240978478627037,
+          "wrist_distance": 0.17402201914393267,
+          "chunk_mae": 2.9427427550156913,
+          "high_conflict": false
+        },
+        {
+          "episode": 35,
+          "frames": [
+            0,
+            31
+          ],
+          "state_distance": 0.34020690871988585,
+          "workspace_distance": 0.10126332623143713,
+          "wrist_distance": 0.25982455377346697,
+          "chunk_mae": 8.88058332045873,
+          "high_conflict": true
+        },
+        {
+          "episode": 35,
+          "frames": [
+            15,
+            31
+          ],
+          "state_distance": 0.13608276348795434,
+          "workspace_distance": 0.07776373431888915,
+          "wrist_distance": 0.14526171769373503,
+          "chunk_mae": 5.9665584870179496,
+          "high_conflict": true
+        },
+        {
+          "episode": 36,
+          "frames": [
+            0,
+            14
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07452436138716606,
+          "wrist_distance": 0.11741925758846651,
+          "chunk_mae": 2.805274639129639,
+          "high_conflict": false
+        },
+        {
+          "episode": 36,
+          "frames": [
+            0,
+            28
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07938184046529322,
+          "wrist_distance": 0.10495127990415629,
+          "chunk_mae": 7.396043728192647,
+          "high_conflict": true
+        },
+        {
+          "episode": 36,
+          "frames": [
+            14,
+            28
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07745095633255325,
+          "wrist_distance": 0.08512484140613906,
+          "chunk_mae": 4.600732458432516,
+          "high_conflict": true
+        },
+        {
+          "episode": 37,
+          "frames": [
+            0,
+            12
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08320245594115584,
+          "wrist_distance": 0.1018824055662428,
+          "chunk_mae": 2.707759800950686,
+          "high_conflict": false
+        },
+        {
+          "episode": 37,
+          "frames": [
+            0,
+            25
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.08589509716998649,
+          "wrist_distance": 0.10728940351284881,
+          "chunk_mae": 7.319625134778519,
+          "high_conflict": true
+        },
+        {
+          "episode": 37,
+          "frames": [
+            12,
+            25
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.0845543840789462,
+          "wrist_distance": 0.08367924682400271,
+          "chunk_mae": 4.628275678269565,
+          "high_conflict": true
+        },
+        {
+          "episode": 38,
+          "frames": [
+            0,
+            10
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.13372071321174167,
+          "wrist_distance": 0.07357312721169904,
+          "chunk_mae": 1.7702778585503498,
+          "high_conflict": false
+        },
+        {
+          "episode": 38,
+          "frames": [
+            0,
+            21
+          ],
+          "state_distance": 0.136761506757,
+          "workspace_distance": 0.11094456132781873,
+          "wrist_distance": 0.16394512966672062,
+          "chunk_mae": 4.765464283513526,
+          "high_conflict": true
+        },
+        {
+          "episode": 38,
+          "frames": [
+            10,
+            21
+          ],
+          "state_distance": 0.136761506757,
+          "workspace_distance": 0.09905624458364402,
+          "wrist_distance": 0.16165708003621598,
+          "chunk_mae": 2.995186424963176,
+          "high_conflict": false
+        },
+        {
+          "episode": 39,
+          "frames": [
+            0,
+            14
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07767481259759497,
+          "wrist_distance": 0.08382467437307282,
+          "chunk_mae": 3.335515997807185,
+          "high_conflict": false
+        },
+        {
+          "episode": 39,
+          "frames": [
+            0,
+            28
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.0795125644493775,
+          "wrist_distance": 0.08441224219623211,
+          "chunk_mae": 9.0662548939387,
+          "high_conflict": true
+        },
+        {
+          "episode": 39,
+          "frames": [
+            14,
+            28
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07191928345562985,
+          "wrist_distance": 0.08170399432637002,
+          "chunk_mae": 5.7401161849498745,
+          "high_conflict": true
+        },
+        {
+          "episode": 40,
+          "frames": [
+            0,
+            9
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.11188762412622794,
+          "wrist_distance": 0.07787301966258542,
+          "chunk_mae": 2.2096233199040096,
+          "high_conflict": false
+        },
+        {
+          "episode": 40,
+          "frames": [
+            0,
+            19
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.10452552595217562,
+          "wrist_distance": 0.08013458650564681,
+          "chunk_mae": 5.802700567046801,
+          "high_conflict": true
+        },
+        {
+          "episode": 40,
+          "frames": [
+            9,
+            19
+          ],
+          "state_distance": 0.0,
+          "workspace_distance": 0.07761397636748088,
+          "wrist_distance": 0.08104273229270936,
+          "chunk_mae": 3.605384887854258,
+          "high_conflict": true
+        }
+      ]
+    }
+  }
+}
