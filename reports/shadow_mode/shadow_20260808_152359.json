@@ -1,0 +1,163 @@
+{
+  "mode": "SHADOW",
+  "backend": "realistic_mujoco",
+  "real_robot_write_enabled": false,
+  "generated_at": 1786170241.6455483,
+  "task": "Pick up the cube and place it in the target area.",
+  "checkpoint": null,
+  "evaluation_mode": "midpoint-shadow",
+  "scene_metadata": {
+    "label": "T05-R2",
+    "note": "Grid35 10k T05 repeat"
+  },
+  "observation": {
+    "fixed_camera_valid": true,
+    "wrist_camera_valid": true,
+    "state_valid": true,
+    "schema_valid": true,
+    "invalid_reasons": [],
+    "state": {
+      "shoulder_pan": -9.098901098901099,
+      "shoulder_lift": -99.56043956043956,
+      "elbow_flex": 96.83516483516483,
+      "wrist_flex": 55.42857142857143,
+      "wrist_roll": -0.9230769230769231,
+      "gripper": 0.0
+    },
+    "camera_frame_paths": {
+      "workspace_path": "/home/sunglee/Projects/physical-ai-dummy/reports/shadow_mode/images/20260808_152359/workspace.jpg",
+      "wrist_path": "/home/sunglee/Projects/physical-ai-dummy/reports/shadow_mode/images/20260808_152359/wrist.jpg"
+    }
+  },
+  "communication": {
+    "server_url": "http://100.75.147.72:8000",
+    "health_ok": true,
+    "request_latency_ms": 697.5021079997532,
+    "inference_latency_ms": 670.9630159966764,
+    "round_trip_latency_ms": 24.260245998448227,
+    "error_kind": null,
+    "error_message": null
+  },
+  "vla": {
+    "raw_action": {
+      "shoulder_pan": -14.733083724975586,
+      "shoulder_lift": -75.7873764038086,
+      "elbow_flex": 64.77658081054688,
+      "wrist_flex": 64.85411071777344,
+      "wrist_roll": -1.5368362665176392,
+      "gripper": 1.4082450866699219
+    },
+    "action_schema_valid": true,
+    "model_id": "outputs/grid35/smolvla_grid35_fresh_v1/checkpoints/010000/pretrained_model",
+    "backend": "smolvla"
+  },
+  "adapter": {
+    "mapped_action": {
+      "shoulder_pan": -14.733083724975586,
+      "shoulder_lift": -75.7873764038086,
+      "elbow_flex": 64.77658081054688,
+      "wrist_flex": 64.85411071777344,
+      "wrist_roll": -1.5368362665176392,
+      "gripper": 1.4082450866699219
+    },
+    "warnings": []
+  },
+  "safety": {
+    "decision": "REJECT",
+    "reasons": [
+      "EXCESSIVE_STEP_GROSS: |delta|=32.06deg (임계값 5.73deg의 5.0배 초과)"
+    ],
+    "would_clamp": false,
+    "safe_action": null,
+    "config_source": {
+      "joint_range_source": {
+        "shoulder_pan": "calibration_file",
+        "shoulder_lift": "calibration_file",
+        "elbow_flex": "calibration_file",
+        "wrist_flex": "calibration_file",
+        "wrist_roll": "calibration_file",
+        "gripper": "gripper_percent_convention"
+      },
+      "uses_calibration_fallback": false,
+      "calibration_file_path": "/home/sunglee/.cache/huggingface/lerobot/calibration/robots/so_follower/chanho_follower.json",
+      "excessive_step_config_path": "/home/sunglee/Projects/physical-ai-dummy/configs/safety_gate.yaml"
+    },
+    "per_joint": {
+      "shoulder_pan": {
+        "joint": "shoulder_pan",
+        "raw_value": -14.733083724975586,
+        "safe_value": -13.678901098901099,
+        "clamped": true,
+        "rejected": false,
+        "reasons": [
+          "EXCESSIVE_STEP_CLAMPED: -14.73 -> -13.68 (임계값 4.58deg/step)"
+        ]
+      },
+      "shoulder_lift": {
+        "joint": "shoulder_lift",
+        "raw_value": -75.7873764038086,
+        "safe_value": -94.40043956043957,
+        "clamped": true,
+        "rejected": false,
+        "reasons": [
+          "EXCESSIVE_STEP_CLAMPED: -75.79 -> -94.40 (임계값 5.16deg/step)"
+        ]
+      },
+      "elbow_flex": {
+        "joint": "elbow_flex",
+        "raw_value": 64.77658081054688,
+        "safe_value": null,
+        "clamped": false,
+        "rejected": true,
+        "reasons": [
+          "EXCESSIVE_STEP_GROSS: |delta|=32.06deg (임계값 5.73deg의 5.0배 초과)"
+        ]
+      },
+      "wrist_flex": {
+        "joint": "wrist_flex",
+        "raw_value": 64.85411071777344,
+        "safe_value": 59.43857142857143,
+        "clamped": true,
+        "rejected": false,
+        "reasons": [
+          "EXCESSIVE_STEP_CLAMPED: 64.85 -> 59.44 (임계값 4.01deg/step)"
+        ]
+      },
+      "wrist_roll": {
+        "joint": "wrist_roll",
+        "raw_value": -1.5368362665176392,
+        "safe_value": -1.5368362665176392,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "gripper": {
+        "joint": "gripper",
+        "raw_value": 1.4082450866699219,
+        "safe_value": 1.4082450866699219,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      }
+    }
+  },
+  "mujoco": {
+    "initial_state": null,
+    "final_state": null,
+    "realistic_layer_diagnostics": null,
+    "validation_result": {
+      "passed": null,
+      "warnings": [],
+      "failures": [],
+      "checks": {}
+    }
+  },
+  "hardware": {
+    "real_follower_write_count": 0
+  },
+  "result": "SHADOW_FAIL",
+  "result_reasons": [
+    "Safety REJECT: EXCESSIVE_STEP_GROSS: |delta|=32.06deg (임계값 5.73deg의 5.0배 초과)"
+  ],
+  "session_id": "20260808_152359"
+}

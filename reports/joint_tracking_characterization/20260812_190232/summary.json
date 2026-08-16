@@ -1,0 +1,13 @@
+{
+  "shoulder_lift": {
+    "minimum_effective_step": 1.0,
+    "response_latency_median_s": 0.09991179699864006,
+    "deadband": false,
+    "sign_mapping_ok": true,
+    "tracking_quality": "MEASURED",
+    "steps": {
+      "1.0": 0.5274725274725256,
+      "2.0": 1.7582417582417662
+    }
+  }
+}

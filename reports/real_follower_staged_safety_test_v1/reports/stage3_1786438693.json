@@ -1,0 +1,651 @@
+{
+  "stage": 3,
+  "max_steps": 10,
+  "verdict": "PASS",
+  "stop_reason": null,
+  "steps": [
+    {
+      "step": 0,
+      "before_state_deg": {
+        "shoulder_pan": 1.4505494505494505,
+        "shoulder_lift": -89.53846153846153,
+        "elbow_flex": 97.62637362637362,
+        "wrist_flex": 53.75824175824176,
+        "wrist_roll": -3.6483516483516483,
+        "gripper": 2.2774327122153206
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 2.546541213989258,
+        "shoulder_lift": -93.13192749023438,
+        "elbow_flex": 90.12393951416016,
+        "wrist_flex": 52.63595962524414,
+        "wrist_roll": -3.355433464050293,
+        "gripper": 2.8618688583374023
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 2.546541213989258,
+        "shoulder_lift": -93.13192749023438,
+        "elbow_flex": 90.12393951416016,
+        "wrist_flex": 52.63595962524414,
+        "wrist_roll": -3.355433464050293,
+        "gripper": 2.8618688583374023
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 2.546541213989258,
+        "shoulder_lift": -93.13192749023438,
+        "elbow_flex": 90.12393951416016,
+        "wrist_flex": 52.63595962524414,
+        "wrist_roll": -3.355433464050293,
+        "gripper": 2.8618688583374023
+      },
+      "after_state_deg": {
+        "shoulder_pan": 1.89010989010989,
+        "shoulder_lift": -92.7032967032967,
+        "elbow_flex": 92.61538461538461,
+        "wrist_flex": 53.40659340659341,
+        "wrist_roll": -3.6483516483516483,
+        "gripper": 2.5534851621808143
+      },
+      "delta_deg": {
+        "shoulder_pan": 0.43956043956043955,
+        "shoulder_lift": -3.164835164835168,
+        "elbow_flex": -5.010989010989007,
+        "wrist_flex": -0.3516483516483504,
+        "wrist_roll": 0.0,
+        "gripper": 0.2760524499654937
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 59.19172499852721,
+      "predict_inference_latency_ms": 609.7482869954547,
+      "predict_request_latency_ms": 601.5113670000574,
+      "fresh_inference": true
+    },
+    {
+      "step": 1,
+      "before_state_deg": {
+        "shoulder_pan": 1.89010989010989,
+        "shoulder_lift": -92.7032967032967,
+        "elbow_flex": 92.61538461538461,
+        "wrist_flex": 53.40659340659341,
+        "wrist_roll": -3.6483516483516483,
+        "gripper": 2.5534851621808143
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 1.6243572235107422,
+        "shoulder_lift": -93.2352523803711,
+        "elbow_flex": 89.87683868408203,
+        "wrist_flex": 52.54344940185547,
+        "wrist_roll": -3.4597811698913574,
+        "gripper": 3.3593530654907227
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 1.6243572235107422,
+        "shoulder_lift": -93.2352523803711,
+        "elbow_flex": 89.87683868408203,
+        "wrist_flex": 52.54344940185547,
+        "wrist_roll": -3.4597811698913574,
+        "gripper": 3.3593530654907227
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 1.6243572235107422,
+        "shoulder_lift": -93.2352523803711,
+        "elbow_flex": 89.87683868408203,
+        "wrist_flex": 52.54344940185547,
+        "wrist_roll": -3.4597811698913574,
+        "gripper": 3.3593530654907227
+      },
+      "after_state_deg": {
+        "shoulder_pan": 1.8021978021978022,
+        "shoulder_lift": -92.7032967032967,
+        "elbow_flex": 92.61538461538461,
+        "wrist_flex": 53.40659340659341,
+        "wrist_roll": -3.6483516483516483,
+        "gripper": 2.9675638371290542
+      },
+      "delta_deg": {
+        "shoulder_pan": -0.08791208791208782,
+        "shoulder_lift": 0.0,
+        "elbow_flex": 0.0,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.4140786749482399
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 53.82293699949514,
+      "predict_inference_latency_ms": 285.3627430013148,
+      "predict_request_latency_ms": 299.5741180020559,
+      "fresh_inference": true
+    },
+    {
+      "step": 2,
+      "before_state_deg": {
+        "shoulder_pan": 1.8021978021978022,
+        "shoulder_lift": -92.7032967032967,
+        "elbow_flex": 92.61538461538461,
+        "wrist_flex": 53.40659340659341,
+        "wrist_roll": -3.6483516483516483,
+        "gripper": 2.9675638371290542
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 1.1678218841552734,
+        "shoulder_lift": -92.58243560791016,
+        "elbow_flex": 88.218994140625,
+        "wrist_flex": 54.02370071411133,
+        "wrist_roll": -4.329807281494141,
+        "gripper": 3.456544876098633
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 1.1678218841552734,
+        "shoulder_lift": -92.58243560791016,
+        "elbow_flex": 88.218994140625,
+        "wrist_flex": 54.02370071411133,
+        "wrist_roll": -4.329807281494141,
+        "gripper": 3.456544876098633
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 1.1678218841552734,
+        "shoulder_lift": -92.58243560791016,
+        "elbow_flex": 88.218994140625,
+        "wrist_flex": 54.02370071411133,
+        "wrist_roll": -4.329807281494141,
+        "gripper": 3.456544876098633
+      },
+      "after_state_deg": {
+        "shoulder_pan": 1.8021978021978022,
+        "shoulder_lift": -92.7032967032967,
+        "elbow_flex": 90.68131868131869,
+        "wrist_flex": 53.934065934065934,
+        "wrist_roll": -4.087912087912088,
+        "gripper": 3.243616287094548
+      },
+      "delta_deg": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.0,
+        "elbow_flex": -1.9340659340659272,
+        "wrist_flex": 0.5274725274725256,
+        "wrist_roll": -0.43956043956043933,
+        "gripper": 0.2760524499654937
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 64.3567039987829,
+      "predict_inference_latency_ms": 272.12499899906106,
+      "predict_request_latency_ms": 327.36011800079723,
+      "fresh_inference": true
+    },
+    {
+      "step": 3,
+      "before_state_deg": {
+        "shoulder_pan": 1.8021978021978022,
+        "shoulder_lift": -92.7032967032967,
+        "elbow_flex": 90.68131868131869,
+        "wrist_flex": 53.934065934065934,
+        "wrist_roll": -4.087912087912088,
+        "gripper": 3.243616287094548
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 2.8193588256835938,
+        "shoulder_lift": -92.35122680664062,
+        "elbow_flex": 87.02317810058594,
+        "wrist_flex": 52.39988708496094,
+        "wrist_roll": -4.179889678955078,
+        "gripper": 3.41013240814209
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 2.8193588256835938,
+        "shoulder_lift": -92.35122680664062,
+        "elbow_flex": 87.02317810058594,
+        "wrist_flex": 52.39988708496094,
+        "wrist_roll": -4.179889678955078,
+        "gripper": 3.41013240814209
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 2.8193588256835938,
+        "shoulder_lift": -92.35122680664062,
+        "elbow_flex": 87.02317810058594,
+        "wrist_flex": 52.39988708496094,
+        "wrist_roll": -4.179889678955078,
+        "gripper": 3.41013240814209
+      },
+      "after_state_deg": {
+        "shoulder_pan": 2.32967032967033,
+        "shoulder_lift": -92.35164835164835,
+        "elbow_flex": 89.62637362637362,
+        "wrist_flex": 53.40659340659341,
+        "wrist_roll": -4.087912087912088,
+        "gripper": 3.243616287094548
+      },
+      "delta_deg": {
+        "shoulder_pan": 0.5274725274725276,
+        "shoulder_lift": 0.3516483516483504,
+        "elbow_flex": -1.0549450549450654,
+        "wrist_flex": -0.5274725274725256,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 19.37268099936773,
+      "predict_inference_latency_ms": 282.0350289985072,
+      "predict_request_latency_ms": 287.69069599729846,
+      "fresh_inference": true
+    },
+    {
+      "step": 4,
+      "before_state_deg": {
+        "shoulder_pan": 2.32967032967033,
+        "shoulder_lift": -92.35164835164835,
+        "elbow_flex": 89.62637362637362,
+        "wrist_flex": 53.40659340659341,
+        "wrist_roll": -4.087912087912088,
+        "gripper": 3.243616287094548
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 1.5674667358398438,
+        "shoulder_lift": -88.42630004882812,
+        "elbow_flex": 84.71720886230469,
+        "wrist_flex": 53.61152648925781,
+        "wrist_roll": -3.765667676925659,
+        "gripper": 2.858443260192871
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 1.5674667358398438,
+        "shoulder_lift": -88.42630004882812,
+        "elbow_flex": 84.71720886230469,
+        "wrist_flex": 53.61152648925781,
+        "wrist_roll": -3.765667676925659,
+        "gripper": 2.858443260192871
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 1.5674667358398438,
+        "shoulder_lift": -88.42630004882812,
+        "elbow_flex": 84.71720886230469,
+        "wrist_flex": 53.61152648925781,
+        "wrist_roll": -3.765667676925659,
+        "gripper": 2.858443260192871
+      },
+      "after_state_deg": {
+        "shoulder_pan": 1.89010989010989,
+        "shoulder_lift": -89.01098901098901,
+        "elbow_flex": 87.51648351648352,
+        "wrist_flex": 53.75824175824176,
+        "wrist_roll": -4.087912087912088,
+        "gripper": 3.036576949620428
+      },
+      "delta_deg": {
+        "shoulder_pan": -0.4395604395604398,
+        "shoulder_lift": 3.340659340659343,
+        "elbow_flex": -2.1098901098901024,
+        "wrist_flex": 0.3516483516483504,
+        "wrist_roll": 0.0,
+        "gripper": -0.20703933747412018
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 13.465618998452555,
+      "predict_inference_latency_ms": 364.4712950044777,
+      "predict_request_latency_ms": 365.1503399996727,
+      "fresh_inference": true
+    },
+    {
+      "step": 5,
+      "before_state_deg": {
+        "shoulder_pan": 1.89010989010989,
+        "shoulder_lift": -89.01098901098901,
+        "elbow_flex": 87.51648351648352,
+        "wrist_flex": 53.75824175824176,
+        "wrist_roll": -4.087912087912088,
+        "gripper": 3.036576949620428
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 1.363922119140625,
+        "shoulder_lift": -87.36114501953125,
+        "elbow_flex": 81.80049133300781,
+        "wrist_flex": 54.00675964355469,
+        "wrist_roll": -3.528414249420166,
+        "gripper": 3.460908889770508
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 1.363922119140625,
+        "shoulder_lift": -87.36114501953125,
+        "elbow_flex": 81.80049133300781,
+        "wrist_flex": 54.00675964355469,
+        "wrist_roll": -3.528414249420166,
+        "gripper": 3.460908889770508
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 1.363922119140625,
+        "shoulder_lift": -87.36114501953125,
+        "elbow_flex": 81.80049133300781,
+        "wrist_flex": 54.00675964355469,
+        "wrist_roll": -3.528414249420166,
+        "gripper": 3.460908889770508
+      },
+      "after_state_deg": {
+        "shoulder_pan": 1.89010989010989,
+        "shoulder_lift": -87.51648351648352,
+        "elbow_flex": 84.43956043956044,
+        "wrist_flex": 53.75824175824176,
+        "wrist_roll": -3.912087912087912,
+        "gripper": 3.243616287094548
+      },
+      "delta_deg": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 1.4945054945054892,
+        "elbow_flex": -3.07692307692308,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.17582417582417564,
+        "gripper": 0.20703933747412018
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 58.39856099919416,
+      "predict_inference_latency_ms": 279.9514799989993,
+      "predict_request_latency_ms": 296.34025799896335,
+      "fresh_inference": true
+    },
+    {
+      "step": 6,
+      "before_state_deg": {
+        "shoulder_pan": 1.89010989010989,
+        "shoulder_lift": -87.42857142857143,
+        "elbow_flex": 84.43956043956044,
+        "wrist_flex": 53.75824175824176,
+        "wrist_roll": -3.912087912087912,
+        "gripper": 3.243616287094548
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 3.155618667602539,
+        "shoulder_lift": -85.73318481445312,
+        "elbow_flex": 84.14795684814453,
+        "wrist_flex": 53.0444221496582,
+        "wrist_roll": -3.188741683959961,
+        "gripper": 3.4229698181152344
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 3.155618667602539,
+        "shoulder_lift": -85.73318481445312,
+        "elbow_flex": 84.14795684814453,
+        "wrist_flex": 53.0444221496582,
+        "wrist_roll": -3.188741683959961,
+        "gripper": 3.4229698181152344
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 3.155618667602539,
+        "shoulder_lift": -85.73318481445312,
+        "elbow_flex": 84.14795684814453,
+        "wrist_flex": 53.0444221496582,
+        "wrist_roll": -3.188741683959961,
+        "gripper": 3.4229698181152344
+      },
+      "after_state_deg": {
+        "shoulder_pan": 2.5054945054945055,
+        "shoulder_lift": -85.84615384615384,
+        "elbow_flex": 85.05494505494505,
+        "wrist_flex": 53.67032967032967,
+        "wrist_roll": -3.5604395604395602,
+        "gripper": 3.243616287094548
+      },
+      "delta_deg": {
+        "shoulder_pan": 0.6153846153846154,
+        "shoulder_lift": 1.582417582417591,
+        "elbow_flex": 0.6153846153846132,
+        "wrist_flex": -0.0879120879120876,
+        "wrist_roll": 0.35164835164835173,
+        "gripper": 0.0
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 58.279272001527715,
+      "predict_inference_latency_ms": 298.1125459918985,
+      "predict_request_latency_ms": 306.1936060003063,
+      "fresh_inference": true
+    },
+    {
+      "step": 7,
+      "before_state_deg": {
+        "shoulder_pan": 2.5054945054945055,
+        "shoulder_lift": -85.84615384615384,
+        "elbow_flex": 85.05494505494505,
+        "wrist_flex": 53.67032967032967,
+        "wrist_roll": -3.5604395604395602,
+        "gripper": 3.243616287094548
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 1.5654640197753906,
+        "shoulder_lift": -81.8302230834961,
+        "elbow_flex": 81.86740112304688,
+        "wrist_flex": 55.03966522216797,
+        "wrist_roll": -3.3376128673553467,
+        "gripper": 5.26213264465332
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 1.5654640197753906,
+        "shoulder_lift": -81.8302230834961,
+        "elbow_flex": 81.86740112304688,
+        "wrist_flex": 55.03966522216797,
+        "wrist_roll": -3.3376128673553467,
+        "gripper": 5.26213264465332
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 1.5654640197753906,
+        "shoulder_lift": -81.8302230834961,
+        "elbow_flex": 81.86740112304688,
+        "wrist_flex": 55.03966522216797,
+        "wrist_roll": -3.3376128673553467,
+        "gripper": 5.26213264465332
+      },
+      "after_state_deg": {
+        "shoulder_pan": 2.065934065934066,
+        "shoulder_lift": -82.15384615384616,
+        "elbow_flex": 84.08791208791209,
+        "wrist_flex": 54.81318681318681,
+        "wrist_roll": -3.5604395604395602,
+        "gripper": 4.968944099378882
+      },
+      "delta_deg": {
+        "shoulder_pan": -0.43956043956043933,
+        "shoulder_lift": 3.692307692307679,
+        "elbow_flex": -0.9670329670329636,
+        "wrist_flex": 1.1428571428571388,
+        "wrist_roll": 0.0,
+        "gripper": 1.7253278122843336
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 17.196640001202468,
+      "predict_inference_latency_ms": 303.11952299962286,
+      "predict_request_latency_ms": 308.9803459988616,
+      "fresh_inference": true
+    },
+    {
+      "step": 8,
+      "before_state_deg": {
+        "shoulder_pan": 2.065934065934066,
+        "shoulder_lift": -82.15384615384616,
+        "elbow_flex": 84.08791208791209,
+        "wrist_flex": 54.81318681318681,
+        "wrist_roll": -3.5604395604395602,
+        "gripper": 4.968944099378882
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 2.4193153381347656,
+        "shoulder_lift": -81.64481353759766,
+        "elbow_flex": 80.29678344726562,
+        "wrist_flex": 55.10851287841797,
+        "wrist_roll": -3.615947723388672,
+        "gripper": 4.7456769943237305
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 2.4193153381347656,
+        "shoulder_lift": -81.64481353759766,
+        "elbow_flex": 80.29678344726562,
+        "wrist_flex": 55.10851287841797,
+        "wrist_roll": -3.615947723388672,
+        "gripper": 4.7456769943237305
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 2.4193153381347656,
+        "shoulder_lift": -81.64481353759766,
+        "elbow_flex": 80.29678344726562,
+        "wrist_flex": 55.10851287841797,
+        "wrist_roll": -3.615947723388672,
+        "gripper": 4.7456769943237305
+      },
+      "after_state_deg": {
+        "shoulder_pan": 2.065934065934066,
+        "shoulder_lift": -81.8021978021978,
+        "elbow_flex": 82.85714285714286,
+        "wrist_flex": 54.81318681318681,
+        "wrist_roll": -3.5604395604395602,
+        "gripper": 4.968944099378882
+      },
+      "delta_deg": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 0.3516483516483646,
+        "elbow_flex": -1.2307692307692264,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 55.70168600024772,
+      "predict_inference_latency_ms": 288.30464399652556,
+      "predict_request_latency_ms": 296.08655799893313,
+      "fresh_inference": true
+    },
+    {
+      "step": 9,
+      "before_state_deg": {
+        "shoulder_pan": 2.065934065934066,
+        "shoulder_lift": -81.8021978021978,
+        "elbow_flex": 82.85714285714286,
+        "wrist_flex": 54.81318681318681,
+        "wrist_roll": -3.5604395604395602,
+        "gripper": 4.968944099378882
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 1.2280311584472656,
+        "shoulder_lift": -78.54371643066406,
+        "elbow_flex": 79.88814544677734,
+        "wrist_flex": 54.65946578979492,
+        "wrist_roll": -3.4577572345733643,
+        "gripper": 5.473210334777832
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 1.2280311584472656,
+        "shoulder_lift": -78.54371643066406,
+        "elbow_flex": 79.88814544677734,
+        "wrist_flex": 54.65946578979492,
+        "wrist_roll": -3.4577572345733643,
+        "gripper": 5.473210334777832
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 1.2280311584472656,
+        "shoulder_lift": -78.54371643066406,
+        "elbow_flex": 79.88814544677734,
+        "wrist_flex": 54.65946578979492,
+        "wrist_roll": -3.4577572345733643,
+        "gripper": 5.473210334777832
+      },
+      "after_state_deg": {
+        "shoulder_pan": 1.7142857142857142,
+        "shoulder_lift": -78.72527472527473,
+        "elbow_flex": 82.32967032967034,
+        "wrist_flex": 54.81318681318681,
+        "wrist_roll": -3.5604395604395602,
+        "gripper": 5.244996549344375
+      },
+      "delta_deg": {
+        "shoulder_pan": -0.35164835164835195,
+        "shoulder_lift": 3.076923076923066,
+        "elbow_flex": -0.5274725274725256,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.2760524499654933
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 57.3174380006094,
+      "predict_inference_latency_ms": 327.5628940027673,
+      "predict_request_latency_ms": 330.0941839988809,
+      "fresh_inference": true
+    }
+  ],
+  "real_follower_write_count": 10,
+  "checkpoint": "/home/sunglee/Projects/physical-ai-dummy/outputs/pick_drop_v3_v4_combined69/smolvla_pick_drop_v3_v4_combined69_uniform_fresh/checkpoints/010000/pretrained_model",
+  "task": "Pick up the cube and drop it into the bin."
+}

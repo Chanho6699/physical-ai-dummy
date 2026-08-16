@@ -1,0 +1,14 @@
+{
+  "elbow_flex": {
+    "minimum_effective_step": 1.0,
+    "response_latency_median_s": 0.22143878799761296,
+    "deadband": true,
+    "sign_mapping_ok": true,
+    "tracking_quality": "MEASURED",
+    "steps": {
+      "0.5": 0.0,
+      "1.0": -0.0879120879120876,
+      "2.0": -0.0879120879120876
+    }
+  }
+}

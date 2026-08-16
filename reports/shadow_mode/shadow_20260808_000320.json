@@ -1,0 +1,254 @@
+{
+  "mode": "SHADOW",
+  "backend": "realistic_mujoco",
+  "real_robot_write_enabled": false,
+  "generated_at": 1786115002.6983628,
+  "task": "Pick up the cube and place it in the target area.",
+  "observation": {
+    "fixed_camera_valid": true,
+    "wrist_camera_valid": true,
+    "state_valid": true,
+    "schema_valid": true,
+    "invalid_reasons": []
+  },
+  "communication": {
+    "server_url": "http://100.75.147.72:8000",
+    "health_ok": true,
+    "request_latency_ms": 467.2779110042029,
+    "inference_latency_ms": 487.1771329999319,
+    "round_trip_latency_ms": 22.524236999743152,
+    "error_kind": null,
+    "error_message": null
+  },
+  "vla": {
+    "raw_action": {
+      "shoulder_pan": -6.33489990234375,
+      "shoulder_lift": -103.4332046508789,
+      "elbow_flex": 102.58067321777344,
+      "wrist_flex": 45.471534729003906,
+      "wrist_roll": -4.21274995803833,
+      "gripper": -2.029144287109375
+    },
+    "action_schema_valid": true,
+    "model_id": "./outputs/pilot/smolvla_cube_1000steps_ext10k/checkpoints/010000/pretrained_model",
+    "backend": "smolvla"
+  },
+  "adapter": {
+    "mapped_action": {
+      "shoulder_pan": -6.33489990234375,
+      "shoulder_lift": -103.4332046508789,
+      "elbow_flex": 102.58067321777344,
+      "wrist_flex": 45.471534729003906,
+      "wrist_roll": -4.21274995803833,
+      "gripper": -2.029144287109375
+    },
+    "warnings": []
+  },
+  "safety": {
+    "decision": "WOULD_CLAMP",
+    "reasons": [
+      "EXCESSIVE_STEP_CLAMPED: -103.43 -> -98.48 (임계값 5.16deg/step)",
+      "MECHANICAL_LIMIT_CLAMPED: 102.58 -> 97.19 (범위 [-97.19, 97.19])",
+      "MECHANICAL_LIMIT_CLAMPED: -2.03 -> 0.00 (범위 [0.00, 100.00])"
+    ],
+    "would_clamp": true,
+    "safe_action": {
+      "shoulder_pan": -6.33489990234375,
+      "shoulder_lift": -98.47530147485872,
+      "elbow_flex": 97.18681318681318,
+      "wrist_flex": 45.471534729003906,
+      "wrist_roll": -4.21274995803833,
+      "gripper": 0.0
+    },
+    "per_joint": {
+      "shoulder_pan": {
+        "joint": "shoulder_pan",
+        "raw_value": -6.33489990234375,
+        "safe_value": -6.33489990234375,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "shoulder_lift": {
+        "joint": "shoulder_lift",
+        "raw_value": -103.4332046508789,
+        "safe_value": -98.47530147485872,
+        "clamped": true,
+        "rejected": false,
+        "reasons": [
+          "EXCESSIVE_STEP_CLAMPED: -103.43 -> -98.48 (임계값 5.16deg/step)"
+        ]
+      },
+      "elbow_flex": {
+        "joint": "elbow_flex",
+        "raw_value": 102.58067321777344,
+        "safe_value": 97.18681318681318,
+        "clamped": true,
+        "rejected": false,
+        "reasons": [
+          "MECHANICAL_LIMIT_CLAMPED: 102.58 -> 97.19 (범위 [-97.19, 97.19])"
+        ]
+      },
+      "wrist_flex": {
+        "joint": "wrist_flex",
+        "raw_value": 45.471534729003906,
+        "safe_value": 45.471534729003906,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "wrist_roll": {
+        "joint": "wrist_roll",
+        "raw_value": -4.21274995803833,
+        "safe_value": -4.21274995803833,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "gripper": {
+        "joint": "gripper",
+        "raw_value": -2.029144287109375,
+        "safe_value": 0.0,
+        "clamped": true,
+        "rejected": false,
+        "reasons": [
+          "MECHANICAL_LIMIT_CLAMPED: -2.03 -> 0.00 (범위 [0.00, 100.00])"
+        ]
+      }
+    }
+  },
+  "mujoco": {
+    "initial_state": {
+      "shoulder_pan": -6.285714285714286,
+      "shoulder_lift": -93.31868131868131,
+      "elbow_flex": 97.62637362637362,
+      "wrist_flex": 42.065934065934066,
+      "wrist_roll": -4.087912087912088,
+      "gripper": 1.2422360248447204
+    },
+    "final_state": {
+      "shoulder_pan": -6.2857256164521065,
+      "shoulder_lift": -93.35228194238677,
+      "elbow_flex": 96.00399314990672,
+      "wrist_flex": 42.060928316401366,
+      "wrist_roll": -4.087702245304013,
+      "gripper": 1.2421074613121803
+    },
+    "realistic_layer_diagnostics": {
+      "shoulder_pan": {
+        "joint": "shoulder_pan",
+        "raw_action": -6.33489990234375,
+        "processed_action": -6.285714285714286,
+        "simulated_actual_state": -6.285714285714286,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "shoulder_lift": {
+        "joint": "shoulder_lift",
+        "raw_action": -98.47530147485872,
+        "processed_action": -93.31868131868131,
+        "simulated_actual_state": -93.31868131868131,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "elbow_flex": {
+        "joint": "elbow_flex",
+        "raw_action": 97.18681318681318,
+        "processed_action": 97.62637362637362,
+        "simulated_actual_state": 97.62637362637362,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": true,
+        "tracking_error": null
+      },
+      "wrist_flex": {
+        "joint": "wrist_flex",
+        "raw_action": 45.471534729003906,
+        "processed_action": 42.065934065934066,
+        "simulated_actual_state": 42.065934065934066,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "wrist_roll": {
+        "joint": "wrist_roll",
+        "raw_action": -4.21274995803833,
+        "processed_action": -4.087912087912088,
+        "simulated_actual_state": -4.087912087912088,
+        "command_delta": 0.0,
+        "deadband_applied": true,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "gripper": {
+        "joint": "gripper",
+        "raw_action": 0.0,
+        "processed_action": 1.2422360248447204,
+        "simulated_actual_state": 1.2422360248447204,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      }
+    },
+    "processed_command": {
+      "shoulder_pan": -6.285714285714286,
+      "shoulder_lift": -93.31868131868131,
+      "elbow_flex": 97.62637362637362,
+      "wrist_flex": 42.065934065934066,
+      "wrist_roll": -4.087912087912088,
+      "gripper": 1.2422360248447204
+    },
+    "mechanical_violations": [],
+    "tracking_error_deg": {
+      "shoulder_pan": 1.1330737820891557e-05,
+      "shoulder_lift": 0.03360062370545336,
+      "elbow_flex": 1.6223804764669012,
+      "wrist_flex": 0.00500574953269961,
+      "wrist_roll": -0.00020984260807477284,
+      "gripper": 0.00012856353254009356
+    },
+    "max_abs_qvel": 1.102918791850018,
+    "validation_result": {
+      "passed": true,
+      "warnings": [],
+      "failures": [],
+      "checks": {
+        "final_state_finite": true,
+        "no_mechanical_violation": true,
+        "no_rate_anomaly": true,
+        "no_severe_oscillation": true,
+        "realistic_layer_complete": true,
+        "tracking_error_within_bounds": true,
+        "direction_consistent": true
+      }
+    }
+  },
+  "hardware": {
+    "real_follower_write_count": 0
+  },
+  "result": "SHADOW_PASS_WITH_CLAMP",
+  "result_reasons": [
+    "EXCESSIVE_STEP_CLAMPED: -103.43 -> -98.48 (임계값 5.16deg/step)",
+    "MECHANICAL_LIMIT_CLAMPED: 102.58 -> 97.19 (범위 [-97.19, 97.19])",
+    "MECHANICAL_LIMIT_CLAMPED: -2.03 -> 0.00 (범위 [0.00, 100.00])"
+  ],
+  "session_id": "20260808_000320"
+}

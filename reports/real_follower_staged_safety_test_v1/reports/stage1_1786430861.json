@@ -1,0 +1,50 @@
+{
+  "stage": 1,
+  "max_steps": 1,
+  "verdict": "ABNORMAL_STOPPED",
+  "stop_reason": "step 0: safety decision=WOULD_CLAMP (ACCEPT 아님) - 실제 write 안 함, stage 즉시 중단",
+  "steps": [
+    {
+      "step": 0,
+      "before_state_deg": {
+        "shoulder_pan": -2.857142857142857,
+        "shoulder_lift": -98.24175824175825,
+        "elbow_flex": 97.18681318681318,
+        "wrist_flex": 52.61538461538461,
+        "wrist_roll": -3.7362637362637363,
+        "gripper": 0.6901311249137336
+      },
+      "raw_action_deg": {
+        "shoulder_pan": -3.9111785888671875,
+        "shoulder_lift": -97.53506469726562,
+        "elbow_flex": 92.14125061035156,
+        "wrist_flex": 40.235965728759766,
+        "wrist_roll": -3.7342710494995117,
+        "gripper": 0.29064178466796875
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "WOULD_CLAMP",
+      "safety_reasons": [
+        "EXCESSIVE_STEP_CLAMPED: 40.24 -> 48.61 (임계값 4.01deg/step)"
+      ],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": -3.9111785888671875,
+        "shoulder_lift": -97.53506469726562,
+        "elbow_flex": 92.14125061035156,
+        "wrist_flex": 48.605384615384615,
+        "wrist_roll": -3.7342710494995117,
+        "gripper": 0.29064178466796875
+      },
+      "written": false,
+      "sent_action_deg": null,
+      "after_state_deg": null,
+      "delta_deg": null,
+      "write_error": null,
+      "step_error": null
+    }
+  ],
+  "real_follower_write_count": 0,
+  "checkpoint": "/home/sunglee/Projects/physical-ai-dummy/outputs/pick_drop_v3_v4_combined69/smolvla_pick_drop_v3_v4_combined69_uniform_fresh/checkpoints/010000/pretrained_model",
+  "task": "Pick up the cube and drop it into the bin."
+}

@@ -1,0 +1,2939 @@
+{
+  "mode": "ARMED_SINGLE_JOINT",
+  "created_at": "2026-08-12T18:52:31.677315",
+  "joints": {
+    "elbow_flex": {
+      "stages": [
+        {
+          "requested_delta": 0.5,
+          "plan": {
+            "joint": "elbow_flex",
+            "requested_delta": 0.5,
+            "start": 96.57142857142857,
+            "target": 97.07142857142857,
+            "mechanical_range": [
+              -97.18681318681318,
+              97.18681318681318
+            ],
+            "allowed": false,
+            "reason": "mechanical boundary/margin"
+          },
+          "write_executed": false
+        },
+        {
+          "requested_delta": -0.5,
+          "plan": {
+            "joint": "elbow_flex",
+            "requested_delta": -0.5,
+            "start": 96.57142857142857,
+            "target": 96.07142857142857,
+            "mechanical_range": [
+              -97.18681318681318,
+              97.18681318681318
+            ],
+            "allowed": true,
+            "reason": null
+          },
+          "write_executed": true,
+          "write": {
+            "executed": true,
+            "requested_action_deg": {
+              "shoulder_pan": -3.5604395604395602,
+              "shoulder_lift": -107.82417582417582,
+              "elbow_flex": 96.07142857142857,
+              "wrist_flex": 58.417582417582416,
+              "wrist_roll": -1.7142857142857142,
+              "gripper": 0.8971704623878536
+            },
+            "sent_action_deg": {
+              "shoulder_pan": -3.5604395604395602,
+              "shoulder_lift": -107.82417582417582,
+              "elbow_flex": 96.07142857142857,
+              "wrist_flex": 58.417582417582416,
+              "wrist_roll": -1.7142857142857142,
+              "gripper": 0.8971704623878536
+            },
+            "write_count_before": 0,
+            "write_count_after": 1,
+            "error": null
+          },
+          "metrics": {
+            "starting_encoder": 96.57142857142857,
+            "commanded_target": 96.07142857142857,
+            "final_written_target": 96.07142857142857,
+            "first_response_latency_s": null,
+            "net_movement": 0.0,
+            "tracking_error": -0.5,
+            "overshoot": 0.0,
+            "steady_state_error": -0.5,
+            "command_encoder_direction_match": false,
+            "unexpected_opposite_movement": false,
+            "no_response_deadband": true,
+            "encoder_time_series": [
+              {
+                "elapsed_s": 2.6520028768572956e-06,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 0,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 1,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.029875267002353212,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.06553742899995996,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.09588401000291924,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.1311760660028085,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.164485887002229,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.19901435900101205,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.23286553800062393,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.26620973800163483,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.3008419620018685,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.335081943001569,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.37097965800057864,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.4069821250013774,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.44247215799987316,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.476157005999994,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.5088925910022226,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.5445087500011141,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.5785711850003281,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.612018148000061,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.6450670450030884,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.6784947740015923,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.7132814350006811,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.7474834140011808,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.7809092670031532,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.8140983100020094,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.847078031001729,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 32,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.8783069830024033,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.9108630580012687,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.9449011880024045,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.9757352470005571,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.0075687919998018,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.040467635000823,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.0734844460021122,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.107294888002798,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.1415421380006592,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.1760566340017249,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.2085487130025285,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.2410863350014552,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.2752823670016369,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.3097524200020416,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.3446205120017112,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.3810795700010203,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.4171078910003416,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.4525416370015591,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.4887663629997405,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 36,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "requested_delta": 1.0,
+          "plan": {
+            "joint": "elbow_flex",
+            "requested_delta": 1.0,
+            "start": 96.57142857142857,
+            "target": 97.57142857142857,
+            "mechanical_range": [
+              -97.18681318681318,
+              97.18681318681318
+            ],
+            "allowed": false,
+            "reason": "mechanical boundary/margin"
+          },
+          "write_executed": false
+        },
+        {
+          "requested_delta": -1.0,
+          "plan": {
+            "joint": "elbow_flex",
+            "requested_delta": -1.0,
+            "start": 96.57142857142857,
+            "target": 95.57142857142857,
+            "mechanical_range": [
+              -97.18681318681318,
+              97.18681318681318
+            ],
+            "allowed": true,
+            "reason": null
+          },
+          "write_executed": true,
+          "write": {
+            "executed": true,
+            "requested_action_deg": {
+              "shoulder_pan": -3.5604395604395602,
+              "shoulder_lift": -107.82417582417582,
+              "elbow_flex": 95.57142857142857,
+              "wrist_flex": 58.417582417582416,
+              "wrist_roll": -1.7142857142857142,
+              "gripper": 0.8971704623878536
+            },
+            "sent_action_deg": {
+              "shoulder_pan": -3.5604395604395602,
+              "shoulder_lift": -107.82417582417582,
+              "elbow_flex": 95.57142857142857,
+              "wrist_flex": 58.417582417582416,
+              "wrist_roll": -1.7142857142857142,
+              "gripper": 0.8971704623878536
+            },
+            "write_count_before": 1,
+            "write_count_after": 2,
+            "error": null
+          },
+          "metrics": {
+            "starting_encoder": 96.57142857142857,
+            "commanded_target": 95.57142857142857,
+            "final_written_target": 95.57142857142857,
+            "first_response_latency_s": 0.22143878799761296,
+            "net_movement": -0.0879120879120876,
+            "tracking_error": -0.9120879120879124,
+            "overshoot": 0.0,
+            "steady_state_error": -0.9120879120879124,
+            "command_encoder_direction_match": true,
+            "unexpected_opposite_movement": false,
+            "no_response_deadband": false,
+            "encoder_time_series": [
+              {
+                "elapsed_s": 2.901997504523024e-06,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 40,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 1,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.03519388699714909,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 64,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.07262482099758927,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 60,
+                  "Present_Current": 0,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.10790599499887321,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 60,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.144826486997772,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 60,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.18238508200010983,
+                "position": 96.57142857142857,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.57142857142857,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 60,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.22143878799761296,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.2586262289987644,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.29463376899730065,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.33091967799919075,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.36776332299996284,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.4042465450002055,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.44267471299826866,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.47927824999715085,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.5156090959972062,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.55025807399943,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.5858724819991039,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.6204950270002882,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.6595947909991082,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.6972885169998335,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.7341622189996997,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.7687130209997122,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.8051661549980054,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.8419830729981186,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.8788102449980215,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.915074578999338,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.9509408939993591,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.9850029059998633,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.0213120609987527,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.0599687089998042,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.0956541229970753,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.1319654479993915,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.1663356600001862,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.2016116060003696,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.2381725079976604,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.2739907260001928,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.3108827349969943,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.3479927979969943,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.3821512579997943,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.4184292899990396,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.4553057509983773,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 1,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.4923396140002296,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 56,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "requested_delta": 2.0,
+          "plan": {
+            "joint": "elbow_flex",
+            "requested_delta": 2.0,
+            "start": 96.48351648351648,
+            "target": 98.48351648351648,
+            "mechanical_range": [
+              -97.18681318681318,
+              97.18681318681318
+            ],
+            "allowed": false,
+            "reason": "mechanical boundary/margin"
+          },
+          "write_executed": false
+        },
+        {
+          "requested_delta": -2.0,
+          "plan": {
+            "joint": "elbow_flex",
+            "requested_delta": -2.0,
+            "start": 96.48351648351648,
+            "target": 94.48351648351648,
+            "mechanical_range": [
+              -97.18681318681318,
+              97.18681318681318
+            ],
+            "allowed": true,
+            "reason": null
+          },
+          "write_executed": true,
+          "write": {
+            "executed": true,
+            "requested_action_deg": {
+              "shoulder_pan": -3.5604395604395602,
+              "shoulder_lift": -107.82417582417582,
+              "elbow_flex": 94.48351648351648,
+              "wrist_flex": 58.417582417582416,
+              "wrist_roll": -1.7142857142857142,
+              "gripper": 0.8971704623878536
+            },
+            "sent_action_deg": {
+              "shoulder_pan": -3.5604395604395602,
+              "shoulder_lift": -107.82417582417582,
+              "elbow_flex": 94.48351648351648,
+              "wrist_flex": 58.417582417582416,
+              "wrist_roll": -1.7142857142857142,
+              "gripper": 0.8971704623878536
+            },
+            "write_count_before": 2,
+            "write_count_after": 3,
+            "error": null
+          },
+          "metrics": {
+            "starting_encoder": 96.48351648351648,
+            "commanded_target": 94.48351648351648,
+            "final_written_target": 94.48351648351648,
+            "first_response_latency_s": 0.07007823299863958,
+            "net_movement": -0.0879120879120876,
+            "tracking_error": -1.9120879120879124,
+            "overshoot": 0.0,
+            "steady_state_error": -1.9120879120879124,
+            "command_encoder_direction_match": true,
+            "unexpected_opposite_movement": false,
+            "no_response_deadband": false,
+            "encoder_time_series": [
+              {
+                "elapsed_s": 2.4229993869084865e-06,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 60,
+                  "Present_Current": 2,
+                  "Present_Velocity": 0,
+                  "Moving": 1,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.03450253900155076,
+                "position": 96.48351648351648,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.48351648351648,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 140,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.07007823299863958,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 96,
+                  "Present_Current": 3,
+                  "Present_Velocity": -50,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.10536226100157364,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.1431844370017643,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.1796759729986661,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 5,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.21602513399921008,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.25316700500115985,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.29015944200000376,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.3278075890011678,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.3640974539994204,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.40044616899831453,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.436551631999464,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 3,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.47614627800066955,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 3,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.5145616759982659,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.5520345930017356,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 5,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.5866683280000871,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 32,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.6263225760012574,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.6637780669989297,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.6996917379983643,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.7375900779989024,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.7733085469990328,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.8103265639983874,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.8464226729993243,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.8812847170011082,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.9165554079991125,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.949827397998888,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 0.9857257129988284,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.0208610699992278,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.0577859459990577,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.0925272640015464,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.1263087929983158,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.1609112529986305,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.1948417630010226,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 3,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.2289289840009587,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.2650993809984357,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 3,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 33,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.2959333629987668,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.3298058559994388,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.3632772489982017,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.4021840870009328,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.4374508350010728,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 123,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              },
+              {
+                "elapsed_s": 1.4731863749984768,
+                "position": 96.3956043956044,
+                "all_joint_state": {
+                  "shoulder_pan": -3.5604395604395602,
+                  "shoulder_lift": -107.82417582417582,
+                  "elbow_flex": 96.3956043956044,
+                  "wrist_flex": 58.417582417582416,
+                  "wrist_roll": -1.7142857142857142,
+                  "gripper": 0.8971704623878536
+                },
+                "telemetry_raw": {
+                  "Present_Load": 100,
+                  "Present_Current": 4,
+                  "Present_Velocity": 0,
+                  "Moving": 0,
+                  "Present_Voltage": 122,
+                  "Present_Temperature": 31,
+                  "Status": 0
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "summary": {
+        "minimum_effective_step": 1.0,
+        "response_latency_median_s": 0.22143878799761296,
+        "deadband": true,
+        "sign_mapping_ok": true,
+        "tracking_quality": "MEASURED",
+        "steps": {
+          "0.5": 0.0,
+          "1.0": -0.0879120879120876,
+          "2.0": -0.0879120879120876
+        }
+      }
+    }
+  },
+  "telemetry_note": "Feetech raw registers; Present_Current has no trusted physical-unit conversion."
+}

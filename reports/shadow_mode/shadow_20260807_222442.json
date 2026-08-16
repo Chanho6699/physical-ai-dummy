@@ -1,0 +1,130 @@
+{
+  "mode": "SHADOW",
+  "backend": "realistic_mujoco",
+  "real_robot_write_enabled": false,
+  "generated_at": 1786109088.4674444,
+  "task": "pick up the cube",
+  "observation": {
+    "fixed_camera_valid": true,
+    "wrist_camera_valid": true,
+    "state_valid": true,
+    "schema_valid": true,
+    "invalid_reasons": []
+  },
+  "communication": {
+    "server_url": "http://100.75.147.72:8000",
+    "health_ok": true,
+    "request_latency_ms": 1746.3410130003467,
+    "inference_latency_ms": 1896.4247730036732,
+    "round_trip_latency_ms": 2826.41940999747,
+    "error_kind": null,
+    "error_message": null
+  },
+  "vla": {
+    "raw_action": {
+      "shoulder_pan": -1.611663818359375,
+      "shoulder_lift": -48.78624725341797,
+      "elbow_flex": 66.73699951171875,
+      "wrist_flex": 51.562049865722656,
+      "wrist_roll": -4.359741687774658,
+      "gripper": 7.339988708496094
+    },
+    "action_schema_valid": true,
+    "model_id": "./outputs/pilot/smolvla_cube_1000steps/checkpoints/001000/pretrained_model",
+    "backend": "smolvla"
+  },
+  "adapter": {
+    "mapped_action": {
+      "shoulder_pan": -1.611663818359375,
+      "shoulder_lift": -48.78624725341797,
+      "elbow_flex": 66.73699951171875,
+      "wrist_flex": 51.562049865722656,
+      "wrist_roll": -4.359741687774658,
+      "gripper": 7.339988708496094
+    },
+    "warnings": []
+  },
+  "safety": {
+    "decision": "REJECT",
+    "reasons": [
+      "EXCESSIVE_STEP_GROSS: |delta|=48.93deg (임계값 5.16deg의 5.0배 초과)",
+      "EXCESSIVE_STEP_GROSS: |delta|=30.54deg (임계값 5.73deg의 5.0배 초과)"
+    ],
+    "would_clamp": false,
+    "safe_action": null,
+    "per_joint": {
+      "shoulder_pan": {
+        "joint": "shoulder_pan",
+        "raw_value": -1.611663818359375,
+        "safe_value": -1.611663818359375,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "shoulder_lift": {
+        "joint": "shoulder_lift",
+        "raw_value": -48.78624725341797,
+        "safe_value": null,
+        "clamped": false,
+        "rejected": true,
+        "reasons": [
+          "EXCESSIVE_STEP_GROSS: |delta|=48.93deg (임계값 5.16deg의 5.0배 초과)"
+        ]
+      },
+      "elbow_flex": {
+        "joint": "elbow_flex",
+        "raw_value": 66.73699951171875,
+        "safe_value": null,
+        "clamped": false,
+        "rejected": true,
+        "reasons": [
+          "EXCESSIVE_STEP_GROSS: |delta|=30.54deg (임계값 5.73deg의 5.0배 초과)"
+        ]
+      },
+      "wrist_flex": {
+        "joint": "wrist_flex",
+        "raw_value": 51.562049865722656,
+        "safe_value": 51.562049865722656,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "wrist_roll": {
+        "joint": "wrist_roll",
+        "raw_value": -4.359741687774658,
+        "safe_value": -4.359741687774658,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "gripper": {
+        "joint": "gripper",
+        "raw_value": 7.339988708496094,
+        "safe_value": 7.339988708496094,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      }
+    }
+  },
+  "mujoco": {
+    "initial_state": null,
+    "final_state": null,
+    "realistic_layer_diagnostics": null,
+    "validation_result": {
+      "passed": null,
+      "warnings": [],
+      "failures": [],
+      "checks": {}
+    }
+  },
+  "hardware": {
+    "real_follower_write_count": 0
+  },
+  "result": "SHADOW_FAIL",
+  "result_reasons": [
+    "Safety REJECT: EXCESSIVE_STEP_GROSS: |delta|=48.93deg (임계값 5.16deg의 5.0배 초과)",
+    "Safety REJECT: EXCESSIVE_STEP_GROSS: |delta|=30.54deg (임계값 5.73deg의 5.0배 초과)"
+  ],
+  "session_id": "20260807_222442"
+}

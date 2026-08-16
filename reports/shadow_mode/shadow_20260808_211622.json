@@ -1,0 +1,271 @@
+{
+  "mode": "SHADOW",
+  "backend": "realistic_mujoco",
+  "real_robot_write_enabled": false,
+  "generated_at": 1786191384.8122985,
+  "task": "Pick up the cube and place it in the target area.",
+  "checkpoint": null,
+  "evaluation_mode": "fixed-scene-repeat",
+  "scene_metadata": {
+    "label": "V2_F02",
+    "note": "V2 clean 7.5k fixed-scene repeat"
+  },
+  "observation": {
+    "fixed_camera_valid": true,
+    "wrist_camera_valid": true,
+    "state_valid": true,
+    "schema_valid": true,
+    "invalid_reasons": [],
+    "state": {
+      "shoulder_pan": -3.912087912087912,
+      "shoulder_lift": -94.28571428571429,
+      "elbow_flex": 97.36263736263736,
+      "wrist_flex": 49.89010989010989,
+      "wrist_roll": -6.373626373626373,
+      "gripper": 1.173222912353347
+    },
+    "camera_frame_paths": {
+      "workspace_path": "/home/sunglee/Projects/physical-ai-dummy/reports/shadow_mode/images/20260808_211622/workspace.jpg",
+      "wrist_path": "/home/sunglee/Projects/physical-ai-dummy/reports/shadow_mode/images/20260808_211622/wrist.jpg"
+    }
+  },
+  "communication": {
+    "server_url": "http://100.75.147.72:8000",
+    "health_ok": true,
+    "request_latency_ms": 753.939239999454,
+    "inference_latency_ms": 739.0149040002143,
+    "round_trip_latency_ms": 31.791900997632183,
+    "error_kind": null,
+    "error_message": null
+  },
+  "vla": {
+    "raw_action": {
+      "shoulder_pan": -1.0781822204589844,
+      "shoulder_lift": -93.44695281982422,
+      "elbow_flex": 95.30950927734375,
+      "wrist_flex": 51.0399284362793,
+      "wrist_roll": -5.75534725189209,
+      "gripper": 2.894378662109375
+    },
+    "action_schema_valid": true,
+    "model_id": "outputs/grid35_v2/smolvla_grid35_v2_clean_fresh/checkpoints/007500/pretrained_model",
+    "backend": "smolvla"
+  },
+  "adapter": {
+    "mapped_action": {
+      "shoulder_pan": -1.0781822204589844,
+      "shoulder_lift": -93.44695281982422,
+      "elbow_flex": 95.30950927734375,
+      "wrist_flex": 51.0399284362793,
+      "wrist_roll": -5.75534725189209,
+      "gripper": 2.894378662109375
+    },
+    "warnings": []
+  },
+  "safety": {
+    "decision": "ACCEPT",
+    "reasons": [],
+    "would_clamp": false,
+    "safe_action": {
+      "shoulder_pan": -1.0781822204589844,
+      "shoulder_lift": -93.44695281982422,
+      "elbow_flex": 95.30950927734375,
+      "wrist_flex": 51.0399284362793,
+      "wrist_roll": -5.75534725189209,
+      "gripper": 2.894378662109375
+    },
+    "config_source": {
+      "joint_range_source": {
+        "shoulder_pan": "calibration_file",
+        "shoulder_lift": "calibration_file",
+        "elbow_flex": "calibration_file",
+        "wrist_flex": "calibration_file",
+        "wrist_roll": "calibration_file",
+        "gripper": "gripper_percent_convention"
+      },
+      "uses_calibration_fallback": false,
+      "calibration_file_path": "/home/sunglee/.cache/huggingface/lerobot/calibration/robots/so_follower/chanho_follower.json",
+      "excessive_step_config_path": "/home/sunglee/Projects/physical-ai-dummy/configs/safety_gate.yaml"
+    },
+    "per_joint": {
+      "shoulder_pan": {
+        "joint": "shoulder_pan",
+        "raw_value": -1.0781822204589844,
+        "safe_value": -1.0781822204589844,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "shoulder_lift": {
+        "joint": "shoulder_lift",
+        "raw_value": -93.44695281982422,
+        "safe_value": -93.44695281982422,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "elbow_flex": {
+        "joint": "elbow_flex",
+        "raw_value": 95.30950927734375,
+        "safe_value": 95.30950927734375,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "wrist_flex": {
+        "joint": "wrist_flex",
+        "raw_value": 51.0399284362793,
+        "safe_value": 51.0399284362793,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "wrist_roll": {
+        "joint": "wrist_roll",
+        "raw_value": -5.75534725189209,
+        "safe_value": -5.75534725189209,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "gripper": {
+        "joint": "gripper",
+        "raw_value": 2.894378662109375,
+        "safe_value": 2.894378662109375,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      }
+    }
+  },
+  "mujoco": {
+    "initial_state": {
+      "shoulder_pan": -3.912087912087912,
+      "shoulder_lift": -94.28571428571429,
+      "elbow_flex": 97.36263736263736,
+      "wrist_flex": 49.89010989010989,
+      "wrist_roll": -6.373626373626373,
+      "gripper": 1.173222912353347
+    },
+    "final_state": {
+      "shoulder_pan": -3.9142923912486745,
+      "shoulder_lift": -94.3369499027657,
+      "elbow_flex": 95.47823290096966,
+      "wrist_flex": 49.73997111068328,
+      "wrist_roll": -6.371674125333348,
+      "gripper": 1.1729822372149987
+    },
+    "realistic_layer_diagnostics": {
+      "shoulder_pan": {
+        "joint": "shoulder_pan",
+        "raw_action": -1.0781822204589844,
+        "processed_action": -3.912087912087912,
+        "simulated_actual_state": -3.912087912087912,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "shoulder_lift": {
+        "joint": "shoulder_lift",
+        "raw_action": -93.44695281982422,
+        "processed_action": -94.28571428571429,
+        "simulated_actual_state": -94.28571428571429,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "elbow_flex": {
+        "joint": "elbow_flex",
+        "raw_action": 95.30950927734375,
+        "processed_action": 97.36263736263736,
+        "simulated_actual_state": 97.36263736263736,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": true,
+        "tracking_error": null
+      },
+      "wrist_flex": {
+        "joint": "wrist_flex",
+        "raw_action": 51.0399284362793,
+        "processed_action": 49.89010989010989,
+        "simulated_actual_state": 49.89010989010989,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "wrist_roll": {
+        "joint": "wrist_roll",
+        "raw_action": -5.75534725189209,
+        "processed_action": -6.373626373626373,
+        "simulated_actual_state": -6.373626373626373,
+        "command_delta": 0.0,
+        "deadband_applied": true,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "gripper": {
+        "joint": "gripper",
+        "raw_action": 2.894378662109375,
+        "processed_action": 1.173222912353347,
+        "simulated_actual_state": 1.173222912353347,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      }
+    },
+    "processed_command": {
+      "shoulder_pan": -3.912087912087912,
+      "shoulder_lift": -94.28571428571429,
+      "elbow_flex": 97.36263736263736,
+      "wrist_flex": 49.89010989010989,
+      "wrist_roll": -6.373626373626373,
+      "gripper": 1.173222912353347
+    },
+    "mechanical_violations": [],
+    "tracking_error_deg": {
+      "shoulder_pan": 0.002204479160762496,
+      "shoulder_lift": 0.05123561705140389,
+      "elbow_flex": 1.8844044616676996,
+      "wrist_flex": 0.15013877942661225,
+      "wrist_roll": -0.001952248293025427,
+      "gripper": 0.0002406751383483563
+    },
+    "max_abs_qvel": 1.8097504509119233,
+    "validation_result": {
+      "passed": true,
+      "warnings": [],
+      "failures": [],
+      "checks": {
+        "final_state_finite": true,
+        "no_mechanical_violation": true,
+        "no_rate_anomaly": true,
+        "no_severe_oscillation": true,
+        "realistic_layer_complete": true,
+        "tracking_error_within_bounds": true,
+        "direction_consistent": true
+      }
+    }
+  },
+  "hardware": {
+    "real_follower_write_count": 0
+  },
+  "result": "SHADOW_PASS",
+  "result_reasons": [],
+  "session_id": "20260808_211622"
+}

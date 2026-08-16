@@ -1,0 +1,203 @@
+{
+  "stage": 2,
+  "max_steps": 3,
+  "verdict": "PASS",
+  "stop_reason": null,
+  "steps": [
+    {
+      "step": 0,
+      "before_state_deg": {
+        "shoulder_pan": 2.241758241758242,
+        "shoulder_lift": -94.63736263736264,
+        "elbow_flex": 97.53846153846153,
+        "wrist_flex": 53.40659340659341,
+        "wrist_roll": -3.912087912087912,
+        "gripper": 1.5873015873015872
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 1.5008258819580078,
+        "shoulder_lift": -94.71471405029297,
+        "elbow_flex": 92.34453582763672,
+        "wrist_flex": 52.82088088989258,
+        "wrist_roll": -3.4185638427734375,
+        "gripper": 2.0001869201660156
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 1.5008258819580078,
+        "shoulder_lift": -94.71471405029297,
+        "elbow_flex": 92.34453582763672,
+        "wrist_flex": 52.82088088989258,
+        "wrist_roll": -3.4185638427734375,
+        "gripper": 2.0001869201660156
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 1.5008258819580078,
+        "shoulder_lift": -94.71471405029297,
+        "elbow_flex": 92.34453582763672,
+        "wrist_flex": 52.82088088989258,
+        "wrist_roll": -3.4185638427734375,
+        "gripper": 2.0001869201660156
+      },
+      "after_state_deg": {
+        "shoulder_pan": 1.978021978021978,
+        "shoulder_lift": -94.63736263736264,
+        "elbow_flex": 94.81318681318682,
+        "wrist_flex": 53.40659340659341,
+        "wrist_roll": -3.912087912087912,
+        "gripper": 1.5873015873015872
+      },
+      "delta_deg": {
+        "shoulder_pan": -0.2637362637362637,
+        "shoulder_lift": 0.0,
+        "elbow_flex": -2.7252747252747156,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 14.917724998667836,
+      "predict_inference_latency_ms": 467.93693299696315,
+      "predict_request_latency_ms": 466.1105100021814,
+      "fresh_inference": true
+    },
+    {
+      "step": 1,
+      "before_state_deg": {
+        "shoulder_pan": 1.978021978021978,
+        "shoulder_lift": -94.63736263736264,
+        "elbow_flex": 94.81318681318682,
+        "wrist_flex": 53.40659340659341,
+        "wrist_roll": -3.912087912087912,
+        "gripper": 1.5873015873015872
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 0.40759849548339844,
+        "shoulder_lift": -90.83235168457031,
+        "elbow_flex": 87.38031768798828,
+        "wrist_flex": 53.990333557128906,
+        "wrist_roll": -3.1717770099639893,
+        "gripper": 2.342041015625
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 0.40759849548339844,
+        "shoulder_lift": -90.83235168457031,
+        "elbow_flex": 87.38031768798828,
+        "wrist_flex": 53.990333557128906,
+        "wrist_roll": -3.1717770099639893,
+        "gripper": 2.342041015625
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 0.40759849548339844,
+        "shoulder_lift": -90.83235168457031,
+        "elbow_flex": 87.38031768798828,
+        "wrist_flex": 53.990333557128906,
+        "wrist_roll": -3.1717770099639893,
+        "gripper": 2.342041015625
+      },
+      "after_state_deg": {
+        "shoulder_pan": 1.1868131868131868,
+        "shoulder_lift": -91.12087912087912,
+        "elbow_flex": 90.06593406593407,
+        "wrist_flex": 53.75824175824176,
+        "wrist_roll": -3.6483516483516483,
+        "gripper": 1.932367149758454
+      },
+      "delta_deg": {
+        "shoulder_pan": -0.7912087912087913,
+        "shoulder_lift": 3.516483516483518,
+        "elbow_flex": -4.747252747252745,
+        "wrist_flex": 0.3516483516483504,
+        "wrist_roll": 0.2637362637362637,
+        "gripper": 0.3450655624568668
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 15.23050399919157,
+      "predict_inference_latency_ms": 285.57801101123914,
+      "predict_request_latency_ms": 294.24326899970765,
+      "fresh_inference": true
+    },
+    {
+      "step": 2,
+      "before_state_deg": {
+        "shoulder_pan": 1.1868131868131868,
+        "shoulder_lift": -91.03296703296704,
+        "elbow_flex": 90.06593406593407,
+        "wrist_flex": 53.75824175824176,
+        "wrist_roll": -3.6483516483516483,
+        "gripper": 1.932367149758454
+      },
+      "raw_action_deg": {
+        "shoulder_pan": 2.059162139892578,
+        "shoulder_lift": -89.2505874633789,
+        "elbow_flex": 86.07881164550781,
+        "wrist_flex": 53.61424255371094,
+        "wrist_roll": -3.610821485519409,
+        "gripper": 2.4831314086914062
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": 2.059162139892578,
+        "shoulder_lift": -89.2505874633789,
+        "elbow_flex": 86.07881164550781,
+        "wrist_flex": 53.61424255371094,
+        "wrist_roll": -3.610821485519409,
+        "gripper": 2.4831314086914062
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": 2.059162139892578,
+        "shoulder_lift": -89.2505874633789,
+        "elbow_flex": 86.07881164550781,
+        "wrist_flex": 53.61424255371094,
+        "wrist_roll": -3.610821485519409,
+        "gripper": 2.4831314086914062
+      },
+      "after_state_deg": {
+        "shoulder_pan": 1.5384615384615385,
+        "shoulder_lift": -89.71428571428571,
+        "elbow_flex": 88.65934065934066,
+        "wrist_flex": 53.75824175824176,
+        "wrist_roll": -3.6483516483516483,
+        "gripper": 2.139406487232574
+      },
+      "delta_deg": {
+        "shoulder_pan": 0.35164835164835173,
+        "shoulder_lift": 1.3186813186813282,
+        "elbow_flex": -1.4065934065934158,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.20703933747411996
+      },
+      "write_error": null,
+      "step_error": null,
+      "session_reset_ok": true,
+      "session_reset_error": null,
+      "session_reset_latency_ms": 58.505154000158655,
+      "predict_inference_latency_ms": 290.4274059983436,
+      "predict_request_latency_ms": 297.26179899807903,
+      "fresh_inference": true
+    }
+  ],
+  "real_follower_write_count": 3,
+  "checkpoint": "/home/sunglee/Projects/physical-ai-dummy/outputs/pick_drop_v3_v4_combined69/smolvla_pick_drop_v3_v4_combined69_uniform_fresh/checkpoints/010000/pretrained_model",
+  "task": "Pick up the cube and drop it into the bin."
+}

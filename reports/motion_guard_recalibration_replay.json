@@ -1,0 +1,136 @@
+{
+  "reports\\real_pick_drop_realtime_v1\\tick_diagnostics_1786523579.jsonl": {
+    "old_2deg": {
+      "ticks": 1811,
+      "guarded_ticks": 1811,
+      "hard_blocks": 0,
+      "first_error": null,
+      "guarded_lift_elbow_ratio": 8.583104322261452,
+      "mean_multijoint_cosine": 0.1434104291669298,
+      "max_virtual_actual_lead": {
+        "shoulder_pan": 0.2710280546687658,
+        "shoulder_lift": 2.0,
+        "elbow_flex": 2.0161580184189205,
+        "wrist_flex": 1.06169736931016,
+        "wrist_roll": 0.4837134891022538,
+        "gripper": 0.2969710574345995
+      },
+      "dynamic_violations": 0
+    },
+    "new_data_driven": {
+      "ticks": 1811,
+      "guarded_ticks": 1811,
+      "hard_blocks": 0,
+      "first_error": null,
+      "guarded_lift_elbow_ratio": 2.0033479702003976,
+      "mean_multijoint_cosine": 0.5999865306989256,
+      "max_virtual_actual_lead": {
+        "shoulder_pan": 0.3010932208169317,
+        "shoulder_lift": 7.623721953523429,
+        "elbow_flex": 9.126013088035563,
+        "wrist_flex": 0.4306961955488191,
+        "wrist_roll": 0.5798258059593376,
+        "gripper": 0.24234365486208054
+      },
+      "dynamic_violations": 0
+    }
+  },
+  "reports\\real_pick_drop_realtime_v1\\tick_diagnostics_1786523653.jsonl": {
+    "old_2deg": {
+      "ticks": 441,
+      "guarded_ticks": 441,
+      "hard_blocks": 0,
+      "first_error": null,
+      "guarded_lift_elbow_ratio": 14.20681887406227,
+      "mean_multijoint_cosine": 0.2795962252540171,
+      "max_virtual_actual_lead": {
+        "shoulder_pan": 0.765660022100747,
+        "shoulder_lift": 2.0,
+        "elbow_flex": 2.0,
+        "wrist_flex": 0.7665792806003324,
+        "wrist_roll": 0.262585131738716,
+        "gripper": 0.4148953298582826
+      },
+      "dynamic_violations": 0
+    },
+    "new_data_driven": {
+      "ticks": 441,
+      "guarded_ticks": 441,
+      "hard_blocks": 0,
+      "first_error": null,
+      "guarded_lift_elbow_ratio": 2.3420310850449138,
+      "mean_multijoint_cosine": 0.4372376133769283,
+      "max_virtual_actual_lead": {
+        "shoulder_pan": 0.45879041457819447,
+        "shoulder_lift": 11.538951868267986,
+        "elbow_flex": 9.126013088035563,
+        "wrist_flex": 0.9387196773391864,
+        "wrist_roll": 0.4744530973712868,
+        "gripper": 0.4148953298582826
+      },
+      "dynamic_violations": 0
+    }
+  },
+  "reports\\real_pick_drop_realtime_v1\\tick_diagnostics_1786531878.jsonl": {
+    "old_2deg": {
+      "ticks": 818,
+      "guarded_ticks": 818,
+      "hard_blocks": 0,
+      "first_error": null,
+      "guarded_lift_elbow_ratio": 2.778844039961613,
+      "mean_multijoint_cosine": 0.299756796599353,
+      "max_virtual_actual_lead": {
+        "shoulder_pan": 0.4605675496686601,
+        "shoulder_lift": 2.0349578413516696,
+        "elbow_flex": 2.0162477554221567,
+        "wrist_flex": 0.2768491110107547,
+        "wrist_roll": 0.22830638934309544,
+        "gripper": 0.1912867774088184
+      },
+      "dynamic_violations": 0
+    },
+    "new_data_driven": {
+      "ticks": 818,
+      "guarded_ticks": 818,
+      "hard_blocks": 0,
+      "first_error": null,
+      "guarded_lift_elbow_ratio": 1.3218676098063726,
+      "mean_multijoint_cosine": 0.4396549028126082,
+      "max_virtual_actual_lead": {
+        "shoulder_pan": 0.532501649423212,
+        "shoulder_lift": 9.018326000816998,
+        "elbow_flex": 9.126013088035563,
+        "wrist_flex": 0.5299810617040563,
+        "wrist_roll": 0.24519906053549612,
+        "gripper": 0.29475673165079674
+      },
+      "dynamic_violations": 0
+    }
+  },
+  "dataset_41ep": {
+    "old_2deg": {
+      "guarded_ticks": 43768,
+      "hard_blocks": 0,
+      "raw_guarded_mae": 3.1255979609826787,
+      "dynamic_violations": 0
+    },
+    "new_data_driven": {
+      "guarded_ticks": 43768,
+      "hard_blocks": 0,
+      "raw_guarded_mae": 1.954025615541053,
+      "dynamic_violations": 0
+    }
+  },
+  "instrumented_teleop": {
+    "old_2deg": {
+      "ticks": 625,
+      "hard_blocks": 0,
+      "false_hard_block_rate": 0.0
+    },
+    "new_data_driven": {
+      "ticks": 625,
+      "hard_blocks": 0,
+      "false_hard_block_rate": 0.0
+    }
+  }
+}

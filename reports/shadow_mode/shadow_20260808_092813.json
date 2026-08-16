@@ -1,0 +1,250 @@
+{
+  "mode": "SHADOW",
+  "backend": "realistic_mujoco",
+  "real_robot_write_enabled": false,
+  "generated_at": 1786148896.1668887,
+  "task": "Pick up the cube and place it in the target area.",
+  "observation": {
+    "fixed_camera_valid": true,
+    "wrist_camera_valid": true,
+    "state_valid": true,
+    "schema_valid": true,
+    "invalid_reasons": []
+  },
+  "communication": {
+    "server_url": "http://100.75.147.72:8000",
+    "health_ok": true,
+    "request_latency_ms": 728.754796999965,
+    "inference_latency_ms": 704.8321090005629,
+    "round_trip_latency_ms": 18.02673100064567,
+    "error_kind": null,
+    "error_message": null
+  },
+  "vla": {
+    "raw_action": {
+      "shoulder_pan": -6.742679595947266,
+      "shoulder_lift": -88.15943908691406,
+      "elbow_flex": 89.89773559570312,
+      "wrist_flex": 44.89687728881836,
+      "wrist_roll": -4.290928840637207,
+      "gripper": 2.5051307678222656
+    },
+    "action_schema_valid": true,
+    "model_id": "./outputs/pilot/smolvla_cube_ext20k/checkpoints/015000/pretrained_model",
+    "backend": "smolvla"
+  },
+  "adapter": {
+    "mapped_action": {
+      "shoulder_pan": -6.742679595947266,
+      "shoulder_lift": -88.15943908691406,
+      "elbow_flex": 89.89773559570312,
+      "wrist_flex": 44.89687728881836,
+      "wrist_roll": -4.290928840637207,
+      "gripper": 2.5051307678222656
+    },
+    "warnings": []
+  },
+  "safety": {
+    "decision": "WOULD_CLAMP",
+    "reasons": [
+      "EXCESSIVE_STEP_CLAMPED: -88.16 -> -88.16 (임계값 5.16deg/step)",
+      "EXCESSIVE_STEP_CLAMPED: 89.90 -> 91.90 (임계값 5.73deg/step)"
+    ],
+    "would_clamp": true,
+    "safe_action": {
+      "shoulder_pan": -6.742679595947266,
+      "shoulder_lift": -88.1620611625039,
+      "elbow_flex": 91.89679567506539,
+      "wrist_flex": 44.89687728881836,
+      "wrist_roll": -4.290928840637207,
+      "gripper": 2.5051307678222656
+    },
+    "per_joint": {
+      "shoulder_pan": {
+        "joint": "shoulder_pan",
+        "raw_value": -6.742679595947266,
+        "safe_value": -6.742679595947266,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "shoulder_lift": {
+        "joint": "shoulder_lift",
+        "raw_value": -88.15943908691406,
+        "safe_value": -88.1620611625039,
+        "clamped": true,
+        "rejected": false,
+        "reasons": [
+          "EXCESSIVE_STEP_CLAMPED: -88.16 -> -88.16 (임계값 5.16deg/step)"
+        ]
+      },
+      "elbow_flex": {
+        "joint": "elbow_flex",
+        "raw_value": 89.89773559570312,
+        "safe_value": 91.89679567506539,
+        "clamped": true,
+        "rejected": false,
+        "reasons": [
+          "EXCESSIVE_STEP_CLAMPED: 89.90 -> 91.90 (임계값 5.73deg/step)"
+        ]
+      },
+      "wrist_flex": {
+        "joint": "wrist_flex",
+        "raw_value": 44.89687728881836,
+        "safe_value": 44.89687728881836,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "wrist_roll": {
+        "joint": "wrist_roll",
+        "raw_value": -4.290928840637207,
+        "safe_value": -4.290928840637207,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      },
+      "gripper": {
+        "joint": "gripper",
+        "raw_value": 2.5051307678222656,
+        "safe_value": 2.5051307678222656,
+        "clamped": false,
+        "rejected": false,
+        "reasons": []
+      }
+    }
+  },
+  "mujoco": {
+    "initial_state": {
+      "shoulder_pan": -6.373626373626373,
+      "shoulder_lift": -93.31868131868131,
+      "elbow_flex": 97.62637362637362,
+      "wrist_flex": 42.065934065934066,
+      "wrist_roll": -4.087912087912088,
+      "gripper": 1.2422360248447204
+    },
+    "final_state": {
+      "shoulder_pan": -6.373637704364193,
+      "shoulder_lift": -93.35228194238677,
+      "elbow_flex": 96.00399314990672,
+      "wrist_flex": 42.060928316401366,
+      "wrist_roll": -4.087702245304013,
+      "gripper": 1.2421074613121803
+    },
+    "realistic_layer_diagnostics": {
+      "shoulder_pan": {
+        "joint": "shoulder_pan",
+        "raw_action": -6.742679595947266,
+        "processed_action": -6.373626373626373,
+        "simulated_actual_state": -6.373626373626373,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "shoulder_lift": {
+        "joint": "shoulder_lift",
+        "raw_action": -88.1620611625039,
+        "processed_action": -93.31868131868131,
+        "simulated_actual_state": -93.31868131868131,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "elbow_flex": {
+        "joint": "elbow_flex",
+        "raw_action": 91.89679567506539,
+        "processed_action": 97.62637362637362,
+        "simulated_actual_state": 97.62637362637362,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": true,
+        "tracking_error": null
+      },
+      "wrist_flex": {
+        "joint": "wrist_flex",
+        "raw_action": 44.89687728881836,
+        "processed_action": 42.065934065934066,
+        "simulated_actual_state": 42.065934065934066,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "wrist_roll": {
+        "joint": "wrist_roll",
+        "raw_action": -4.290928840637207,
+        "processed_action": -4.087912087912088,
+        "simulated_actual_state": -4.087912087912088,
+        "command_delta": 0.0,
+        "deadband_applied": true,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      },
+      "gripper": {
+        "joint": "gripper",
+        "raw_action": 2.5051307678222656,
+        "processed_action": 1.2422360248447204,
+        "simulated_actual_state": 1.2422360248447204,
+        "command_delta": 0.0,
+        "deadband_applied": false,
+        "latency_applied_ms": 92.89707204179743,
+        "rate_limited": false,
+        "outside_historical_range": false,
+        "tracking_error": null
+      }
+    },
+    "processed_command": {
+      "shoulder_pan": -6.373626373626373,
+      "shoulder_lift": -93.31868131868131,
+      "elbow_flex": 97.62637362637362,
+      "wrist_flex": 42.065934065934066,
+      "wrist_roll": -4.087912087912088,
+      "gripper": 1.2422360248447204
+    },
+    "mechanical_violations": [],
+    "tracking_error_deg": {
+      "shoulder_pan": 1.1330737820003378e-05,
+      "shoulder_lift": 0.03360062370545336,
+      "elbow_flex": 1.6223804764669012,
+      "wrist_flex": 0.00500574953269961,
+      "wrist_roll": -0.00020984260807477284,
+      "gripper": 0.00012856353254009356
+    },
+    "max_abs_qvel": 1.102918791850019,
+    "validation_result": {
+      "passed": true,
+      "warnings": [],
+      "failures": [],
+      "checks": {
+        "final_state_finite": true,
+        "no_mechanical_violation": true,
+        "no_rate_anomaly": true,
+        "no_severe_oscillation": true,
+        "realistic_layer_complete": true,
+        "tracking_error_within_bounds": true,
+        "direction_consistent": true
+      }
+    }
+  },
+  "hardware": {
+    "real_follower_write_count": 0
+  },
+  "result": "SHADOW_PASS_WITH_CLAMP",
+  "result_reasons": [
+    "EXCESSIVE_STEP_CLAMPED: -88.16 -> -88.16 (임계값 5.16deg/step)",
+    "EXCESSIVE_STEP_CLAMPED: 89.90 -> 91.90 (임계값 5.73deg/step)"
+  ],
+  "session_id": "20260808_092813"
+}

@@ -1,0 +1,8 @@
+{
+  "stage": 1,
+  "verdict": "PASS",
+  "max_steps": 1,
+  "checkpoint": "/home/sunglee/Projects/physical-ai-dummy/outputs/pick_drop_v3_v4_combined69/smolvla_pick_drop_v3_v4_combined69_uniform_fresh/checkpoints/010000/pretrained_model",
+  "timestamp": 1786438560.7621322,
+  "report_path": "/home/sunglee/Projects/physical-ai-dummy/reports/real_follower_staged_safety_test_v1/reports/stage1_1786438560.json"
+}

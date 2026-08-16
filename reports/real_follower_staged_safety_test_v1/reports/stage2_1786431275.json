@@ -1,0 +1,185 @@
+{
+  "stage": 2,
+  "max_steps": 3,
+  "verdict": "PASS",
+  "stop_reason": null,
+  "steps": [
+    {
+      "step": 0,
+      "before_state_deg": {
+        "shoulder_pan": -4.087912087912088,
+        "shoulder_lift": -94.81318681318682,
+        "elbow_flex": 97.36263736263736,
+        "wrist_flex": 40.30769230769231,
+        "wrist_roll": -3.7362637362637363,
+        "gripper": 0.6901311249137336
+      },
+      "raw_action_deg": {
+        "shoulder_pan": -4.110689163208008,
+        "shoulder_lift": -98.62007141113281,
+        "elbow_flex": 94.59977722167969,
+        "wrist_flex": 39.683895111083984,
+        "wrist_roll": -3.7327041625976562,
+        "gripper": 1.4724349975585938
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": -4.110689163208008,
+        "shoulder_lift": -98.62007141113281,
+        "elbow_flex": 94.59977722167969,
+        "wrist_flex": 39.683895111083984,
+        "wrist_roll": -3.7327041625976562,
+        "gripper": 1.4724349975585938
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": -4.110689163208008,
+        "shoulder_lift": -98.62007141113281,
+        "elbow_flex": 94.59977722167969,
+        "wrist_flex": 39.683895111083984,
+        "wrist_roll": -3.7327041625976562,
+        "gripper": 1.4724349975585938
+      },
+      "after_state_deg": {
+        "shoulder_pan": -4.087912087912088,
+        "shoulder_lift": -98.15384615384616,
+        "elbow_flex": 96.74725274725274,
+        "wrist_flex": 40.30769230769231,
+        "wrist_roll": -3.7362637362637363,
+        "gripper": 1.173222912353347
+      },
+      "delta_deg": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": -3.340659340659343,
+        "elbow_flex": -0.6153846153846132,
+        "wrist_flex": 0.0,
+        "wrist_roll": 0.0,
+        "gripper": 0.48309178743961345
+      },
+      "write_error": null,
+      "step_error": null
+    },
+    {
+      "step": 1,
+      "before_state_deg": {
+        "shoulder_pan": -4.087912087912088,
+        "shoulder_lift": -98.15384615384616,
+        "elbow_flex": 96.74725274725274,
+        "wrist_flex": 40.30769230769231,
+        "wrist_roll": -3.7362637362637363,
+        "gripper": 1.173222912353347
+      },
+      "raw_action_deg": {
+        "shoulder_pan": -4.702951431274414,
+        "shoulder_lift": -101.8525390625,
+        "elbow_flex": 96.26020812988281,
+        "wrist_flex": 38.620361328125,
+        "wrist_roll": -4.110879421234131,
+        "gripper": 1.1720237731933594
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": -4.702951431274414,
+        "shoulder_lift": -101.8525390625,
+        "elbow_flex": 96.26020812988281,
+        "wrist_flex": 38.620361328125,
+        "wrist_roll": -4.110879421234131,
+        "gripper": 1.1720237731933594
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": -4.702951431274414,
+        "shoulder_lift": -101.8525390625,
+        "elbow_flex": 96.26020812988281,
+        "wrist_flex": 38.620361328125,
+        "wrist_roll": -4.110879421234131,
+        "gripper": 1.1720237731933594
+      },
+      "after_state_deg": {
+        "shoulder_pan": -4.0,
+        "shoulder_lift": -101.23076923076923,
+        "elbow_flex": 96.92307692307692,
+        "wrist_flex": 39.78021978021978,
+        "wrist_roll": -3.7362637362637363,
+        "gripper": 1.173222912353347
+      },
+      "delta_deg": {
+        "shoulder_pan": 0.0879120879120876,
+        "shoulder_lift": -3.076923076923066,
+        "elbow_flex": 0.1758241758241752,
+        "wrist_flex": -0.5274725274725256,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "write_error": null,
+      "step_error": null
+    },
+    {
+      "step": 2,
+      "before_state_deg": {
+        "shoulder_pan": -4.0,
+        "shoulder_lift": -101.23076923076923,
+        "elbow_flex": 96.92307692307692,
+        "wrist_flex": 39.78021978021978,
+        "wrist_roll": -3.7362637362637363,
+        "gripper": 1.173222912353347
+      },
+      "raw_action_deg": {
+        "shoulder_pan": -3.749420166015625,
+        "shoulder_lift": -97.33971405029297,
+        "elbow_flex": 93.34852600097656,
+        "wrist_flex": 39.66676330566406,
+        "wrist_roll": -4.05445671081543,
+        "gripper": 0.8180923461914062
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": -3.749420166015625,
+        "shoulder_lift": -97.33971405029297,
+        "elbow_flex": 93.34852600097656,
+        "wrist_flex": 39.66676330566406,
+        "wrist_roll": -4.05445671081543,
+        "gripper": 0.8180923461914062
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": -3.749420166015625,
+        "shoulder_lift": -97.33971405029297,
+        "elbow_flex": 93.34852600097656,
+        "wrist_flex": 39.66676330566406,
+        "wrist_roll": -4.05445671081543,
+        "gripper": 0.8180923461914062
+      },
+      "after_state_deg": {
+        "shoulder_pan": -4.0,
+        "shoulder_lift": -97.97802197802197,
+        "elbow_flex": 95.86813186813187,
+        "wrist_flex": 39.956043956043956,
+        "wrist_roll": -3.7362637362637363,
+        "gripper": 1.1042097998619738
+      },
+      "delta_deg": {
+        "shoulder_pan": 0.0,
+        "shoulder_lift": 3.2527472527472554,
+        "elbow_flex": -1.0549450549450512,
+        "wrist_flex": 0.1758241758241752,
+        "wrist_roll": 0.0,
+        "gripper": -0.06901311249137332
+      },
+      "write_error": null,
+      "step_error": null
+    }
+  ],
+  "real_follower_write_count": 3,
+  "checkpoint": "/home/sunglee/Projects/physical-ai-dummy/outputs/pick_drop_v3_v4_combined69/smolvla_pick_drop_v3_v4_combined69_uniform_fresh/checkpoints/010000/pretrained_model",
+  "task": "Pick up the cube and drop it into the bin."
+}

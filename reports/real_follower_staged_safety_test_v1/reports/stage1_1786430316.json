@@ -1,0 +1,69 @@
+{
+  "stage": 1,
+  "max_steps": 1,
+  "verdict": "PASS",
+  "stop_reason": null,
+  "steps": [
+    {
+      "step": 0,
+      "before_state_deg": {
+        "shoulder_pan": -3.3846153846153846,
+        "shoulder_lift": -98.15384615384616,
+        "elbow_flex": 97.18681318681318,
+        "wrist_flex": 42.417582417582416,
+        "wrist_roll": -3.8241758241758244,
+        "gripper": 0.0
+      },
+      "raw_action_deg": {
+        "shoulder_pan": -2.5052261352539062,
+        "shoulder_lift": -98.15115356445312,
+        "elbow_flex": 96.11692810058594,
+        "wrist_flex": 40.588966369628906,
+        "wrist_roll": -3.953765869140625,
+        "gripper": 0.16390037536621094
+      },
+      "adapter_valid": true,
+      "adapter_invalid_reason": null,
+      "safety_decision": "ACCEPT",
+      "safety_reasons": [],
+      "would_be_safe_action_deg": {
+        "shoulder_pan": -2.5052261352539062,
+        "shoulder_lift": -98.15115356445312,
+        "elbow_flex": 96.11692810058594,
+        "wrist_flex": 40.588966369628906,
+        "wrist_roll": -3.953765869140625,
+        "gripper": 0.16390037536621094
+      },
+      "written": true,
+      "sent_action_deg": {
+        "shoulder_pan": -2.5052261352539062,
+        "shoulder_lift": -98.15115356445312,
+        "elbow_flex": 96.11692810058594,
+        "wrist_flex": 40.588966369628906,
+        "wrist_roll": -3.953765869140625,
+        "gripper": 0.16390037536621094
+      },
+      "after_state_deg": {
+        "shoulder_pan": -3.120879120879121,
+        "shoulder_lift": -98.15384615384616,
+        "elbow_flex": 97.0989010989011,
+        "wrist_flex": 41.53846153846154,
+        "wrist_roll": -3.8241758241758244,
+        "gripper": 0.0
+      },
+      "delta_deg": {
+        "shoulder_pan": 0.2637362637362637,
+        "shoulder_lift": 0.0,
+        "elbow_flex": -0.0879120879120876,
+        "wrist_flex": -0.879120879120876,
+        "wrist_roll": 0.0,
+        "gripper": 0.0
+      },
+      "write_error": null,
+      "step_error": null
+    }
+  ],
+  "real_follower_write_count": 1,
+  "checkpoint": "/home/sunglee/Projects/physical-ai-dummy/outputs/pick_drop_v3_v4_combined69/smolvla_pick_drop_v3_v4_combined69_uniform_fresh/checkpoints/010000/pretrained_model",
+  "task": "Pick up the cube and drop it into the bin."
+}

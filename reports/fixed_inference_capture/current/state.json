@@ -1,0 +1,22 @@
+{
+  "state": [
+    -2.065934065934066,
+    -108.17582417582418,
+    96.48351648351648,
+    56.13186813186813,
+    0.9230769230769231,
+    0.0
+  ],
+  "joint_names": [
+    "shoulder_pan",
+    "shoulder_lift",
+    "elbow_flex",
+    "wrist_flex",
+    "wrist_roll",
+    "gripper"
+  ],
+  "timestamp": "2026-08-15T00:42:41.313111+00:00",
+  "workspace_image_path": "reports/fixed_inference_capture/current/workspace.png",
+  "wrist_image_path": "reports/fixed_inference_capture/current/wrist.png",
+  "task": "Pick up the blue cube, place it inside the blue rectangle labeled \"BLUE\", then return to the starting pose."
+}
